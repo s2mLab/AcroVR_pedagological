@@ -50,7 +50,7 @@ public class MovementF : MonoBehaviour
 	System.IntPtr hMainUnityWnd;
 
 	MainParameters.StrucNodes[] nodesFromDataFile;
-	float durationFromDataFile;
+	double durationFromDataFile;
 
 	bool enableSymetricLeftRight;		// True = les deux côtés gauche et droit sont modifié en symétrie, false = asymétrique
 
@@ -98,7 +98,7 @@ public class MovementF : MonoBehaviour
 
 		// Vérifier le type d'interpolation désiré
 
-		MainParameters.Instance.joints.nodes[ddl].interpolation.slope = new float[] { 0, 0 };
+		MainParameters.Instance.joints.nodes[ddl].interpolation.slope = new double[] { 0, 0 };
 		if (value <= 0)                     // Quintic
 			MainParameters.Instance.joints.nodes[ddl].interpolation.type = MainParameters.InterpolationType.Quintic;
 		else                                // Spline cubique
@@ -109,9 +109,9 @@ public class MovementF : MonoBehaviour
 			// Pour les splines cubiques, le nombre de noeuds (intervalles) est fixe et spécifié par l'utilisateur (entre 3 et 8)
 			// Initialisation des vecteurs temps et position des noeuds, selon le nombre de noeuds spécifié
 
-			float period = MainParameters.Instance.joints.duration / numIntervals;
-			MainParameters.Instance.joints.nodes[ddl].T = new float[numIntervals + 1];
-			float[] q = new float[numIntervals + 1];
+			double period = MainParameters.Instance.joints.duration / numIntervals;
+			MainParameters.Instance.joints.nodes[ddl].T = new double[numIntervals + 1];
+			double[] q = new double[numIntervals + 1];
 			for (int i = 0; i < numIntervals + 1; i++)
 			{
 				MainParameters.Instance.joints.nodes[ddl].T[i] = period * i;
@@ -251,8 +251,8 @@ public class MovementF : MonoBehaviour
 			{
 				nodes[nDDL].ddl = i;
 				nodes[nDDL].name = joints.lagrangianModel.ddlName[i - 1];
-				nodes[nDDL].T = new float[3] { joints.duration * 0.25f, joints.duration * 0.5f, joints.duration * 0.75f };
-				nodes[nDDL].Q = new float[3] { 0, 0, 0 };
+				nodes[nDDL].T = new double[3] { joints.duration * 0.25f, joints.duration * 0.5f, joints.duration * 0.75f };
+				nodes[nDDL].Q = new double[3] { 0, 0, 0 };
 				nodes[nDDL].interpolation = interpolation;
 				nodes[nDDL].ddlOppositeSide = -1;
 			}
@@ -396,8 +396,8 @@ public class MovementF : MonoBehaviour
 		// Ajouter le noeud à la liste des noeuds
 
 		int ddl = GraphManager.Instance.ddlUsed;
-		float[] T = new float[MainParameters.Instance.joints.nodes[ddl].T.Length + 1];
-		float[] Q = new float[MainParameters.Instance.joints.nodes[ddl].Q.Length + 1];
+		double[] T = new double[MainParameters.Instance.joints.nodes[ddl].T.Length + 1];
+		double[] Q = new double[MainParameters.Instance.joints.nodes[ddl].Q.Length + 1];
 		for (int i = 0; i <= node; i++)
 		{
 			T[i] = MainParameters.Instance.joints.nodes[ddl].T[i];
@@ -410,12 +410,12 @@ public class MovementF : MonoBehaviour
 			T[i + 1] = MainParameters.Instance.joints.nodes[ddl].T[i];
 			Q[i + 1] = MainParameters.Instance.joints.nodes[ddl].Q[i];
 		}
-		MainParameters.Instance.joints.nodes[ddl].T = MathFunc.MatrixCopy(T);
-		MainParameters.Instance.joints.nodes[ddl].Q = MathFunc.MatrixCopy(Q);
+		MainParameters.Instance.joints.nodes[ddl].T = Matrix.Copy(T);
+		MainParameters.Instance.joints.nodes[ddl].Q = Matrix.Copy(Q);
 
 		// Interpolation et affichage des positions des angles pour l'articulation sélectionnée. Afficher aussi la silhouette au temps du noeud sélectionné
 
-		int frame = (int)Mathf.Round(GraphManager.Instance.mousePosSaveX / MainParameters.Instance.joints.lagrangianModel.dt);
+		int frame = (int)Math.Round(GraphManager.Instance.mousePosSaveX / MainParameters.Instance.joints.lagrangianModel.dt);
 		InterpolationAndDisplayDDL(ddl, ddl, frame, false);
 
 		// Désactiver l'action du clic du bouton droit de la souris
@@ -446,8 +446,8 @@ public class MovementF : MonoBehaviour
 
 		// Effacer le noeud de la liste des noeuds
 
-		float[] T = new float[MainParameters.Instance.joints.nodes[ddl].T.Length - 1];
-		float[] Q = new float[MainParameters.Instance.joints.nodes[ddl].Q.Length - 1];
+		double[] T = new double[MainParameters.Instance.joints.nodes[ddl].T.Length - 1];
+		double[] Q = new double[MainParameters.Instance.joints.nodes[ddl].Q.Length - 1];
 		for (int i = 0; i < node; i++)
 		{
 			T[i] = MainParameters.Instance.joints.nodes[ddl].T[i];
@@ -458,12 +458,12 @@ public class MovementF : MonoBehaviour
 			T[i - 1] = MainParameters.Instance.joints.nodes[ddl].T[i];
 			Q[i - 1] = MainParameters.Instance.joints.nodes[ddl].Q[i];
 		}
-		MainParameters.Instance.joints.nodes[ddl].T = MathFunc.MatrixCopy(T);
-		MainParameters.Instance.joints.nodes[ddl].Q = MathFunc.MatrixCopy(Q);
+		MainParameters.Instance.joints.nodes[ddl].T = Matrix.Copy(T);
+		MainParameters.Instance.joints.nodes[ddl].Q = Matrix.Copy(Q);
 
 		// Interpolation et affichage des positions des angles pour l'articulation sélectionnée. Afficher aussi la silhouette au temps du noeud sélectionné
 
-		int frame = (int)Mathf.Round(GraphManager.Instance.mousePosSaveX / MainParameters.Instance.joints.lagrangianModel.dt);
+		int frame = (int)Math.Round(GraphManager.Instance.mousePosSaveX / MainParameters.Instance.joints.lagrangianModel.dt);
 		InterpolationAndDisplayDDL(ddl, ddl, frame, false);
 
 		// Désactiver l'action du clic du bouton droit de la souris
@@ -506,11 +506,11 @@ public class MovementF : MonoBehaviour
 		{
 			nodesTo[i].ddl = nodesFrom[i].ddl;
 			nodesTo[i].name = nodesFrom[i].name;
-			nodesTo[i].T = MathFunc.MatrixCopy(nodesFrom[i].T);
-			nodesTo[i].Q = MathFunc.MatrixCopy(nodesFrom[i].Q);
+			nodesTo[i].T = Matrix.Copy(nodesFrom[i].T);
+			nodesTo[i].Q = Matrix.Copy(nodesFrom[i].Q);
 			nodesTo[i].interpolation.type = nodesFrom[i].interpolation.type;
 			nodesTo[i].interpolation.numIntervals = nodesFrom[i].interpolation.numIntervals;
-			nodesTo[i].interpolation.slope = MathFunc.MatrixCopy(nodesFrom[i].interpolation.slope);
+			nodesTo[i].interpolation.slope = Matrix.Copy(nodesFrom[i].interpolation.slope);
 			nodesTo[i].ddlOppositeSide = nodesFrom[i].ddlOppositeSide;
 		}
 		return nodesTo;
@@ -526,11 +526,11 @@ public class MovementF : MonoBehaviour
 			// Copier l'articulation sélectionnée (angles interpolés et noeuds) dans l'articulation opposé associé
 
 			int ddlOppSide = MainParameters.Instance.joints.nodes[ddlFrom].ddlOppositeSide;
-			MainParameters.Instance.joints.nodes[ddlOppSide].T = MathFunc.MatrixCopy(MainParameters.Instance.joints.nodes[ddlFrom].T);
-			MainParameters.Instance.joints.nodes[ddlOppSide].Q = MathFunc.MatrixCopy(MainParameters.Instance.joints.nodes[ddlFrom].Q);
+			MainParameters.Instance.joints.nodes[ddlOppSide].T = Matrix.Copy(MainParameters.Instance.joints.nodes[ddlFrom].T);
+			MainParameters.Instance.joints.nodes[ddlOppSide].Q = Matrix.Copy(MainParameters.Instance.joints.nodes[ddlFrom].Q);
 			MainParameters.Instance.joints.nodes[ddlOppSide].interpolation.type = MainParameters.Instance.joints.nodes[ddlFrom].interpolation.type;
 			MainParameters.Instance.joints.nodes[ddlOppSide].interpolation.numIntervals = MainParameters.Instance.joints.nodes[ddlFrom].interpolation.numIntervals;
-			MainParameters.Instance.joints.nodes[ddlOppSide].interpolation.slope = MathFunc.MatrixCopy(MainParameters.Instance.joints.nodes[ddlFrom].interpolation.slope);
+			MainParameters.Instance.joints.nodes[ddlOppSide].interpolation.slope = Matrix.Copy(MainParameters.Instance.joints.nodes[ddlFrom].interpolation.slope);
 			for (int i = 0; i <= MainParameters.Instance.joints.q0.GetUpperBound(1); i++)
 				MainParameters.Instance.joints.q0[ddlOppSide, i] = MainParameters.Instance.joints.q0[ddlFrom, i];
 		}
@@ -558,8 +558,8 @@ public class MovementF : MonoBehaviour
 		// Initialisation des vecteurs contenant les temps et les positions des angles des articulations interpolés
 
 		int n = (int)(MainParameters.Instance.joints.duration / MainParameters.Instance.joints.lagrangianModel.dt) + 1;
-		float[] t0 = new float[n];
-		float[,] q0 = new float[MainParameters.Instance.joints.lagrangianModel.nDDL, n];
+		double[] t0 = new double[n];
+		double[,] q0 = new double[MainParameters.Instance.joints.lagrangianModel.nDDL, n];
 
 		// Interpolation des positions des angles des articulations à traiter
 
@@ -570,8 +570,8 @@ public class MovementF : MonoBehaviour
 
 		if (ddl < 0)				// Toutes les articulations
 		{
-			MainParameters.Instance.joints.t0 = MathFunc.MatrixCopy(t0);
-			MainParameters.Instance.joints.q0 = MathFunc.MatrixCopy(q0);
+			MainParameters.Instance.joints.t0 = Matrix.Copy(t0);
+			MainParameters.Instance.joints.q0 = Matrix.Copy(q0);
 		}
 		else						// Seulement une articulation
 		{

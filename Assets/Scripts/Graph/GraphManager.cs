@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -26,23 +27,23 @@ public class GraphManager : MonoBehaviour
 	public GameObject panelMoveErrMsg;
 
 	public int ddlUsed = 0;
-	public float mousePosSaveX;
-	public float mousePosSaveY;
+	public double mousePosSaveX;
+	public double mousePosSaveY;
 	public bool mouseTracking = false;
 	public bool mouseRightButtonON = false;
 	public bool mouseDisableLastButton = false;
 
-	public float axisXmin = 0;
-	public float axisXmax = 0;
-	public float axisYmin = 0;
-	public float axisYmax = 0;
-	public float axisXmaxDefault = 0;
-	public float axisYminDefault = 0;
-	public float axisYmaxDefault = 0;
+	public double axisXmin = 0;
+	public double axisXmax = 0;
+	public double axisYmin = 0;
+	public double axisYmax = 0;
+	public double axisXmaxDefault = 0;
+	public double axisYminDefault = 0;
+	public double axisYmaxDefault = 0;
 
 	public GraphChart graph;
-	float q0MinCurve0;
-	float q0MaxCurve0;
+	double q0MinCurve0;
+	double q0MaxCurve0;
 	string[] dataCategories;
 	string[] nodesCategories;
 	string nodesTemp1Category;
@@ -54,9 +55,9 @@ public class GraphManager : MonoBehaviour
 
 	int nodeUsed = 0;
 	int numNodes = 0;
-	float radToDeg = 180 / Mathf.PI;
-	float factorGraphRatioX = 0;            // Facteurs relatifs qui tient compte du ratio X vs Y du graphique, dont les unités sont similaire dans les 2 coordonnées
-	float factorGraphRatioY = 0;
+	double radToDeg = 180 / Mathf.PI;
+	double factorGraphRatioX = 0;            // Facteurs relatifs qui tient compte du ratio X vs Y du graphique, dont les unités sont similaire dans les 2 coordonnées
+	double factorGraphRatioY = 0;
 
 	double mousePosX;
 	double mousePosY;
@@ -167,16 +168,21 @@ public class GraphManager : MonoBehaviour
 
 				// Conserver le temps du nouveau noeud, si type d'interpolation est Quintic
 
-				MainParameters.Instance.joints.nodes[ddlUsed].T[nodeUsed] = (float)mousePosX;
+				MainParameters.Instance.joints.nodes[ddlUsed].T[nodeUsed] = (double)mousePosX;
 			}
 
 			// Conserver la position de l'angle du nouveau noeud
 
-			MainParameters.Instance.joints.nodes[ddlUsed].Q[nodeUsed] = (float)mousePosY / radToDeg;
+			MainParameters.Instance.joints.nodes[ddlUsed].Q[nodeUsed] = (double)mousePosY / radToDeg;
 
 			// Interpolation et affichage des positions des angles pour l'articulation sélectionnée. Afficher aussi la silhouette au temps du noeud sélectionné
 
-			MovementF.Instance.InterpolationAndDisplayDDL(ddlUsed, ddlUsed, (int)Mathf.Round(MainParameters.Instance.joints.nodes[ddlUsed].T[nodeUsed] / MainParameters.Instance.joints.lagrangianModel.dt), false);
+			MovementF.Instance.InterpolationAndDisplayDDL(
+				ddlUsed, 
+				ddlUsed, 
+				(int)Mathf.Round((float)MainParameters.Instance.joints.nodes[ddlUsed].T[nodeUsed] / (float)MainParameters.Instance.joints.lagrangianModel.dt), 
+				false
+			);
 		}
 
 		// Bouton droit de la souris appuyé
@@ -185,8 +191,8 @@ public class GraphManager : MonoBehaviour
 		{
 			mouseRightButtonON = true;
 
-			mousePosSaveX = (float)mousePosX;
-			mousePosSaveY = (float)mousePosY;
+			mousePosSaveX = (double)mousePosX;
+			mousePosSaveY = (double)mousePosY;
 
 			// Type d'interpolation est Quintic => ajouter/effacer un noeud et autres actions
 
@@ -225,12 +231,14 @@ public class GraphManager : MonoBehaviour
 				graph.DataSource.StartBatch();
 				graph.DataSource.ClearCategory(dataTempCategory);
 				graph.DataSource.EndBatch();
-				float slope = ((float)mousePosY / radToDeg - MainParameters.Instance.joints.nodes[ddlUsed].Q[nodeUsed]) / ((float)mousePosX - MainParameters.Instance.joints.nodes[ddlUsed].T[nodeUsed]);
+				double slope = ((double)mousePosY / radToDeg - MainParameters.Instance.joints.nodes[ddlUsed].Q[nodeUsed]) / ((double)mousePosX - MainParameters.Instance.joints.nodes[ddlUsed].T[nodeUsed]);
 				if (nodeUsed <= 0)
 					MainParameters.Instance.joints.nodes[ddlUsed].interpolation.slope[0] = slope;
 				else
 					MainParameters.Instance.joints.nodes[ddlUsed].interpolation.slope[1] = slope;
-				int frame = (int)Mathf.Round(MainParameters.Instance.joints.nodes[ddlUsed].T[nodeUsed] / MainParameters.Instance.joints.lagrangianModel.dt);
+				int frame = (int)Mathf.Round(
+					(float)MainParameters.Instance.joints.nodes[ddlUsed].T[nodeUsed] / (float)MainParameters.Instance.joints.lagrangianModel.dt
+				);
 				MovementF.Instance.InterpolationAndDisplayDDL(ddlUsed, ddlUsed, frame, false);
 				mouseRightButtonON = false;
 			}
@@ -286,9 +294,9 @@ public class GraphManager : MonoBehaviour
 		// Ajouter toutes les données dans la nouvelle courbe Data
 		// Calculer les valeurs minimum et maximum
 
-		float q0Min = 360;
-		float q0Max = -360;
-		float value;
+		double q0Min = 360;
+		double q0Max = -360;
+		double value;
 		int t0Length = MainParameters.Instance.joints.t0.Length;
 		for (int i = 0; i < t0Length; i++)
 		{
@@ -342,12 +350,12 @@ public class GraphManager : MonoBehaviour
 
 		if (axisRange)
 		{
-			axisXmin = Mathf.Round(MainParameters.Instance.joints.t0[0] - 0.5f);
-			axisXmax = Mathf.Round(MainParameters.Instance.joints.t0[t0Length - 1] + 0.5f);
+			axisXmin = Math.Round(MainParameters.Instance.joints.t0[0] - 0.5f);
+			axisXmax = Math.Round(MainParameters.Instance.joints.t0[t0Length - 1] + 0.5f);
 			axisXmaxDefault = axisXmax;
 			graph.DataSource.HorizontalViewOrigin = axisXmin;
 			graph.DataSource.HorizontalViewSize = axisXmax - axisXmin;
-			factorGraphRatioX = graph.WidthRatio / (float)graph.DataSource.HorizontalViewSize;
+			factorGraphRatioX = graph.WidthRatio / (double)graph.DataSource.HorizontalViewSize;
 			if (curve <= 0)
 			{
 				q0MinCurve0 = q0Min;
@@ -355,25 +363,25 @@ public class GraphManager : MonoBehaviour
 			}
 			else
 			{
-				q0Min = Mathf.Min(q0Min, q0MinCurve0);
-				q0Max = Mathf.Max(q0Max, q0MaxCurve0);
+				q0Min = Math.Min(q0Min, q0MinCurve0);
+				q0Max = Math.Max(q0Max, q0MaxCurve0);
 			}
-			axisYmin = Mathf.Round((q0Min - 30) / 10) * 10;
-			axisYmax = Mathf.Round((q0Max + 30) / 10) * 10;
+			axisYmin = Math.Round((q0Min - 30) / 10) * 10;
+			axisYmax = Math.Round((q0Max + 30) / 10) * 10;
 			axisYminDefault = axisYmin;
 			axisYmaxDefault = axisYmax;
 			graph.DataSource.VerticalViewOrigin = axisYmin;
 			graph.DataSource.VerticalViewSize = axisYmax - axisYmin;
-			factorGraphRatioY = graph.HeightRatio / (float)graph.DataSource.VerticalViewSize;
+			factorGraphRatioY = graph.HeightRatio / (double)graph.DataSource.VerticalViewSize;
 		}
 		else
 		{
 			graph.DataSource.HorizontalViewOrigin = axisXmin;
 			graph.DataSource.HorizontalViewSize = axisXmax - axisXmin;
-			factorGraphRatioX = graph.WidthRatio / (float)graph.DataSource.HorizontalViewSize;
+			factorGraphRatioX = graph.WidthRatio / (double)graph.DataSource.HorizontalViewSize;
 			graph.DataSource.VerticalViewOrigin = axisYmin;
 			graph.DataSource.VerticalViewSize = axisYmax - axisYmin;
-			factorGraphRatioY = graph.HeightRatio / (float)graph.DataSource.VerticalViewSize;
+			factorGraphRatioY = graph.HeightRatio / (double)graph.DataSource.VerticalViewSize;
 		}
 		graph.DataSource.EndBatch();
 	}
@@ -391,15 +399,15 @@ public class GraphManager : MonoBehaviour
 
 		// Trouver le noeud le plus près de la position de la souris (en tenant compte du ratio X vs Y du graphique), ça sera ce noeud qui sera modifié
 
-		mousePosSaveX = (float)mousePosX;
-		mousePosSaveY = (float)mousePosY;
+		mousePosSaveX = (double)mousePosX;
+		mousePosSaveY = (double)mousePosY;
 		nodeUsed = FindNearestNode();
 
 		// Ajouter les noeuds dans la nouvelle courbe Nodes et NodesTemp2
 
 		for (int i = 0; i < numNodes; i++)
 		{
-			float value = MainParameters.Instance.joints.nodes[ddlUsed].Q[i] * radToDeg;
+			double value = MainParameters.Instance.joints.nodes[ddlUsed].Q[i] * radToDeg;
 			if (MainParameters.Instance.joints.nodes[ddlUsed].T[i] <= axisXmax && value >= axisYmin && value <= axisYmax)
 			{
 				if (i != nodeUsed)
@@ -423,7 +431,7 @@ public class GraphManager : MonoBehaviour
 		graph.DataSource.ClearCategory(nodesCategories[0]);
 		for (int i = 0; i < MainParameters.Instance.joints.nodes[ddlUsed].T.Length; i++)
 		{
-			float value = MainParameters.Instance.joints.nodes[ddlUsed].Q[i] * radToDeg;
+			double value = MainParameters.Instance.joints.nodes[ddlUsed].Q[i] * radToDeg;
 			if (MainParameters.Instance.joints.nodes[ddlUsed].T[i] <= axisXmax && value >= axisYmin && value <= axisYmax)
 				graph.DataSource.AddPointToCategory(nodesCategories[0], MainParameters.Instance.joints.nodes[ddlUsed].T[i], value);
 		}
@@ -434,7 +442,7 @@ public class GraphManager : MonoBehaviour
 	// =================================================================================================================================================================
 	/// <summary> Afficher le curseur qui indique le temps. </summary>
 
-	//public void DisplayCursor(float t)			// Fonction a modifié (corrigé), si jamais elle vient a être utilisé dans le futur
+	//public void DisplayCursor(double t)			// Fonction a modifié (corrigé), si jamais elle vient a être utilisé dans le futur
 	//{
 	//	if (graph == null) return;
 	//	graph.DataSource.StartBatch();
@@ -455,11 +463,11 @@ public class GraphManager : MonoBehaviour
 	public int FindNearestNode()
 	{
 		int node = 0;
-		float minDistanceToNode = 99999;
+		double minDistanceToNode = 99999;
 		for (int i = 0; i < MainParameters.Instance.joints.nodes[ddlUsed].T.Length; i++)
 		{
-			float distanceToNode = Mathf.Pow((mousePosSaveX - MainParameters.Instance.joints.nodes[ddlUsed].T[i]) * factorGraphRatioX, 2) +
-				Mathf.Pow((mousePosSaveY - MainParameters.Instance.joints.nodes[ddlUsed].Q[i] * radToDeg) * factorGraphRatioY, 2);
+			double distanceToNode = Math.Pow((mousePosSaveX - MainParameters.Instance.joints.nodes[ddlUsed].T[i]) * factorGraphRatioX, 2) +
+				Math.Pow((mousePosSaveY - MainParameters.Instance.joints.nodes[ddlUsed].Q[i] * radToDeg) * factorGraphRatioY, 2);
 			if (distanceToNode < minDistanceToNode)
 			{
 				node = i;
@@ -502,15 +510,15 @@ public class GraphManager : MonoBehaviour
 	// =================================================================================================================================================================
 	/// <summary> Afficher une ou plusieurs courbes dans le graphique spécifié. </summary>
 
-	public void DisplayCurves(GraphChart graphCurves, float[] t, float[] data)
+	public void DisplayCurves(GraphChart graphCurves, double[] t, double[] data)
 	{
-		float[,] data1 = new float[data.GetUpperBound(0) + 1,1];
+		double[,] data1 = new double[data.GetUpperBound(0) + 1,1];
 		for (int i = 0; i <= data.GetUpperBound(0); i++)
 			data1[i,0] = data[i];
 		DisplayCurves(graphCurves, t, data1);
 	}
 
-	public void DisplayCurves(GraphChart graphCurves, float[] t, float[,] data)
+	public void DisplayCurves(GraphChart graphCurves, double[] t, double[,] data)
 	{
 		if (graphCurves == null) return;
 		graphCurves.DataSource.StartBatch();
@@ -523,10 +531,10 @@ public class GraphManager : MonoBehaviour
 		// Ajouter toutes les données dans la ou les nouvelles courbes Data
 		// Calculer les valeurs minimum et maximum
 
-		float tMin = 999999;
-		float tMax = -999999;
-		float dataMin = 999999;
-		float dataMax = -999999;
+		double tMin = 999999;
+		double tMax = -999999;
+		double dataMin = 999999;
+		double dataMax = -999999;
 		for (int i = 0; i <= data.GetUpperBound(1); i++)
 		{
 			for (int j = 0; j < t.Length; j++)

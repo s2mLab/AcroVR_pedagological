@@ -3,7 +3,7 @@
 
 public class GenerateQ0
 {
-	public GenerateQ0(LagrangianModelManager.StrucLagrangianModel lagrangianModel, float tf, int qi, out float[] t0, out float[,] q0)
+	public GenerateQ0(LagrangianModelManager.StrucLagrangianModel lagrangianModel, double tf, int qi, out double[] t0, out double[,] q0)
 	{
 		// Initialisation des DDL à traiter
 
@@ -15,15 +15,15 @@ public class GenerateQ0
 
 		// Initialisation des vecteurs contenant les temps et les positions des angles des articulations traités
 
-		float[] qd;
+		double[] qd;
 		int n = (int)(tf / lagrangianModel.dt) + 1;
-		t0 = new float[n];
-		q0 = new float[lagrangianModel.nDDL, n];
+		t0 = new double[n];
+		q0 = new double[lagrangianModel.nDDL, n];
 
 		// Interpolation des positions des angles des articulations pour chaque intervalle de temps
 
 		int i = 0;
-		for (float interval = 0; interval <= tf; interval += lagrangianModel.dt)
+		for (double interval = 0; interval <= tf; interval += lagrangianModel.dt)
 		{
 			t0[i] = interval;
 			Trajectory trajectory = new Trajectory(lagrangianModel, interval, ni, out qd);

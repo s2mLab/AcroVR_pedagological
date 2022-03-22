@@ -51,7 +51,7 @@ public class DataFileManager : MonoBehaviour
             values = Regex.Split(fileLines[i], ":");
             if (values[0].Contains("Duration"))
             {
-                jointsTemp.duration = float.Parse(values[1]);
+                jointsTemp.duration = double.Parse(values[1]);
 				if (jointsTemp.duration == -999)
                     jointsTemp.duration = MainParameters.Instance.durationDefault;
             }
@@ -63,37 +63,37 @@ public class DataFileManager : MonoBehaviour
             }
             else if (values[0].Contains("VerticalSpeed"))
             {
-                jointsTemp.takeOffParam.verticalSpeed = float.Parse(values[1]);
+                jointsTemp.takeOffParam.verticalSpeed = double.Parse(values[1]);
                 if (jointsTemp.takeOffParam.verticalSpeed == -999)
                     jointsTemp.takeOffParam.verticalSpeed = MainParameters.Instance.takeOffParamDefault.verticalSpeed;
             }
             else if (values[0].Contains("AnteroposteriorSpeed"))
             {
-                jointsTemp.takeOffParam.anteroposteriorSpeed = float.Parse(values[1]);
+                jointsTemp.takeOffParam.anteroposteriorSpeed = double.Parse(values[1]);
                 if (jointsTemp.takeOffParam.anteroposteriorSpeed == -999)
                     jointsTemp.takeOffParam.anteroposteriorSpeed = MainParameters.Instance.takeOffParamDefault.anteroposteriorSpeed;
             }
             else if (values[0].Contains("SomersaultSpeed"))
             {
-                jointsTemp.takeOffParam.somersaultSpeed = float.Parse(values[1]);
+                jointsTemp.takeOffParam.somersaultSpeed = double.Parse(values[1]);
                 if (jointsTemp.takeOffParam.somersaultSpeed == -999)
                     jointsTemp.takeOffParam.somersaultSpeed = MainParameters.Instance.takeOffParamDefault.somersaultSpeed;
             }
             else if (values[0].Contains("TwistSpeed"))
             {
-                jointsTemp.takeOffParam.twistSpeed = float.Parse(values[1]);
+                jointsTemp.takeOffParam.twistSpeed = double.Parse(values[1]);
                 if (jointsTemp.takeOffParam.twistSpeed == -999)
                     jointsTemp.takeOffParam.twistSpeed = MainParameters.Instance.takeOffParamDefault.twistSpeed;
             }
             else if (values[0].Contains("Tilt"))
             {
-                jointsTemp.takeOffParam.tilt = float.Parse(values[1]);
+                jointsTemp.takeOffParam.tilt = double.Parse(values[1]);
                 if (jointsTemp.takeOffParam.tilt == -999)
                     jointsTemp.takeOffParam.tilt = MainParameters.Instance.takeOffParamDefault.tilt;
             }
             else if (values[0].Contains("Rotation"))
             {
-                jointsTemp.takeOffParam.rotation = float.Parse(values[1]);
+                jointsTemp.takeOffParam.rotation = double.Parse(values[1]);
                 if (jointsTemp.takeOffParam.rotation == -999)
                     jointsTemp.takeOffParam.rotation = MainParameters.Instance.takeOffParamDefault.rotation;
             }
@@ -117,8 +117,8 @@ public class DataFileManager : MonoBehaviour
 					else
 						jointsTemp.nodes[ddlNum].interpolation.type = MainParameters.InterpolationType.Quintic;
 					jointsTemp.nodes[ddlNum].interpolation.numIntervals = int.Parse(subValues[1]);
-					jointsTemp.nodes[ddlNum].interpolation.slope[0] = float.Parse(subValues[2]);
-					jointsTemp.nodes[ddlNum].interpolation.slope[1] = float.Parse(subValues[3]);
+					jointsTemp.nodes[ddlNum].interpolation.slope[0] = double.Parse(subValues[2]);
+					jointsTemp.nodes[ddlNum].interpolation.slope[1] = double.Parse(subValues[3]);
 					indexTQ++;
 				}
 				jointsTemp.nodes[ddlNum].T = ExtractDataTQ(values[indexTQ]);
@@ -224,12 +224,12 @@ public class DataFileManager : MonoBehaviour
 	// =================================================================================================================================================================
 	/// <summary> Extraire les données T ou Q (nombres sépérés par des virgules) de la ligne de texte spécifié. </summary>
 
-	float[] ExtractDataTQ(string values)
+	double[] ExtractDataTQ(string values)
     {
         string[] subValues = Regex.Split(values, ",");
-        float[] data = new float[subValues.Length];
+        double[] data = new double[subValues.Length];
         for (int i = 0; i < subValues.Length; i++)
-            data[i] = float.Parse(subValues[i]);
+            data[i] = double.Parse(subValues[i]);
         return data;
     }
 

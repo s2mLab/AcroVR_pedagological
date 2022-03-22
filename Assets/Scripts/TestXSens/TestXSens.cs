@@ -44,26 +44,26 @@ public class TestXSens : MonoBehaviour
 
     System.Diagnostics.Stopwatch timeStamp = new System.Diagnostics.Stopwatch();
 
-    public static float[] qHumans;
-    public static float[] qdotHumans;
-    public static float[] qddotHumans;
+    public static double[] qHumans;
+    public static double[] qdotHumans;
+    public static double[] qddotHumans;
 
     // Vecteurs contenant les positions, vitesses et accelerations des articulations
 
 #if RK8
-	float[,] qint;
-	float[,] qdint;
-	float[,] qddint;
+	double[,] qint;
+	double[,] qdint;
+	double[,] qddint;
 #else
-    float[] qint0;
-    float[] qdint0;
-    float[] qddint0;
-    float[] qint1;
-    float[] qdint1;
-    float[] qddint1;
-    float[] qint2;
-    float[] qdint2;
-    float[] qddint2;
+    double[] qint0;
+    double[] qdint0;
+    double[] qddint0;
+    double[] qint1;
+    double[] qdint1;
+    double[] qddint1;
+    double[] qint2;
+    double[] qdint2;
+    double[] qddint2;
 #endif
 
     double[,] qXSens;
@@ -74,9 +74,9 @@ public class TestXSens : MonoBehaviour
     //bool initAnimationDone = false;
     bool calibrationDone = false;
     int numberFramesCalib = 50;
-    float timeBegin;
-    float timeEnd;
-    float timeTrialDuration;
+    double timeBegin;
+    double timeEnd;
+    double timeTrialDuration;
     public int nFrame = 0;
     int nFrameXSens = 0;
     //static bool resetOrientationDone = false;
@@ -349,7 +349,7 @@ public class TestXSens : MonoBehaviour
 
         else if (runState == RunStateList.PreCalib)
         {
-            float timeElapsed = timeEnd - Time.time;
+            double timeElapsed = timeEnd - Time.time;
             textTestMessages.text = string.Format("Calibration dans {0:F0}s", timeElapsed);
             if (timeElapsed < 0)
             {
@@ -412,7 +412,7 @@ public class TestXSens : MonoBehaviour
 
         else if (runState == RunStateList.PostCalib)
         {
-            float timeElapsed = timeEnd - Time.time;
+            double timeElapsed = timeEnd - Time.time;
             textTestMessages.text = string.Format("Calib terminé; Début essai dans {0:F0}s", timeElapsed);
             if (timeElapsed < 0)
             {
@@ -455,7 +455,7 @@ public class TestXSens : MonoBehaviour
             //	mess[nMess] = string.Format("{0}: {1}, {2}, {3}, {4}", runState, XSensInterface.initReadXSensDataDone, XSensInterface.readXSensDataON, XSensInterface.nProcessFrame, nFrame);
             //	nMess++;
             //}
-            float timeNow = Time.time;
+            double timeNow = Time.time;
             if (timeEnd - timeNow < 0)
             {
                 if (XSensInterface.readXSensDataON)
@@ -628,19 +628,19 @@ public class TestXSens : MonoBehaviour
             MainParameters.Instance.joints.takeOffParam.twistSpeed = 0;
 
 #if RK8
-			qint = new float[MainParameters.Instance.joints.lagrangianModel.nDDL, 3];
-			qdint = new float[MainParameters.Instance.joints.lagrangianModel.nDDL, 3];
-			qddint = new float[MainParameters.Instance.joints.lagrangianModel.nDDL, 3];
+			qint = new double[MainParameters.Instance.joints.lagrangianModel.nDDL, 3];
+			qdint = new double[MainParameters.Instance.joints.lagrangianModel.nDDL, 3];
+			qddint = new double[MainParameters.Instance.joints.lagrangianModel.nDDL, 3];
 #else
-            qint0 = new float[MainParameters.Instance.joints.lagrangianModel.nDDL];
-            qdint0 = new float[MainParameters.Instance.joints.lagrangianModel.nDDL];
-            qddint0 = new float[MainParameters.Instance.joints.lagrangianModel.nDDL];
-            qint1 = new float[MainParameters.Instance.joints.lagrangianModel.nDDL];
-            qdint1 = new float[MainParameters.Instance.joints.lagrangianModel.nDDL];
-            qddint1 = new float[MainParameters.Instance.joints.lagrangianModel.nDDL];
-            qint2 = new float[MainParameters.Instance.joints.lagrangianModel.nDDL];
-            qdint2 = new float[MainParameters.Instance.joints.lagrangianModel.nDDL];
-            qddint2 = new float[MainParameters.Instance.joints.lagrangianModel.nDDL];
+            qint0 = new double[MainParameters.Instance.joints.lagrangianModel.nDDL];
+            qdint0 = new double[MainParameters.Instance.joints.lagrangianModel.nDDL];
+            qddint0 = new double[MainParameters.Instance.joints.lagrangianModel.nDDL];
+            qint1 = new double[MainParameters.Instance.joints.lagrangianModel.nDDL];
+            qdint1 = new double[MainParameters.Instance.joints.lagrangianModel.nDDL];
+            qddint1 = new double[MainParameters.Instance.joints.lagrangianModel.nDDL];
+            qint2 = new double[MainParameters.Instance.joints.lagrangianModel.nDDL];
+            qdint2 = new double[MainParameters.Instance.joints.lagrangianModel.nDDL];
+            qddint2 = new double[MainParameters.Instance.joints.lagrangianModel.nDDL];
 #endif
 
             qXSens = new double[MainParameters.Instance.joints.lagrangianModel.nDDL, 5];
@@ -801,13 +801,13 @@ public class TestXSens : MonoBehaviour
     		for (int i = 0; i < MainParameters.Instance.joints.lagrangianModel.nDDL; i++)
     		{
 #if !USE_RK8_INPUT_DATA
-    			qint[i, j] = (float)q[i];
-    			qdint[i, j] = (float)qdot[i];
-    			qddint[i, j] = (float)qddot[i];
+    			qint[i, j] = (double)q[i];
+    			qdint[i, j] = (double)qdot[i];
+    			qddint[i, j] = (double)qddot[i];
 #else
-    			qint[i, j] = (float)dataRK8Q[nFrame, i];
-    			qdint[i, j] = (float)dataRK8Qdot[nFrame, i];
-    			qddint[i, j] = (float)dataRK8Qddot[nFrame, i];
+    			qint[i, j] = (double)dataRK8Q[nFrame, i];
+    			qdint[i, j] = (double)dataRK8Qdot[nFrame, i];
+    			qddint[i, j] = (double)dataRK8Qddot[nFrame, i];
 #endif
     		}
 #else
@@ -833,15 +833,15 @@ public class TestXSens : MonoBehaviour
 #else
             if (nFrame <= 0)
             {
-                qint0 = MathFunc.MatrixCopy(q);
-                qdint0 = MathFunc.MatrixCopy(qdot);
-                qddint0 = MathFunc.MatrixCopy(qddot);
+                qint0 = Matrix.Copy(q);
+                qdint0 = Matrix.Copy(qdot);
+                qddint0 = Matrix.Copy(qddot);
             }
             else
             {
-                qint1 = MathFunc.MatrixCopy(q);
-                qdint1 = MathFunc.MatrixCopy(qdot);
-                qddint1 = MathFunc.MatrixCopy(qddot);
+                qint1 = Matrix.Copy(q);
+                qdint1 = Matrix.Copy(qdot);
+                qddint1 = Matrix.Copy(qddot);
             }
 #endif
 #endif
@@ -912,9 +912,9 @@ public class TestXSens : MonoBehaviour
 #else
                 //Integrator.xTFrame1 = Integrator.RK4_1(Integrator.xTFrame0, qddint0, qddint1);        // Ancienne version 2021-04-15
                 Integrator.xTFrame1 = Integrator.RK4_1(Integrator.xTFrame0, qint0, qdint0, qddint0, qint1, qdint1, qddint1);
-                qint0 = MathFunc.MatrixCopy(qint1);
-                qdint0 = MathFunc.MatrixCopy(qdint1);
-                qddint0 = MathFunc.MatrixCopy(qddint1);
+                qint0 = Matrix.Copy(qint1);
+                qdint0 = Matrix.Copy(qdint1);
+                qddint0 = Matrix.Copy(qddint1);
 #endif
 #endif
                 foreach (int i in MainParameters.Instance.joints.lagrangianModel.q1)
@@ -930,8 +930,8 @@ public class TestXSens : MonoBehaviour
                     Integrator.xTFrame0[ii] = q[ii];
                     Integrator.xTFrame0[MainParameters.Instance.joints.lagrangianModel.nDDL + ii] = qdot[ii];
 #else
-                    Integrator.xTFrame0[ii] = (float)dataRK8Q[nFrame, ii];
-                    Integrator.xTFrame0[MainParameters.Instance.joints.lagrangianModel.nDDL + ii] = (float)dataRK8Qdot[nFrame, ii];
+                    Integrator.xTFrame0[ii] = (double)dataRK8Q[nFrame, ii];
+                    Integrator.xTFrame0[MainParameters.Instance.joints.lagrangianModel.nDDL + ii] = (double)dataRK8Qdot[nFrame, ii];
 #endif
                     //Integrator.xTFrame0[ii] = Integrator.xTFrame1[ii];
                     //Integrator.xTFrame0[MainParameters.Instance.joints.lagrangianModel.nDDL + ii] = Integrator.xTFrame1[MainParameters.Instance.joints.lagrangianModel.nDDL + ii];
@@ -1143,7 +1143,7 @@ public class TestXSens : MonoBehaviour
         MainParameters.c_rotation(imu0[0, 0], imu0[0, 1], imu0[0, 2], imu0[1, 0], imu0[1, 1], imu0[1, 2], imu0[2, 0], imu0[2, 1], imu0[2, 2], ptr_Rot0);
         MainParameters.c_rotationToEulerAngles(ptr_Rot0, new System.Text.StringBuilder("xyz"), ptr_EulerTransfo0);
 
-        double[,] rotMat1 = MathFunc.MatrixMultiply(imu1, imu0_T);
+        double[,] rotMat1 = Matrix.Multiplication(imu1, imu0_T);
         MainParameters.c_rotation(rotMat1[0, 0], rotMat1[0, 1], rotMat1[0, 2], rotMat1[1, 0], rotMat1[1, 1], rotMat1[1, 2], rotMat1[2, 0], rotMat1[2, 1], rotMat1[2, 2], ptr_Rot1);
         MainParameters.c_rotationToEulerAngles(ptr_Rot1, new System.Text.StringBuilder("xyz"), ptr_EulerTransfo1);
 
@@ -1159,7 +1159,7 @@ public class TestXSens : MonoBehaviour
         //    TestXSens.nMsgDebug++;
         //}
 
-        double[,] rotMat2 = MathFunc.MatrixMultiply(imu2, imu0_T);
+        double[,] rotMat2 = Matrix.Multiplication(imu2, imu0_T);
         MainParameters.c_rotation(rotMat2[0, 0], rotMat2[0, 1], rotMat2[0, 2], rotMat2[1, 0], rotMat2[1, 1], rotMat2[1, 2], rotMat2[2, 0], rotMat2[2, 1], rotMat2[2, 2], ptr_Rot2);
         MainParameters.c_rotationToEulerAngles(ptr_Rot2, new System.Text.StringBuilder("xyz"), ptr_EulerTransfo2);
 

@@ -89,10 +89,10 @@ public class ConvertHumansBioRBD
 	// =================================================================================================================================================================
 	/// <summary> Conversion du modèle BioRBD à Humans (valeurs Q seulement). Correspondance des DDL entre les 2 modèles, via un fichier matlab. </summary>
 
-	public static float[] qValuesHumans2Biorbd(float[] vecteurHumans)
+	public static double[] qValuesHumans2Biorbd(double[] vecteurHumans)
 	{
 		int nDDL = MainParameters.c_nQ(MainParameters.Instance.modelBioRBDOffline);
-		float[] vecteurBiorbd = new float[nDDL];
+		double[] vecteurBiorbd = new double[nDDL];
 
 		vecteurBiorbd[0] = vecteurHumans[6];
 		vecteurBiorbd[1] = vecteurHumans[7];

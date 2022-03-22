@@ -22,7 +22,7 @@ public class MainParameters
 		/// <summary> Nombre d'intervalle utilisé (spline cubique seulement). </summary>
 		public int numIntervals;
 		/// <summary> Pente initiale et finale (spline cubique seulement). </summary>
-		public float[] slope;
+		public double[] slope;
 	}
 
 	/// <summary> Structure contenant les informations sur le type d'interpolation utilisé par défaut. </summary>
@@ -35,8 +35,8 @@ public class MainParameters
 	{
 		public int ddl;
 		public string name;
-		public float[] T;
-		public float[] Q;
+		public double[] T;
+		public double[] Q;
 		public StrucInterpolation interpolation;
 		/// <summary> Pointeur, dans la structure Nodes, de l'articulation (ddl) du côté opposé (gauche <-> droit), si aucun côté = -1. </summary>
 		public int ddlOppositeSide;
@@ -47,12 +47,12 @@ public class MainParameters
 	/// <summary> Description de la structure contenant les paramètres de décollage. </summary>
 	public struct StrucTakeOffParam
 	{
-		public float verticalSpeed;					// en m/s
-		public float anteroposteriorSpeed;			// en m/s
-		public float somersaultSpeed;				// en rév/s
-		public float twistSpeed;					// en rév/s
-		public float tilt;							// en degrés
-		public float rotation;						// en degrés
+		public double verticalSpeed;					// en m/s
+		public double anteroposteriorSpeed;			// en m/s
+		public double somersaultSpeed;				// en rév/s
+		public double twistSpeed;					// en rév/s
+		public double tilt;							// en degrés
+		public double rotation;						// en degrés
 	}
 
     /// <summary> Structure contenant les valeurs de défaut pour les paramètres de décollage. </summary>
@@ -71,11 +71,11 @@ public class MainParameters
 		/// <summary> Structure contenant les données des noeuds. </summary>
 		public StrucNodes[] nodes;
 		/// <summary> Liste des temps utilisés par toutes les données interpolées. [m] = frames. </summary>
-		public float[] t0;
+		public double[] t0;
 		/// <summary> Liste de tous les angles interpolés pour chacune des articulations. [m,n]: m = DDL, n = Frames. </summary>
-		public float[,] q0;
+		public double[,] q0;
 		/// <summary> Durée de la figure (en secondes). </summary>
-		public float duration;
+		public double duration;
 		/// <summary> Structure contenant les données relatifs aux paramètres initiaux d'envol. </summary>
 		public StrucTakeOffParam takeOffParam;
 		/// <summary>
@@ -90,20 +90,20 @@ public class MainParameters
 		/// <summary> Structure du modèle Lagrangien utilisée. </summary>
 		public LagrangianModelManager.StrucLagrangianModel lagrangianModel;
 		/// <summary> Temps avant contact avec le sol (en secondes). </summary>
-		public float tc;
+		public double tc;
 		/// <summary> Liste des temps utilisés par les données interpolées, jusqu'au contact avec le sol. [m] = frames. </summary>
-		public float[] t;
+		public double[] t;
         /// <summary> Liste des angles interpolés pour les articulations de rotation (périlleux, inclinaison et torsion), jusqu'au contact avec le sol. [m,n]: m = 3, n = Frames. </summary>
-        public float[,] rot;
+        public double[,] rot;
 		/// <summary> Liste des vitesses des angles interpolés pour les articulations de rotation (périlleux, inclinaison et torsion), jusqu'au contact avec le sol. [m,n]: m = 3, n = Frames. </summary>
-		public float[,] rotdot;
+		public double[,] rotdot;
 	}
 
 	/// <summary> Structure contenant les données des angles des articulations (DDL). </summary>
 	public StrucJoints joints;
 
     /// <summary> Valeur de défaut pour la durée de la figure. </summary>
-    public float durationDefault;
+    public double durationDefault;
 
     /// <summary> Valeur de défaut pour la condition utilisée pour exécuter la figure. </summary>
     public int conditionDefault;
@@ -361,7 +361,7 @@ public class MainParameters
 
 		interpolationDefault.type = InterpolationType.Quintic;
 		interpolationDefault.numIntervals = 0;
-		interpolationDefault.slope = new float[] { 0, 0 };
+		interpolationDefault.slope = new double[] { 0, 0 };
 		takeOffParamDefault.verticalSpeed = 0;
         takeOffParamDefault.anteroposteriorSpeed = 0;
         takeOffParamDefault.somersaultSpeed = 0;

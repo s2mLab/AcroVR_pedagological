@@ -77,12 +77,12 @@ public class Integrator : MonoBehaviour
         double[] Q = new double[joints.lagrangianModel.nDDL];
         for (int i = 0; i < joints.lagrangianModel.nDDL; i++)
             Q[i] = q0[i];
-        float[] tagX;
-        float[] tagY;
-        float[] tagZ;
+        double[] tagX;
+        double[] tagY;
+        double[] tagZ;
         AnimationF.Instance.EvaluateTags(Q, out tagX, out tagY, out tagZ);
 
-        float[] cg = new float[3];          // CG in initial posture
+        double[] cg = new double[3];          // CG in initial posture
         cg[0] = tagX[0];
         cg[1] = tagY[0];
         cg[2] = tagZ[0];
@@ -91,10 +91,10 @@ public class Integrator : MonoBehaviour
             msg[4] += string.Format("{0}, ", cg[i]);
 
         int[] rotation = new int[3] { joints.lagrangianModel.root_somersault, joints.lagrangianModel.root_tilt, joints.lagrangianModel.root_twist };
-        int[] rotationS = MathFunc.Sign(rotation);
+        int[] rotationS = Quintic.Sign(rotation);
         for (int i = 0; i < rotation.Length; i++) rotation[i] = Math.Abs(rotation[i]);
         int[] translation = new int[3] { joints.lagrangianModel.root_right, joints.lagrangianModel.root_foreward, joints.lagrangianModel.root_upward };
-        int[] translationS = MathFunc.Sign(translation);
+        int[] translationS = Quintic.Sign(translation);
         for (int i = 0; i < translation.Length; i++) translation[i] = Math.Abs(translation[i]);
         double[] u1 = new double[3];
         double[,] rot = new double[3, 1];
@@ -111,7 +111,7 @@ public class Integrator : MonoBehaviour
         }
 
         double[,] u = { { 0, -u1[2], u1[1] }, { u1[2], 0, -u1[0] }, { -u1[1], u1[0], 0 } };
-        double[,] rotM = MathFunc.MatrixMultiply(u, rot);
+        double[,] rotM = Matrix.Multiplication(u, rot);
 
         for (int i = 0; i < u.GetLength(0); i++)
             for (int j = 0; j < u.GetLength(1); j++)
@@ -157,9 +157,9 @@ public class Integrator : MonoBehaviour
     // =================================================================================================================================================================
     /// <summary> Intégration RK8. </summary>
 
-    public static void RK8(float[,] qint, float[,] qdint, float[,] qddint)
+    public static void RK8(double[,] qint, double[,] qdint, double[,] qddint)
     {
-        float[] t = new float[3] { 0, MainParameters.Instance.joints.lagrangianModel.dt / 2, MainParameters.Instance.joints.lagrangianModel.dt };
+        double[] t = new double[3] { 0, MainParameters.Instance.joints.lagrangianModel.dt / 2, MainParameters.Instance.joints.lagrangianModel.dt };
         double[] k_1 = ShortDynamicsRK8(0, xTFrame0, t, qint, qdint, qddint);
 
         //if (MainParameters.Instance.debugDataFileIMUsEulerQ &&	TestXSens.nMsgDebug < TestXSens.nMsgSize)
@@ -224,7 +224,7 @@ public class Integrator : MonoBehaviour
     // =================================================================================================================================================================
     /// <summary> Routine qui sera exécuter par le ODE (Ordinary Differential Equation). </summary>
 
-    static double[] ShortDynamicsRK8(float ti, double[] x, float[] t, float[,] qdaa, float[,] qdotdaa, float[,] qddotdaa)
+    static double[] ShortDynamicsRK8(double ti, double[] x, double[] t, double[,] qdaa, double[,] qdotdaa, double[,] qddotdaa)
     {
         double[] q = new double[MainParameters.Instance.joints.lagrangianModel.nDDL];
         double[] qdot = new double[MainParameters.Instance.joints.lagrangianModel.nDDL];
@@ -235,9 +235,9 @@ public class Integrator : MonoBehaviour
             qdot[i] = x[MainParameters.Instance.joints.lagrangianModel.nDDL + i];
         }
 
-        double[] qda = MathFunc.Interp1(ti, t, qdaa);
-        double[] qdotda = MathFunc.Interp1(ti, t, qdotdaa);
-        double[] qddotda = MathFunc.Interp1(ti, t, qddotdaa);
+        double[] qda = Quintic.Interp1(ti, t, qdaa);
+        double[] qdotda = Quintic.Interp1(ti, t, qdotdaa);
+        double[] qddotda = Quintic.Interp1(ti, t, qddotdaa);
 
         for (int i = 0; i < MainParameters.Instance.joints.lagrangianModel.q2.Length; i++)
         {
@@ -251,7 +251,7 @@ public class Integrator : MonoBehaviour
 
         double[,] M11 = new double[MainParameters.Instance.joints.lagrangianModel.q1.Length, MainParameters.Instance.joints.lagrangianModel.q1.Length];
         double[,] M12 = new double[MainParameters.Instance.joints.lagrangianModel.q1.Length, MainParameters.Instance.joints.lagrangianModel.q2.Length];
-        double[,] massMat = MathFunc.ConvertVectorInSquareMatrix(MassMatrix(q));                        // On obtient une matrice nDDL x nDDL
+        double[,] massMat = Matrix.FromVectorToSquare(MassMatrix(q));                        // On obtient une matrice nDDL x nDDL
         for (int i = 0; i < MainParameters.Instance.joints.lagrangianModel.q1.Length; i++)
             foreach (int j in MainParameters.Instance.joints.lagrangianModel.q1)
                 M11[i, j - 1] = massMat[i, j - 1];                                                      // M11 = [0...5, 0...5]
@@ -265,22 +265,22 @@ public class Integrator : MonoBehaviour
         // Calcul "Matrix Left division" suivante: qddot(q1) = M11\(-N1-M12*qddot(q2));
         // On peut faire ce calcul en utilisant le calcul "Matrix inverse": qddot(q1) = inv(M11)*(-N1-M12*qddot(q2));
 
-        double[,] mA = MatrixInverse.MtrxInverse(M11);
+        double[,] mA = Matrix.Inverse(M11);
 
         double[] qddotb = new double[MainParameters.Instance.joints.lagrangianModel.q2.Length];
         for (int i = 0; i < MainParameters.Instance.joints.lagrangianModel.q2.Length; i++)
             qddotb[i] = qddot[MainParameters.Instance.joints.lagrangianModel.q2[i] - 1];
-        double[,] mB = MatrixInverse.MtrxProduct(M12, qddotb);
+        double[,] mB = Matrix.Multiplication(M12, qddotb);
 
         double[,] n1mB = new double[mB.GetUpperBound(0) + 1, mB.GetUpperBound(1) + 1];
         for (int i = 0; i <= mB.GetUpperBound(0); i++)
             for (int j = 0; j <= mB.GetUpperBound(1); j++)
                 n1mB[i, j] = -N1[i] - mB[i, j];
 
-        double[,] mC = MatrixInverse.MtrxProduct(mA, n1mB);
+        double[,] mC = Matrix.Multiplication(mA, n1mB);
 
         for (int i = 0; i < MainParameters.Instance.joints.lagrangianModel.q1.Length; i++)
-            qddot[MainParameters.Instance.joints.lagrangianModel.q1[i] - 1] = (float)mC[i, 0];
+            qddot[MainParameters.Instance.joints.lagrangianModel.q1[i] - 1] = (double)mC[i, 0];
 
         double[] xdot = new double[MainParameters.Instance.joints.lagrangianModel.nDDL * 2];
         for (int i = 0; i < MainParameters.Instance.joints.lagrangianModel.nDDL; i++)
@@ -298,7 +298,7 @@ public class Integrator : MonoBehaviour
     //				Simple RK implementation with fixed time step. Not intended for practical use</summary>
     //				[Obsolete("Fixed step RK45 method is provided only as an example")]
 
-    public static Vector RK4(Vector x0, float[] qFrame0, float[] qdFrame0, float[] qddFrame0, float[] qFrame1, float[] qdFrame1, float[] qddFrame1, float[] qFrame2, float[] qdFrame2, float[] qddFrame2)
+    public static Vector RK4(Vector x0, double[] qFrame0, double[] qdFrame0, double[] qddFrame0, double[] qFrame1, double[] qdFrame1, double[] qddFrame1, double[] qFrame2, double[] qdFrame2, double[] qddFrame2)
     {
         Vector x = x0;
         double dt = MainParameters.Instance.joints.lagrangianModel.dt;
@@ -316,7 +316,7 @@ public class Integrator : MonoBehaviour
     // =================================================================================================================================================================
     /// <summary> Routine qui sera exécuter par le ODE (Ordinary Differential Equation). </summary>
 
-    public static Vector ShortDynamicsRK4(double t, Vector x, float[] qd, float[] qdotd, float[] qddotd)
+    public static Vector ShortDynamicsRK4(double t, Vector x, double[] qd, double[] qdotd, double[] qddotd)
     {
         int NDDL = MainParameters.Instance.joints.lagrangianModel.nDDL;             // Récupère le nombre de DDL du modèle
         int NROOT = MainParameters.Instance.joints.lagrangianModel.q1.Length;       // Pour le moment, la racine possède 6 ddl
@@ -340,9 +340,9 @@ public class Integrator : MonoBehaviour
 
         // Génère la matrice de masse
 
-        double[,] massMat = MathFunc.ConvertVectorInSquareMatrix(MassMatrix(q));                        // On obtient une matrice nDDL x nDDL
+        double[,] massMat =Matrix.FromVectorToSquare(MassMatrix(q));                        // On obtient une matrice nDDL x nDDL
         double[,] matriceA = new double[NROOT, NROOT];
-        matriceA = MathFunc.ShrinkSquareMatrix(massMat, NROOT);                                         // On réduit la matrice de masse
+        matriceA = Matrix.ShrinkSquare(massMat, NROOT);                                         // On réduit la matrice de masse
 
         // Calcul de la dynamique inverse
 
@@ -362,7 +362,7 @@ public class Integrator : MonoBehaviour
         // Résoudre le système linéaire
 
         double[] matAGrandVecteur = new double[NROOT * NROOT];
-        matAGrandVecteur = MathFunc.ConvertSquareMatrixInVector(matriceA);                              // La nouvelle matrice doit être convertie en vecteur
+        matAGrandVecteur = Matrix.FromSquareToVector(matriceA);                              // La nouvelle matrice doit être convertie en vecteur
 
         IntPtr ptr_matA = Marshal.AllocCoTaskMem(sizeof(double) * matAGrandVecteur.Length);
         IntPtr ptr_solX = Marshal.AllocCoTaskMem(sizeof(double) * NROOT);
@@ -396,8 +396,8 @@ public class Integrator : MonoBehaviour
         return new Vector(qddot1);
     }
 
-    //public static Vector RK4_1(Vector x0, float[] qddFrame0, float[] qddFrame1)           // Ancienne version 2021-04-15
-    public static Vector RK4_1(double[] x0, float[] qFrame0, float[] qdFrame0, float[] qddFrame0, float[] qFrame1, float[] qdFrame1, float[] qddFrame1)
+    //public static Vector RK4_1(Vector x0, double[] qddFrame0, double[] qddFrame1)           // Ancienne version 2021-04-15
+    public static Vector RK4_1(double[] x0, double[] qFrame0, double[] qdFrame0, double[] qddFrame0, double[] qFrame1, double[] qdFrame1, double[] qddFrame1)
     {
         //double n_step = 5;
         double[] x = x0;
@@ -406,7 +406,7 @@ public class Integrator : MonoBehaviour
         double dt2 = dt / 2;
         double[] k1, k2, k3, k4;
         //double t = 0;
-        //float[] qddot_Approx = MathFunc.MatrixCopy(qddFrame0);
+        //double[] qddot_Approx = Quintic.Copy(qddFrame0);
 
         //if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize - 1)
         //{
@@ -571,7 +571,7 @@ public class Integrator : MonoBehaviour
     // =================================================================================================================================================================
     /// <summary> Routine qui sera exécuter par le ODE (Ordinary Differential Equation). </summary>
 
-    static double[] ShortDynamicsRK4_1(double t, double[] x, float[] qFrame0, float[] qdFrame0, float[] qddFrame0, float[] qFrame1, float[] qdFrame1, float[] qddFrame1)
+    static double[] ShortDynamicsRK4_1(double t, double[] x, double[] qFrame0, double[] qdFrame0, double[] qddFrame0, double[] qFrame1, double[] qdFrame1, double[] qddFrame1)
     {
         double[] q = new double[MainParameters.Instance.joints.lagrangianModel.nDDL];
         double[] qdot = new double[MainParameters.Instance.joints.lagrangianModel.nDDL];
@@ -604,7 +604,7 @@ public class Integrator : MonoBehaviour
 
         double[,] M11 = new double[MainParameters.Instance.joints.lagrangianModel.q1.Length, MainParameters.Instance.joints.lagrangianModel.q1.Length];
         double[,] M12 = new double[MainParameters.Instance.joints.lagrangianModel.q1.Length, MainParameters.Instance.joints.lagrangianModel.q2.Length];
-        double[,] massMat = MathFunc.ConvertVectorInSquareMatrix(MassMatrix(q));                        // On obtient une matrice nDDL x nDDL
+        double[,] massMat = Matrix.FromVectorToSquare(MassMatrix(q));                        // On obtient une matrice nDDL x nDDL
 
         if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize - massMat.GetUpperBound(1) - 1)
         {
@@ -676,22 +676,22 @@ public class Integrator : MonoBehaviour
         // Calcul "Matrix Left division" suivante: qddot(q1) = M11\(-N1-M12*qddot(q2));
         // On peut faire ce calcul en utilisant le calcul "Matrix inverse": qddot(q1) = inv(M11)*(-N1-M12*qddot(q2));
 
-        double[,] mA = MatrixInverse.MtrxInverse(M11);
+        double[,] mA = Matrix.Inverse(M11);
 
         double[] qddotb = new double[MainParameters.Instance.joints.lagrangianModel.q2.Length];
         for (int i = 0; i < MainParameters.Instance.joints.lagrangianModel.q2.Length; i++)
             qddotb[i] = qddot[MainParameters.Instance.joints.lagrangianModel.q2[i] - 1];
-        double[,] mB = MatrixInverse.MtrxProduct(M12, qddotb);
+        double[,] mB = Matrix.Multiplication(M12, qddotb);
 
         double[,] n1mB = new double[mB.GetUpperBound(0) + 1, mB.GetUpperBound(1) + 1];
         for (int i = 0; i <= mB.GetUpperBound(0); i++)
             for (int j = 0; j <= mB.GetUpperBound(1); j++)
                 n1mB[i, j] = -N1[i] - mB[i, j];
 
-        double[,] mC = MatrixInverse.MtrxProduct(mA, n1mB);
+        double[,] mC = Matrix.Multiplication(mA, n1mB);
 
         for (int i = 0; i < MainParameters.Instance.joints.lagrangianModel.q1.Length; i++)
-            qddot[MainParameters.Instance.joints.lagrangianModel.q1[i] - 1] = (float)mC[i, 0];
+            qddot[MainParameters.Instance.joints.lagrangianModel.q1[i] - 1] = (double)mC[i, 0];
 
         if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize)
         {
@@ -722,7 +722,7 @@ public class Integrator : MonoBehaviour
     // =================================================================================================================================================================
     /// <summary> Routine qui sera exécuter par le ODE (Ordinary Differential Equation). </summary>
 
-    //public static Vector ShortDynamicsRK4_1(double t_ratio, Vector x, float[] qddFrame0, float[] qddFrame1)                   // Sérieux doutes sur la validiter du calcul de cette fonction
+    //public static Vector ShortDynamicsRK4_1(double t_ratio, Vector x, double[] qddFrame0, double[] qddFrame1)                   // Sérieux doutes sur la validiter du calcul de cette fonction
     //{
     //    int NDDL = MainParameters.Instance.joints.lagrangianModel.nDDL;             // Récupère le nombre de DDL du modèle
     //    int NROOT = MainParameters.Instance.joints.lagrangianModel.q1.Length;       // Pour le moment, la racine possède 6 ddl
@@ -746,9 +746,9 @@ public class Integrator : MonoBehaviour
 
     //    // Génère la matrice de masse
 
-    //    double[,] massMat = MathFunc.ConvertVectorInSquareMatrix(MassMatrix(q));                        // On obtient une matrice nDDL x nDDL
+    //    double[,] massMat = Quintic.ConvertVectorInSquareMatrix(MassMatrix(q));                        // On obtient une matrice nDDL x nDDL
     //    double[,] matriceA = new double[NROOT, NROOT];
-    //    matriceA = MathFunc.ShrinkSquareMatrix(massMat, NROOT);                                         // On réduit la matrice de masse
+    //    matriceA = Quintic.ShrinkSquare(massMat, NROOT);                                         // On réduit la matrice de masse
 
     //    // Calcul de la dynamique inverse
 
@@ -768,7 +768,7 @@ public class Integrator : MonoBehaviour
     //    // Résoudre le système linéaire
 
     //    double[] matAGrandVecteur = new double[NROOT * NROOT];
-    //    matAGrandVecteur = MathFunc.ConvertSquareMatrixInVector(matriceA);                              // La nouvelle matrice doit être convertie en vecteur
+    //    matAGrandVecteur = Quintic.ConvertSquareMatrixInVector(matriceA);                              // La nouvelle matrice doit être convertie en vecteur
 
     //    IntPtr ptr_matA = Marshal.AllocCoTaskMem(sizeof(double) * matAGrandVecteur.Length);
     //    IntPtr ptr_solX = Marshal.AllocCoTaskMem(sizeof(double) * NROOT);

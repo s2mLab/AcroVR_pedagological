@@ -3,15 +3,15 @@
 
 public class Trajectory
 {
-	public Trajectory(LagrangianModelManager.StrucLagrangianModel lagrangianModel, float t, int[] qi, out float[] qd)
+	public Trajectory(LagrangianModelManager.StrucLagrangianModel lagrangianModel, double t, int[] qi, out double[] qd)
 	{
-		float[] qdotd;
-		float[] qddotd;
+		double[] qdotd;
+		double[] qddotd;
 		Trajectory trajectory = new Trajectory(lagrangianModel, t, qi, out qd, out qdotd, out qddotd);
 		trajectory.ToString();					// Pour enlever un warning lors de la compilation
 	}
 
-	public Trajectory(LagrangianModelManager.StrucLagrangianModel lagrangianModel, float t, int[] qi, out float[] qd, out float[] qdotd, out float[] qddotd)
+	public Trajectory(LagrangianModelManager.StrucLagrangianModel lagrangianModel, double t, int[] qi, out double[] qd, out double[] qdotd, out double[] qddotd)
 	{
 		// Initialisation des DDL à traiter et du nombre de ces DDL
 
@@ -19,9 +19,9 @@ public class Trajectory
 
 		// Initialisation des vecteurs contenant les positions, vitesses et accélérations des angles des articulations traités
 
-		qd = new float[MainParameters.Instance.joints.lagrangianModel.nDDL];
-		qdotd = new float[MainParameters.Instance.joints.lagrangianModel.nDDL];
-		qddotd = new float[MainParameters.Instance.joints.lagrangianModel.nDDL];
+		qd = new double[MainParameters.Instance.joints.lagrangianModel.nDDL];
+		qdotd = new double[MainParameters.Instance.joints.lagrangianModel.nDDL];
+		qddotd = new double[MainParameters.Instance.joints.lagrangianModel.nDDL];
 		for (int i = 0; i < qd.Length; i++)
 		{
 			qd[i] = 0;
@@ -45,7 +45,7 @@ public class Trajectory
 				case MainParameters.InterpolationType.Quintic:
 					int j = 1;
 					while (j < nodes.T.Length - 1 && t > nodes.T[j]) j++;
-					MathFunc.Quintic(t, nodes.T[j - 1], nodes.T[j], nodes.Q[j - 1], nodes.Q[j], out qd[ii], out qdotd[ii], out qddotd[ii]);
+					Quintic.Eval(t, nodes.T[j - 1], nodes.T[j], nodes.Q[j - 1], nodes.Q[j], out qd[ii], out qdotd[ii], out qddotd[ii]);
 					break;
 
 				// Interpolation de type Spline cubique
@@ -81,9 +81,9 @@ public class Trajectory
 							qva = cubicSpline.C8(t, q);
 							break;
 					}
-					qd[ii] = (float)qva[0];
-					qdotd[ii] = (float)qva[1];
-					qddotd[ii] = (float)qva[2];
+					qd[ii] = (double)qva[0];
+					qdotd[ii] = (double)qva[1];
+					qddotd[ii] = (double)qva[2];
 					break;
 			}
 		}

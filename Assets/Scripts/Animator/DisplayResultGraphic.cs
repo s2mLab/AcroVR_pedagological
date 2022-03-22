@@ -73,25 +73,25 @@ public class DisplayResultGraphic : MonoBehaviour
 				textLegendCurveName3.text = MainParameters.Instance.languages.Used.resultsGraphicsLegendCurveNameTwist;
 				break;
 			case 1:                                                                                                                                             // Inclinaison vs temps
-				GraphManager.Instance.DisplayCurves(graph, MainParameters.Instance.joints.t, MathFunc.MatrixGetColumn(MainParameters.Instance.joints.rot, 1));
+				GraphManager.Instance.DisplayCurves(graph, MainParameters.Instance.joints.t, Matrix.GetColumn(MainParameters.Instance.joints.rot, 1));
 				textLabelAxisX.text = MainParameters.Instance.languages.Used.resultsGraphicsLabelAxisTime;
 				textLabelAxisY.text = MainParameters.Instance.languages.Used.resultsGraphicsLabelAxisTilt;
 				panelLegend.SetActive(false);
 				break;
 			case 2:                                                                                                                                             // Inclinaison vs salto
-				GraphManager.Instance.DisplayCurves(graph, MathFunc.MatrixGetColumn(MainParameters.Instance.joints.rot, 0), MathFunc.MatrixGetColumn(MainParameters.Instance.joints.rot, 1));
+				GraphManager.Instance.DisplayCurves(graph, Matrix.GetColumn(MainParameters.Instance.joints.rot, 0), Matrix.GetColumn(MainParameters.Instance.joints.rot, 1));
 				textLabelAxisX.text = MainParameters.Instance.languages.Used.resultsGraphicsLabelAxisSomersault;
 				textLabelAxisY.text = MainParameters.Instance.languages.Used.resultsGraphicsLabelAxisTilt;
 				panelLegend.SetActive(false);
 				break;
 			case 3:                                                                                                                                             // Inclinaison vs vrille
-				GraphManager.Instance.DisplayCurves(graph, MathFunc.MatrixGetColumn(MainParameters.Instance.joints.rot, 2), MathFunc.MatrixGetColumn(MainParameters.Instance.joints.rot, 1));
+				GraphManager.Instance.DisplayCurves(graph, Matrix.GetColumn(MainParameters.Instance.joints.rot, 2), Matrix.GetColumn(MainParameters.Instance.joints.rot, 1));
 				textLabelAxisX.text = MainParameters.Instance.languages.Used.resultsGraphicsLabelAxisTwist;
 				textLabelAxisY.text = MainParameters.Instance.languages.Used.resultsGraphicsLabelAxisTilt;
 				panelLegend.SetActive(false);
 				break;
 			case 4:                                                                                                                                             // Vrille vs salto
-				GraphManager.Instance.DisplayCurves(graph, MathFunc.MatrixGetColumn(MainParameters.Instance.joints.rot, 0), MathFunc.MatrixGetColumn(MainParameters.Instance.joints.rot, 2));
+				GraphManager.Instance.DisplayCurves(graph, Matrix.GetColumn(MainParameters.Instance.joints.rot, 0), Matrix.GetColumn(MainParameters.Instance.joints.rot, 2));
 				textLabelAxisX.text = MainParameters.Instance.languages.Used.resultsGraphicsLabelAxisSomersault;
 				textLabelAxisY.text = MainParameters.Instance.languages.Used.resultsGraphicsLabelAxisTwist;
 				panelLegend.SetActive(false);

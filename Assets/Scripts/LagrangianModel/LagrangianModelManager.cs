@@ -11,7 +11,7 @@ public abstract class LagrangianModelManager
 		public int nSOL;
 		public int[] q1;        // DDL de la racine.
 		public int[] q2;        // DDL à contrôler.
-		public float dt;
+		public double dt;
 		public int root_right;
 		public int root_foreward;
 		public int root_upward;
@@ -24,7 +24,7 @@ public abstract class LagrangianModelManager
 		public int[,] stickFigure;
 		public int[,] filledFigure;
 
-		public float[] hauteurs;
+		public double[] hauteurs;
 	}
 
 	// =================================================================================================================================================================
@@ -37,7 +37,7 @@ public abstract class LagrangianModelManager
 
 	public static StrucLagrangianModel InitDynamics(StrucLagrangianModel lagrangianModel)
 	{
-		lagrangianModel.hauteurs = new float[] { 0, 0, 0, 1, 3, 5, 10, 2.5f, 2.2f, 1.05f, 0 };
+		lagrangianModel.hauteurs = new double[] { 0, 0, 0, 1, 3, 5, 10, 2.5f, 2.2f, 1.05f, 0 };
 		return lagrangianModel;
 	}
 }
