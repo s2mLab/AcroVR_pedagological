@@ -55,7 +55,7 @@ public class LagrangianModelSimple : LagrangianModelManager
 		get
 		{
 			StrucLagrangianModel lagrangianModel = new StrucLagrangianModel();
-			lagrangianModel.nDDL = S2M_model.m_nQ;
+			lagrangianModel.nDDL = TestXSens.model.nQ;
 			lagrangianModel.nTAG = 4;
 			lagrangianModel.q1 = new int[] { 1, 2, 3, 4, 5, 6 };                    // Racine
 			lagrangianModel.q2 = new int[lagrangianModel.nDDL - 6];

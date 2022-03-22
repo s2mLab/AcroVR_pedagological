@@ -307,24 +307,27 @@ public class Matrix
 	// =================================================================================================================================================================
 	/// <summary> Rétrécir une matrice carré en une nouvelle matrice carré de dimension réduite (Nouvelle dimension doit être égale ou inférieure à la dimension de la matrice originale). </summary>
 
-	public static double[,] ShrinkSquare(double[,] matrice, int nouvelleTaille)
+	public static double[,] Get(double[,] matrix, int row, int col, int nRows, int nCols)
 	{
-		double[,] nouvelleMatrice = new double[nouvelleTaille, nouvelleTaille];
-		for (int i = 0; i < nouvelleTaille; i++)
-			for (int j = 0; j < nouvelleTaille; j++)
-				nouvelleMatrice[i, j] = matrice[i, j];
-		return nouvelleMatrice;
+		double[,] newMatrix = new double[nRows, nCols];
+		for (int i = row; i < nRows; i++)
+			for (int j = col; j < nCols; j++)
+				newMatrix[i - nRows, j - nCols] = matrix[i, j];
+		return newMatrix;
 	}
 
 	// =================================================================================================================================================================
-	/// <summary> Convertir une matrice carré en un vecteur. </summary>
+	/// <summary> Flattens a matrix to a vector column wise. </summary>
 
-	public static double[] FromSquareToVector(double[,] matrix)
+	public static double[] toVector(double[,] matrix)
 	{
-		double[] newVector = new double[matrix.GetLength(0) * matrix.GetLength(1)];
-		for (int i = 0; i < matrix.GetLength(0); i++)
-			for (int j = 0; j < matrix.GetLength(1); j++)
-				newVector[j + i * matrix.GetLength(0)] = matrix[j, i];
+		int nRows = matrix.GetLength(0);
+		int nCols = matrix.GetLength(1);
+
+		double[] newVector = new double[nRows * nCols];
+		for (int i = 0; i < nRows; i++)
+			for (int j = 0; j < nCols; j++)
+				newVector[j + i * nRows] = matrix[j, i];
 		return newVector;
 	}
 }

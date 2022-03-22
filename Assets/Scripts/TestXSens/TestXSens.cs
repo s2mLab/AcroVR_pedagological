@@ -19,7 +19,7 @@ public class TestXSens : MonoBehaviour
 {
     public static TestXSens Instance;
 
-    public S2M_model modelS2M;
+    public static BiorbdModel model = new BiorbdModel(@"Assets/Biorbd/Model_Marcel.bioMod");
     public GameObject buttonTestXSens;
     public GameObject buttonXSensON;
     public Text textTestXSensStatus;
@@ -28,7 +28,6 @@ public class TestXSens : MonoBehaviour
     public AudioSource audioS;
 
     public Text textTestMessages;
-    public static IntPtr modelInt;
     public static int nQ_modelInt = 0;
     public static int nMarkers_modelInt = 0;
 
@@ -146,7 +145,7 @@ public class TestXSens : MonoBehaviour
         eulerDataCalib = null;
         eulerDataTrial = null;
 
-        XSensInterface._numberIMUtoConnect = S2M_model.nbImuToConnect;
+        XSensInterface._numberIMUtoConnect = model.nIMUs;
 
         imusMatrixPrev = new XsMatrix[XSensInterface._numberIMUtoConnect];
         for (int i = 0; i < XSensInterface._numberIMUtoConnect; i++)
@@ -602,15 +601,13 @@ public class TestXSens : MonoBehaviour
             calibrationDone = true;
             nFramesCalib = nFrame;
 
-            string pathToTemplate = @"Assets\Biorbd\Model_Marcel.s2mMod";
-            string pathToModel = @"Assets\Biorbd\Model.s2mMod";
-            modelS2M.createModelFromStaticXsens(xSdataCalib.getData(), pathToModel, pathToTemplate);
-            modelS2M.LoadModel(new System.Text.StringBuilder(pathToModel));
+            string pathToTemplate = @"Assets\Biorbd\Model_Marcel.bioMod";
+            string pathToModel = @"Assets\Biorbd\Model.bioMod";
+            BiorbdModel.createModelFromStaticXsens(xSdataCalib.getData(), pathToModel, pathToTemplate);
+            // modelS2M = new BiorbdModel(pathToModel);
 
             string pathToTemplateRK8 = @"Assets\Biorbd\Modele_Marcel_RK8.s2mMod";
-            modelInt = MainParameters.c_biorbdModel(new System.Text.StringBuilder(pathToTemplateRK8));
-            nQ_modelInt = MainParameters.c_nQ(modelInt);
-            nMarkers_modelInt = MainParameters.c_nMarkers(modelInt);
+            BiorbdModel model = new BiorbdModel(pathToTemplateRK8);
 
             //AvatarManager.Instance.UpdateParent(modelS2M);
 
@@ -690,7 +687,7 @@ public class TestXSens : MonoBehaviour
         // Passer les données dans un filtre de Kalman étendu et en extraire les vecteurs de positions, vitesses et accélérations des articulations (DDL)
 
 #if KALMAN
-        modelS2M.KalmanReconsIMU(imusMatrix);
+        // modelS2M.KalmanReconsIMU(imusMatrix);
 
         // Extraire les données obtenues du filtre de Kalman
 
@@ -859,12 +856,12 @@ public class TestXSens : MonoBehaviour
                 double[] newGravity = new double[3] { -9.81, 0, 0 };
                 IntPtr ptrNewGravity = Marshal.AllocCoTaskMem(sizeof(double) * 3);
                 Marshal.Copy(newGravity, 0, ptrNewGravity, 3);
-                MainParameters.c_setGravity(modelInt, ptrNewGravity);
+                BiorbdModel.c_setGravity(model._ptr_model, ptrNewGravity);
                 Marshal.FreeCoTaskMem(ptrNewGravity);
 
                 double[] gravity = new double[3];
                 IntPtr ptrGravity = Marshal.AllocCoTaskMem(sizeof(double) * 3);
-                MainParameters.c_getGravity(modelInt, ptrGravity);
+                BiorbdModel.c_getGravity(model._ptr_model, ptrGravity);
                 Marshal.Copy(ptrGravity, gravity, 0, 3);
                 Marshal.FreeCoTaskMem(ptrGravity);
                 Debug.Log(string.Format("Gravity = {0}, {1}, {2}", gravity[0], gravity[1], gravity[2]));
@@ -1063,7 +1060,7 @@ public class TestXSens : MonoBehaviour
                 System.IO.File.AppendAllText(fileN, string.Format("{0}{1}", msgDebug[i], System.Environment.NewLine));
             }
         }
-        modelS2M.WriteModelInFile();
+        // modelS2M.WriteModelInFile();
 
         // Convertir les données des angles Euler sous un nouveau format
 
@@ -1140,12 +1137,12 @@ public class TestXSens : MonoBehaviour
         //    TestXSens.nMsgDebug++;
         //}
 
-        MainParameters.c_rotation(imu0[0, 0], imu0[0, 1], imu0[0, 2], imu0[1, 0], imu0[1, 1], imu0[1, 2], imu0[2, 0], imu0[2, 1], imu0[2, 2], ptr_Rot0);
-        MainParameters.c_rotationToEulerAngles(ptr_Rot0, new System.Text.StringBuilder("xyz"), ptr_EulerTransfo0);
+        BiorbdModel.c_rotation(imu0[0, 0], imu0[0, 1], imu0[0, 2], imu0[1, 0], imu0[1, 1], imu0[1, 2], imu0[2, 0], imu0[2, 1], imu0[2, 2], ptr_Rot0);
+        BiorbdModel.c_rotationToEulerAngles(ptr_Rot0, new System.Text.StringBuilder("xyz"), ptr_EulerTransfo0);
 
         double[,] rotMat1 = Matrix.Multiplication(imu1, imu0_T);
-        MainParameters.c_rotation(rotMat1[0, 0], rotMat1[0, 1], rotMat1[0, 2], rotMat1[1, 0], rotMat1[1, 1], rotMat1[1, 2], rotMat1[2, 0], rotMat1[2, 1], rotMat1[2, 2], ptr_Rot1);
-        MainParameters.c_rotationToEulerAngles(ptr_Rot1, new System.Text.StringBuilder("xyz"), ptr_EulerTransfo1);
+        BiorbdModel.c_rotation(rotMat1[0, 0], rotMat1[0, 1], rotMat1[0, 2], rotMat1[1, 0], rotMat1[1, 1], rotMat1[1, 2], rotMat1[2, 0], rotMat1[2, 1], rotMat1[2, 2], ptr_Rot1);
+        BiorbdModel.c_rotationToEulerAngles(ptr_Rot1, new System.Text.StringBuilder("xyz"), ptr_EulerTransfo1);
 
         //if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize - 4)
         //{
@@ -1160,8 +1157,8 @@ public class TestXSens : MonoBehaviour
         //}
 
         double[,] rotMat2 = Matrix.Multiplication(imu2, imu0_T);
-        MainParameters.c_rotation(rotMat2[0, 0], rotMat2[0, 1], rotMat2[0, 2], rotMat2[1, 0], rotMat2[1, 1], rotMat2[1, 2], rotMat2[2, 0], rotMat2[2, 1], rotMat2[2, 2], ptr_Rot2);
-        MainParameters.c_rotationToEulerAngles(ptr_Rot2, new System.Text.StringBuilder("xyz"), ptr_EulerTransfo2);
+        BiorbdModel.c_rotation(rotMat2[0, 0], rotMat2[0, 1], rotMat2[0, 2], rotMat2[1, 0], rotMat2[1, 1], rotMat2[1, 2], rotMat2[2, 0], rotMat2[2, 1], rotMat2[2, 2], ptr_Rot2);
+        BiorbdModel.c_rotationToEulerAngles(ptr_Rot2, new System.Text.StringBuilder("xyz"), ptr_EulerTransfo2);
 
         //if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize - 4)
         //{

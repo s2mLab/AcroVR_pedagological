@@ -104,19 +104,19 @@ public class AvatarManager : MonoBehaviour
 		//}
 	}
 
-	public void UpdateParent(S2M_model s2m)		// Marcel: Jamais trouvé que cette fonction changeait quelques choses au mouvement de l'avatar, j'espère bien l'utiliser...
-	{
-		// humerus
-		//double[] rt_tp = s2m.getCardanTransformationFromParentToSegment(1);
-		//RightUpperArmParentGameObject.transform.localEulerAngles = new Vector3((float)(rt_tp[0] * rad2Deg), -(float)(rt_tp[2] * rad2Deg), -(float)(rt_tp[1] * rad2Deg + 90));
-		//rt_tp = s2m.getCardanTransformationFromParentToSegment(2);
-		//LeftUpperArmParentGameObject.transform.localEulerAngles = new Vector3((float)(rt_tp[3] * rad2Deg), -(float)(rt_tp[5] * rad2Deg), -(float)(rt_tp[4] * rad2Deg - 90));
-		//double[] rt_tp = s2m.getCardanTransformationFromParentToSegment(2);
-		//humerusParentGameObject.transform.localEulerAngles = new Vector3((float)(rt_tp[3] * rad2Deg), -(float)(rt_tp[4] * rad2Deg), -(float)(rt_tp[5] * rad2Deg) - 90);
-	}
+	//public void UpdateParent(S2M_model s2m)		// Marcel: Jamais trouvé que cette fonction changeait quelques choses au mouvement de l'avatar, j'espère bien l'utiliser...
+	//{
+	//	// humerus
+	//	//double[] rt_tp = s2m.getCardanTransformationFromParentToSegment(1);
+	//	//RightUpperArmParentGameObject.transform.localEulerAngles = new Vector3((float)(rt_tp[0] * rad2Deg), -(float)(rt_tp[2] * rad2Deg), -(float)(rt_tp[1] * rad2Deg + 90));
+	//	//rt_tp = s2m.getCardanTransformationFromParentToSegment(2);
+	//	//LeftUpperArmParentGameObject.transform.localEulerAngles = new Vector3((float)(rt_tp[3] * rad2Deg), -(float)(rt_tp[5] * rad2Deg), -(float)(rt_tp[4] * rad2Deg - 90));
+	//	//double[] rt_tp = s2m.getCardanTransformationFromParentToSegment(2);
+	//	//humerusParentGameObject.transform.localEulerAngles = new Vector3((float)(rt_tp[3] * rad2Deg), -(float)(rt_tp[4] * rad2Deg), -(float)(rt_tp[5] * rad2Deg) - 90);
+	//}
 
-	// =================================================================================================================================================================
-	/// <summary> Faire une rotation sur une segment. </summary>
+	//// =================================================================================================================================================================
+	///// <summary> Faire une rotation sur une segment. </summary>
 
 	public void rotateSegment(GameObject Segment, Vector3 target)
 	{

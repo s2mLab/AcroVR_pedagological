@@ -717,55 +717,6 @@ public class AnimationF : MonoBehaviour
 		}
 	}
 
-	// =================================================================================================================================================================
-	/// <summary> Intégration RK8. </summary>
-
-	void RK8(double[,] qint, double[,] qdint, double[,] qddint)
-	{
-		//double[] t = new double[3] { 0, timeFrame / 2, timeFrame };
-		//double[] k_1 = DoSimulation.ShortDynamics_int(0, xTFrame0, t, qint, qdint, qddint);
-
-		//double[] xT = new double[MainParameters.Instance.joints.lagrangianModel.nDDL * 2];
-		//for (int i = 0; i < xTFrame0.Length; i++)
-		//	xT[i] = xTFrame0[i] + (timeFrame * 4.0f / 27.0f) * k_1[i];
-		//double[] k_2 = DoSimulation.ShortDynamics_int(timeFrame * 4.0f / 27.0f, xT, t, qint, qdint, qddint);
-
-		//for (int i = 0; i < xTFrame0.Length; i++)
-		//	xT[i] = xTFrame0[i] + (timeFrame / 18.0f) * (k_1[i] + 3.0f * k_2[i]);
-		//double[] k_3 = DoSimulation.ShortDynamics_int(timeFrame * 2.0f / 9.0f, xT, t, qint, qdint, qddint);
-
-		//for (int i = 0; i < xTFrame0.Length; i++)
-		//	xT[i] = xTFrame0[i] + (timeFrame / 12.0f) * (k_1[i] + 3.0f * k_3[i]);
-		//double[] k_4 = DoSimulation.ShortDynamics_int(timeFrame * 1.0f / 3.0f, xT, t, qint, qdint, qddint);
-
-		//for (int i = 0; i < xTFrame0.Length; i++)
-		//	xT[i] = xTFrame0[i] + (timeFrame / 8.0f) * (k_1[i] + 3.0f * k_4[i]);
-		//double[] k_5 = DoSimulation.ShortDynamics_int(timeFrame * 1.0f / 2.0f, xT, t, qint, qdint, qddint);
-
-		//for (int i = 0; i < xTFrame0.Length; i++)
-		//	xT[i] = xTFrame0[i] + (timeFrame / 54.0f) * (13.0f * k_1[i] - 27.0f * k_3[i] + 42.0f * k_4[i] + 8.0f * k_5[i]);
-		//double[] k_6 = DoSimulation.ShortDynamics_int(timeFrame * 2.0f / 3.0f, xT, t, qint, qdint, qddint);
-
-		//for (int i = 0; i < xTFrame0.Length; i++)
-		//	xT[i] = xTFrame0[i] + (timeFrame / 4320.0f) * (389.0f * k_1[i] - 54.0f * k_3[i] + 966.0f * k_4[i] - 824.0f * k_5[i] + 243.0f * k_6[i]);
-		//double[] k_7 = DoSimulation.ShortDynamics_int(timeFrame * 1.0f / 6.0f, xT, t, qint, qdint, qddint);
-
-		//for (int i = 0; i < xTFrame0.Length; i++)
-		//	xT[i] = xTFrame0[i] + (timeFrame / 20.0f) * (-234.0f * k_1[i] + 81.0f * k_3[i] - 1164.0f * k_4[i] + 656.0f * k_5[i] - 122.0f * k_6[i] + 800.0f * k_7[i]);
-		//double[] k_8 = DoSimulation.ShortDynamics_int(timeFrame, xT, t, qint, qdint, qddint);
-
-		//for (int i = 0; i < xTFrame0.Length; i++)
-		//	xT[i] = xTFrame0[i] + (timeFrame / 288.0f) * (-127.0f * k_1[i] + 18.0f * k_3[i] - 678.0f * k_4[i] + 456.0f * k_5[i] - 9.0f * k_6[i] + 576.0f * k_7[i] + 4.0f * k_8[i]);
-		//double[] k_9 = DoSimulation.ShortDynamics_int(timeFrame * 5.0f / 6.0f, xT, t, qint, qdint, qddint);
-
-		//for (int i = 0; i < xTFrame0.Length; i++)
-		//	xT[i] = xTFrame0[i] + (timeFrame / 820.0f) * (1481.0f * k_1[i] - 81.0f * k_3[i] + 7104.0f * k_4[i] - 3376.0f * k_5[i] + 72.0f * k_6[i] - 5040.0f * k_7[i] -
-		//											60.0f * k_8[i] + 720.0f * k_9[i]);
-		//double[] k_10 = DoSimulation.ShortDynamics_int(timeFrame, xT, t, qint, qdint, qddint);
-
-		//for (int i = 0; i < xTFrame0.Length; i++)
-		//	xTFrame2[i] = xTFrame0[i] + timeFrame / 840.0f * (41.0f * k_1[i] + 27.0f * k_4[i] + 272.0f * k_5[i] + 27.0f * k_6[i] + 216.0f * k_7[i] + 216.0f * k_9[i] + 41.0f * k_10[i]);
-	}
 
 	// =================================================================================================================================================================
 	/// <summary> Activer ou désactiver la silhouette. </summary>

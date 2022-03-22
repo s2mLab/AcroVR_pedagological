@@ -349,10 +349,9 @@ public class MainParameters
 		//System.IO.File.AppendAllText(@"AcroVR_Debug.txt", string.Format("{0}{1}", fileNameTemplateModelBioRBD, System.Environment.NewLine));
 		//System.IO.File.AppendAllText(@"AcroVR_Debug.txt", string.Format("{0}{1}", dllpath, System.Environment.NewLine));
 #else
-		fileNameTemplateXSensModelBioRBD = @"Assets\Biorbd\Model_Marcel.s2mMod";
-		fileNameTemplateOfflineModelBioRBD = @"Assets\Biorbd\Somersault_IMUs.s2mMod";
+		string fileNameTemplateOfflineModelBioRBD = @"Assets\Biorbd\Somersault_IMUs.s2mMod";
 #endif
-		modelBioRBDOffline = c_biorbdModel(new StringBuilder(fileNameTemplateOfflineModelBioRBD));
+		BiorbdModel modelOffline = new BiorbdModel(fileNameTemplateOfflineModelBioRBD);
 
 		// Initialisation des numéros des types de graphique des résultats qui seront affiché
 

@@ -304,96 +304,13 @@ public class Integrator : MonoBehaviour
         double dt = MainParameters.Instance.joints.lagrangianModel.dt;
         double dt2 = dt / 2;
 
-        Microsoft.Research.Oslo.Vector x1 = ShortDynamicsRK4(0, x, qFrame0, qdFrame0, qddFrame0);
-        Microsoft.Research.Oslo.Vector x2 = ShortDynamicsRK4(0, x + x1 * dt2, qFrame1, qdFrame1, qddFrame1);
-        Microsoft.Research.Oslo.Vector x3 = ShortDynamicsRK4(0, x + x2 * dt2, qFrame1, qdFrame1, qddFrame1);
-        Microsoft.Research.Oslo.Vector x4 = ShortDynamicsRK4(0, x + x3 * dt, qFrame2, qdFrame2, qddFrame2);
+        Microsoft.Research.Oslo.Vector x1 = TestXSens.model.RootDynamics(0, x, qFrame0, qdFrame0, qddFrame0);
+        Microsoft.Research.Oslo.Vector x2 = TestXSens.model.RootDynamics(0, x + x1 * dt2, qFrame1, qdFrame1, qddFrame1);
+        Microsoft.Research.Oslo.Vector x3 = TestXSens.model.RootDynamics(0, x + x2 * dt2, qFrame1, qdFrame1, qddFrame1);
+        Microsoft.Research.Oslo.Vector x4 = TestXSens.model.RootDynamics(0, x + x3 * dt, qFrame2, qdFrame2, qddFrame2);
         x = x + (dt / 6.0) * (x1 + 2.0 * x2 + 2.0 * x3 + x4);
 
         return x;  //retourne état suivant à l'instant t+dt         
-    }
-
-    // =================================================================================================================================================================
-    /// <summary> Routine qui sera exécuter par le ODE (Ordinary Differential Equation). </summary>
-
-    public static Microsoft.Research.Oslo.Vector ShortDynamicsRK4(double t, Microsoft.Research.Oslo.Vector x, double[] qd, double[] qdotd, double[] qddotd)
-    {
-        int NDDL = MainParameters.Instance.joints.lagrangianModel.nDDL;             // Récupère le nombre de DDL du modèle
-        int NROOT = MainParameters.Instance.joints.lagrangianModel.q1.Length;       // Pour le moment, la racine possède 6 ddl
-
-        // Extraire les positions et vitesses des DDLs
-        // Initialisation des accélérations des DDLs
-
-        double[] q = new double[NDDL];
-        double[] qdot = new double[NDDL];
-        for (int i = 0; i < NDDL; i++)
-        {
-            q[i] = x[i];
-            qdot[i] = x[i + NDDL];
-        }
-
-        double[] qddot = new double[NDDL];
-        for (int i = 0; i < qddot.Length; i++)
-            qddot[i] = qddotd[i] + 10 * (qd[i] - q[i]) + 3 * (qdotd[i] - qdot[i]);
-        for (int i = 0; i < NROOT; i++)
-            qddot[i] = 0;
-
-        // Génère la matrice de masse
-
-        double[,] massMat = Vector.ToSquareMatrix(MassMatrix(q));                        // On obtient une matrice nDDL x nDDL
-        double[,] matriceA = new double[NROOT, NROOT];
-        matriceA = Matrix.ShrinkSquare(massMat, NROOT);                                         // On réduit la matrice de masse
-
-        // Calcul de la dynamique inverse
-
-        double[] taud = new double[NDDL];
-        IntPtr ptr_Q = Marshal.AllocCoTaskMem(sizeof(double) * q.Length);
-        IntPtr ptr_qdot = Marshal.AllocCoTaskMem(sizeof(double) * qdot.Length);
-        IntPtr ptr_qddot = Marshal.AllocCoTaskMem(sizeof(double) * qddot.Length);
-        IntPtr ptr_tau = Marshal.AllocCoTaskMem(sizeof(double) * taud.Length);
-
-        Marshal.Copy(q, 0, ptr_Q, q.Length);
-        Marshal.Copy(qdot, 0, ptr_qdot, qdot.Length);
-        Marshal.Copy(qddot, 0, ptr_qddot, qddot.Length);
-
-        MainParameters.c_inverseDynamics(TestXSens.modelInt, ptr_Q, ptr_qdot, ptr_qddot, ptr_tau);
-        Marshal.Copy(ptr_tau, taud, 0, taud.Length);
-
-        // Résoudre le système linéaire
-
-        double[] matAGrandVecteur = new double[NROOT * NROOT];
-        matAGrandVecteur = Matrix.FromSquareToVector(matriceA);                              // La nouvelle matrice doit être convertie en vecteur
-
-        IntPtr ptr_matA = Marshal.AllocCoTaskMem(sizeof(double) * matAGrandVecteur.Length);
-        IntPtr ptr_solX = Marshal.AllocCoTaskMem(sizeof(double) * NROOT);
-
-        Marshal.Copy(matAGrandVecteur, 0, ptr_matA, matAGrandVecteur.Length);
-
-        MainParameters.c_solveLinearSystem(ptr_matA, NROOT, NROOT, ptr_tau, ptr_solX);                  // Résouds l'équation Ax=b
-
-        double[] solutionX = new double[NROOT];
-        Marshal.Copy(ptr_solX, solutionX, 0, solutionX.Length);
-
-        for (int i = 0; i < NROOT; i++)
-            qddot[i] = -solutionX[i];
-
-        double[] qddot1 = new double[NDDL * 2];
-        for (int i = 0; i < NDDL; i++)
-        {
-            qddot1[i] = qdot[i];
-            qddot1[i + NDDL] = qddot[i];
-        }
-
-        // Désallocation des pointeurs
-
-        Marshal.FreeCoTaskMem(ptr_Q);
-        Marshal.FreeCoTaskMem(ptr_qdot);
-        Marshal.FreeCoTaskMem(ptr_qddot);
-        Marshal.FreeCoTaskMem(ptr_tau);
-        Marshal.FreeCoTaskMem(ptr_matA);
-        Marshal.FreeCoTaskMem(ptr_solX);
-
-        return new Microsoft.Research.Oslo.Vector(qddot1);
     }
 
     //public static Vector RK4_1(Vector x0, double[] qddFrame0, double[] qddFrame1)           // Ancienne version 2021-04-15
@@ -839,7 +756,7 @@ public class Integrator : MonoBehaviour
 
 		Marshal.Copy(q, 0, ptr_Q, q.Length);
 		Marshal.Copy(qdot, 0, ptr_Qdot, qdot.Length);
-		MainParameters.c_NonlinearEffects(TestXSens.modelInt, ptr_Q, ptr_Qdot, ptr_Tau);
+		BiorbdModel.c_NonlinearEffects(TestXSens.model._ptr_model, ptr_Q, ptr_Qdot, ptr_Tau);
 		Marshal.Copy(ptr_Tau, tau, 0, tau.Length);
 
 		Marshal.FreeCoTaskMem(ptr_Q);
@@ -860,7 +777,7 @@ public class Integrator : MonoBehaviour
 		IntPtr ptr_massMatrix = Marshal.AllocCoTaskMem(sizeof(double) * massMatrix.Length);
 
 		Marshal.Copy(q, 0, ptr_Q, q.Length);
-		MainParameters.c_massMatrix(TestXSens.modelInt, ptr_Q, ptr_massMatrix);
+		BiorbdModel.c_massMatrix(TestXSens.model._ptr_model, ptr_Q, ptr_massMatrix);
 		Marshal.Copy(ptr_massMatrix, massMatrix, 0, massMatrix.Length);
 
 		Marshal.FreeCoTaskMem(ptr_Q);
@@ -881,7 +798,7 @@ public class Integrator : MonoBehaviour
 
 		Marshal.Copy(q, 0, ptr_Q, q.Length);
 
-		MainParameters.c_markers(TestXSens.modelInt, ptr_Q, ptr_markPos, false, true);
+		BiorbdModel.c_markers(TestXSens.model._ptr_model, ptr_Q, ptr_markPos, false, true);
 
 		Marshal.Copy(ptr_markPos, markPos, 0, markPos.Length);
 
