@@ -144,7 +144,7 @@ public class Matrix
 	
 	// =================================================================================================================================================================
 
-	public static double MtrxDeterminant(double[,] matrix)
+	public static double Determinant(double[,] matrix)
 	{
 		double[,] lum;
 		int[] perm;
@@ -255,58 +255,6 @@ public class Matrix
 		}
 		return result;
 	}
-
-	public static double Min(params double[] vector)
-	{
-		int num = vector.Length;
-		if (num == 0)
-		{
-			return 0f;
-		}
-
-		double num2 = vector[0];
-		for (int i = 1; i < num; i++)
-		{
-			if (vector[i] < num2)
-			{
-				num2 = vector[i];
-			}
-		}
-
-		return num2;
-	}
-	public static double Max(params double[] vector)
-	{
-		int num = vector.Length;
-		if (num == 0)
-		{
-			return 0f;
-		}
-
-		double num2 = vector[0];
-		for (int i = 1; i < num; i++)
-		{
-			if (vector[i] > num2)
-			{
-				num2 = vector[i];
-			}
-		}
-
-		return num2;
-	}
-
-
-	// =================================================================================================================================================================
-	/// <summary> Copié le contenu d'une matrice dans une nouvelle matrice. </summary>
-
-	public static double[] Copy(double[] vector)
-	{
-		double[] newMatrix = new double[vector.GetUpperBound(0) + 1];
-		for (int i = 0; i <= vector.GetUpperBound(0); i++)
-			newMatrix[i] = vector[i];
-		return newMatrix;
-	}
-
 	public static double[,] Copy(double[,] matrix)
 	{
 		double[,] newMatrix = new double[matrix.GetUpperBound(0) + 1, matrix.GetUpperBound(1) + 1];
@@ -366,19 +314,6 @@ public class Matrix
 			for (int j = 0; j < nouvelleTaille; j++)
 				nouvelleMatrice[i, j] = matrice[i, j];
 		return nouvelleMatrice;
-	}
-
-	// =================================================================================================================================================================
-	/// <summary> Convertir un vecteur en une matrice carré. </summary>
-
-	public static double[,] FromVectorToSquare(double[] vector)
-	{
-		int dim = (int)System.Math.Sqrt(vector.Length);
-		double[,] newMatrix = new double[dim, dim];
-		for (int i = 0; i < newMatrix.GetLength(0); i++)
-			for (int j = 0; j < newMatrix.GetLength(1); j++)
-				newMatrix[j, i] = vector[j + newMatrix.GetLength(0) * i];
-		return newMatrix;
 	}
 
 	// =================================================================================================================================================================

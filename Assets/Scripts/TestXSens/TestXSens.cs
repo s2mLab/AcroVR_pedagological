@@ -833,15 +833,15 @@ public class TestXSens : MonoBehaviour
 #else
             if (nFrame <= 0)
             {
-                qint0 = Matrix.Copy(q);
-                qdint0 = Matrix.Copy(qdot);
-                qddint0 = Matrix.Copy(qddot);
+                qint0 = Vector.Copy(q);
+                qdint0 = Vector.Copy(qdot);
+                qddint0 = Vector.Copy(qddot);
             }
             else
             {
-                qint1 = Matrix.Copy(q);
-                qdint1 = Matrix.Copy(qdot);
-                qddint1 = Matrix.Copy(qddot);
+                qint1 = Vector.Copy(q);
+                qdint1 = Vector.Copy(qdot);
+                qddint1 = Vector.Copy(qddot);
             }
 #endif
 #endif
@@ -912,9 +912,9 @@ public class TestXSens : MonoBehaviour
 #else
                 //Integrator.xTFrame1 = Integrator.RK4_1(Integrator.xTFrame0, qddint0, qddint1);        // Ancienne version 2021-04-15
                 Integrator.xTFrame1 = Integrator.RK4_1(Integrator.xTFrame0, qint0, qdint0, qddint0, qint1, qdint1, qddint1);
-                qint0 = Matrix.Copy(qint1);
-                qdint0 = Matrix.Copy(qdint1);
-                qddint0 = Matrix.Copy(qddint1);
+                qint0 = Vector.Copy(qint1);
+                qdint0 = Vector.Copy(qdint1);
+                qddint0 = Vector.Copy(qddint1);
 #endif
 #endif
                 foreach (int i in MainParameters.Instance.joints.lagrangianModel.q1)

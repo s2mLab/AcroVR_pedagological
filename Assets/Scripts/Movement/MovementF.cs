@@ -410,8 +410,8 @@ public class MovementF : MonoBehaviour
 			T[i + 1] = MainParameters.Instance.joints.nodes[ddl].T[i];
 			Q[i + 1] = MainParameters.Instance.joints.nodes[ddl].Q[i];
 		}
-		MainParameters.Instance.joints.nodes[ddl].T = Matrix.Copy(T);
-		MainParameters.Instance.joints.nodes[ddl].Q = Matrix.Copy(Q);
+		MainParameters.Instance.joints.nodes[ddl].T = Vector.Copy(T);
+		MainParameters.Instance.joints.nodes[ddl].Q = Vector.Copy(Q);
 
 		// Interpolation et affichage des positions des angles pour l'articulation sélectionnée. Afficher aussi la silhouette au temps du noeud sélectionné
 
@@ -458,8 +458,8 @@ public class MovementF : MonoBehaviour
 			T[i - 1] = MainParameters.Instance.joints.nodes[ddl].T[i];
 			Q[i - 1] = MainParameters.Instance.joints.nodes[ddl].Q[i];
 		}
-		MainParameters.Instance.joints.nodes[ddl].T = Matrix.Copy(T);
-		MainParameters.Instance.joints.nodes[ddl].Q = Matrix.Copy(Q);
+		MainParameters.Instance.joints.nodes[ddl].T = Vector.Copy(T);
+		MainParameters.Instance.joints.nodes[ddl].Q = Vector.Copy(Q);
 
 		// Interpolation et affichage des positions des angles pour l'articulation sélectionnée. Afficher aussi la silhouette au temps du noeud sélectionné
 
@@ -506,11 +506,11 @@ public class MovementF : MonoBehaviour
 		{
 			nodesTo[i].ddl = nodesFrom[i].ddl;
 			nodesTo[i].name = nodesFrom[i].name;
-			nodesTo[i].T = Matrix.Copy(nodesFrom[i].T);
-			nodesTo[i].Q = Matrix.Copy(nodesFrom[i].Q);
+			nodesTo[i].T = Vector.Copy(nodesFrom[i].T);
+			nodesTo[i].Q = Vector.Copy(nodesFrom[i].Q);
 			nodesTo[i].interpolation.type = nodesFrom[i].interpolation.type;
 			nodesTo[i].interpolation.numIntervals = nodesFrom[i].interpolation.numIntervals;
-			nodesTo[i].interpolation.slope = Matrix.Copy(nodesFrom[i].interpolation.slope);
+			nodesTo[i].interpolation.slope = Vector.Copy(nodesFrom[i].interpolation.slope);
 			nodesTo[i].ddlOppositeSide = nodesFrom[i].ddlOppositeSide;
 		}
 		return nodesTo;
@@ -526,11 +526,11 @@ public class MovementF : MonoBehaviour
 			// Copier l'articulation sélectionnée (angles interpolés et noeuds) dans l'articulation opposé associé
 
 			int ddlOppSide = MainParameters.Instance.joints.nodes[ddlFrom].ddlOppositeSide;
-			MainParameters.Instance.joints.nodes[ddlOppSide].T = Matrix.Copy(MainParameters.Instance.joints.nodes[ddlFrom].T);
-			MainParameters.Instance.joints.nodes[ddlOppSide].Q = Matrix.Copy(MainParameters.Instance.joints.nodes[ddlFrom].Q);
+			MainParameters.Instance.joints.nodes[ddlOppSide].T = Vector.Copy(MainParameters.Instance.joints.nodes[ddlFrom].T);
+			MainParameters.Instance.joints.nodes[ddlOppSide].Q = Vector.Copy(MainParameters.Instance.joints.nodes[ddlFrom].Q);
 			MainParameters.Instance.joints.nodes[ddlOppSide].interpolation.type = MainParameters.Instance.joints.nodes[ddlFrom].interpolation.type;
 			MainParameters.Instance.joints.nodes[ddlOppSide].interpolation.numIntervals = MainParameters.Instance.joints.nodes[ddlFrom].interpolation.numIntervals;
-			MainParameters.Instance.joints.nodes[ddlOppSide].interpolation.slope = Matrix.Copy(MainParameters.Instance.joints.nodes[ddlFrom].interpolation.slope);
+			MainParameters.Instance.joints.nodes[ddlOppSide].interpolation.slope = Vector.Copy(MainParameters.Instance.joints.nodes[ddlFrom].interpolation.slope);
 			for (int i = 0; i <= MainParameters.Instance.joints.q0.GetUpperBound(1); i++)
 				MainParameters.Instance.joints.q0[ddlOppSide, i] = MainParameters.Instance.joints.q0[ddlFrom, i];
 		}
@@ -570,7 +570,7 @@ public class MovementF : MonoBehaviour
 
 		if (ddl < 0)				// Toutes les articulations
 		{
-			MainParameters.Instance.joints.t0 = Matrix.Copy(t0);
+			MainParameters.Instance.joints.t0 = Vector.Copy(t0);
 			MainParameters.Instance.joints.q0 = Matrix.Copy(q0);
 		}
 		else						// Seulement une articulation

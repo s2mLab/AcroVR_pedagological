@@ -91,10 +91,10 @@ public class Integrator : MonoBehaviour
             msg[4] += string.Format("{0}, ", cg[i]);
 
         int[] rotation = new int[3] { joints.lagrangianModel.root_somersault, joints.lagrangianModel.root_tilt, joints.lagrangianModel.root_twist };
-        int[] rotationS = Quintic.Sign(rotation);
+        int[] rotationS = Vector.Sign(rotation);
         for (int i = 0; i < rotation.Length; i++) rotation[i] = Math.Abs(rotation[i]);
         int[] translation = new int[3] { joints.lagrangianModel.root_right, joints.lagrangianModel.root_foreward, joints.lagrangianModel.root_upward };
-        int[] translationS = Quintic.Sign(translation);
+        int[] translationS = Vector.Sign(translation);
         for (int i = 0; i < translation.Length; i++) translation[i] = Math.Abs(translation[i]);
         double[] u1 = new double[3];
         double[,] rot = new double[3, 1];
@@ -251,7 +251,7 @@ public class Integrator : MonoBehaviour
 
         double[,] M11 = new double[MainParameters.Instance.joints.lagrangianModel.q1.Length, MainParameters.Instance.joints.lagrangianModel.q1.Length];
         double[,] M12 = new double[MainParameters.Instance.joints.lagrangianModel.q1.Length, MainParameters.Instance.joints.lagrangianModel.q2.Length];
-        double[,] massMat = Matrix.FromVectorToSquare(MassMatrix(q));                        // On obtient une matrice nDDL x nDDL
+        double[,] massMat = Vector.ToSquareMatrix(MassMatrix(q));                        // On obtient une matrice nDDL x nDDL
         for (int i = 0; i < MainParameters.Instance.joints.lagrangianModel.q1.Length; i++)
             foreach (int j in MainParameters.Instance.joints.lagrangianModel.q1)
                 M11[i, j - 1] = massMat[i, j - 1];                                                      // M11 = [0...5, 0...5]
@@ -298,16 +298,16 @@ public class Integrator : MonoBehaviour
     //				Simple RK implementation with fixed time step. Not intended for practical use</summary>
     //				[Obsolete("Fixed step RK45 method is provided only as an example")]
 
-    public static Vector RK4(Vector x0, double[] qFrame0, double[] qdFrame0, double[] qddFrame0, double[] qFrame1, double[] qdFrame1, double[] qddFrame1, double[] qFrame2, double[] qdFrame2, double[] qddFrame2)
+    public static Microsoft.Research.Oslo.Vector RK4(Microsoft.Research.Oslo.Vector x0, double[] qFrame0, double[] qdFrame0, double[] qddFrame0, double[] qFrame1, double[] qdFrame1, double[] qddFrame1, double[] qFrame2, double[] qdFrame2, double[] qddFrame2)
     {
-        Vector x = x0;
+        Microsoft.Research.Oslo.Vector x = x0;
         double dt = MainParameters.Instance.joints.lagrangianModel.dt;
         double dt2 = dt / 2;
 
-        Vector x1 = ShortDynamicsRK4(0, x, qFrame0, qdFrame0, qddFrame0);
-        Vector x2 = ShortDynamicsRK4(0, x + x1 * dt2, qFrame1, qdFrame1, qddFrame1);
-        Vector x3 = ShortDynamicsRK4(0, x + x2 * dt2, qFrame1, qdFrame1, qddFrame1);
-        Vector x4 = ShortDynamicsRK4(0, x + x3 * dt, qFrame2, qdFrame2, qddFrame2);
+        Microsoft.Research.Oslo.Vector x1 = ShortDynamicsRK4(0, x, qFrame0, qdFrame0, qddFrame0);
+        Microsoft.Research.Oslo.Vector x2 = ShortDynamicsRK4(0, x + x1 * dt2, qFrame1, qdFrame1, qddFrame1);
+        Microsoft.Research.Oslo.Vector x3 = ShortDynamicsRK4(0, x + x2 * dt2, qFrame1, qdFrame1, qddFrame1);
+        Microsoft.Research.Oslo.Vector x4 = ShortDynamicsRK4(0, x + x3 * dt, qFrame2, qdFrame2, qddFrame2);
         x = x + (dt / 6.0) * (x1 + 2.0 * x2 + 2.0 * x3 + x4);
 
         return x;  //retourne état suivant à l'instant t+dt         
@@ -316,7 +316,7 @@ public class Integrator : MonoBehaviour
     // =================================================================================================================================================================
     /// <summary> Routine qui sera exécuter par le ODE (Ordinary Differential Equation). </summary>
 
-    public static Vector ShortDynamicsRK4(double t, Vector x, double[] qd, double[] qdotd, double[] qddotd)
+    public static Microsoft.Research.Oslo.Vector ShortDynamicsRK4(double t, Microsoft.Research.Oslo.Vector x, double[] qd, double[] qdotd, double[] qddotd)
     {
         int NDDL = MainParameters.Instance.joints.lagrangianModel.nDDL;             // Récupère le nombre de DDL du modèle
         int NROOT = MainParameters.Instance.joints.lagrangianModel.q1.Length;       // Pour le moment, la racine possède 6 ddl
@@ -340,7 +340,7 @@ public class Integrator : MonoBehaviour
 
         // Génère la matrice de masse
 
-        double[,] massMat =Matrix.FromVectorToSquare(MassMatrix(q));                        // On obtient une matrice nDDL x nDDL
+        double[,] massMat = Vector.ToSquareMatrix(MassMatrix(q));                        // On obtient une matrice nDDL x nDDL
         double[,] matriceA = new double[NROOT, NROOT];
         matriceA = Matrix.ShrinkSquare(massMat, NROOT);                                         // On réduit la matrice de masse
 
@@ -393,11 +393,11 @@ public class Integrator : MonoBehaviour
         Marshal.FreeCoTaskMem(ptr_matA);
         Marshal.FreeCoTaskMem(ptr_solX);
 
-        return new Vector(qddot1);
+        return new Microsoft.Research.Oslo.Vector(qddot1);
     }
 
     //public static Vector RK4_1(Vector x0, double[] qddFrame0, double[] qddFrame1)           // Ancienne version 2021-04-15
-    public static Vector RK4_1(double[] x0, double[] qFrame0, double[] qdFrame0, double[] qddFrame0, double[] qFrame1, double[] qdFrame1, double[] qddFrame1)
+    public static Microsoft.Research.Oslo.Vector RK4_1(double[] x0, double[] qFrame0, double[] qdFrame0, double[] qddFrame0, double[] qFrame1, double[] qdFrame1, double[] qddFrame1)
     {
         //double n_step = 5;
         double[] x = x0;
@@ -604,7 +604,7 @@ public class Integrator : MonoBehaviour
 
         double[,] M11 = new double[MainParameters.Instance.joints.lagrangianModel.q1.Length, MainParameters.Instance.joints.lagrangianModel.q1.Length];
         double[,] M12 = new double[MainParameters.Instance.joints.lagrangianModel.q1.Length, MainParameters.Instance.joints.lagrangianModel.q2.Length];
-        double[,] massMat = Matrix.FromVectorToSquare(MassMatrix(q));                        // On obtient une matrice nDDL x nDDL
+        double[,] massMat = Vector.ToSquareMatrix(MassMatrix(q));                        // On obtient une matrice nDDL x nDDL
 
         if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize - massMat.GetUpperBound(1) - 1)
         {

@@ -907,12 +907,12 @@ public class AnimationF : MonoBehaviour
 					qf[MainParameters.Instance.joints.lagrangianModel.q1[j] - 1] = 0;
 
 			EvaluateTags(qf, out tagX, out tagY, out tagZ);
-			tagXMin = Math.Min(tagXMin, Matrix.Min(tagX));
-			tagXMax = Math.Max(tagXMax, Matrix.Max(tagX));
-			tagYMin = Math.Min(tagYMin, Matrix.Min(tagY));
-			tagYMax = Math.Max(tagYMax, Matrix.Max(tagY));
-			tagZMin = Math.Min(tagZMin, Matrix.Min(tagZ));
-			tagZMax = Math.Max(tagZMax, Matrix.Max(tagZ));
+			tagXMin = Math.Min(tagXMin, Vector.Min(tagX));
+			tagXMax = Math.Max(tagXMax, Vector.Max(tagX));
+			tagYMin = Math.Min(tagYMin, Vector.Min(tagY));
+			tagYMax = Math.Max(tagYMax, Vector.Max(tagY));
+			tagZMin = Math.Min(tagZMin, Vector.Min(tagZ));
+			tagZMax = Math.Max(tagZMax, Vector.Max(tagZ));
 		}
 		AddMarginOnMinMax(0.1f);
 		EvaluateFactorTags2Screen();

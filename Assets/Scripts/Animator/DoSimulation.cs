@@ -45,11 +45,11 @@ public class DoSimulation
 		trajectory.ToString();                  // Pour enlever un warning lors de la compilation
 
 		int[] rotation = new int[3] { joints.lagrangianModel.root_somersault, joints.lagrangianModel.root_tilt, joints.lagrangianModel.root_twist };
-		int[] rotationS = Quintic.Sign(rotation);
+		int[] rotationS = Vector.Sign(rotation);
 		for (int i = 0; i < rotation.Length; i++) rotation[i] = Math.Abs(rotation[i]);
 
 		int[] translation = new int[3] { joints.lagrangianModel.root_right, joints.lagrangianModel.root_foreward, joints.lagrangianModel.root_upward };
-		int[] translationS = Quintic.Sign(translation);
+		int[] translationS = Vector.Sign(translation);
 		for (int i = 0; i < translation.Length; i++) translation[i] = Math.Abs(translation[i]);
 
 		double rotRadians = joints.takeOffParam.rotation * (double)Math.PI / 180;
@@ -122,7 +122,7 @@ public class DoSimulation
 		// Extraire les données obtenues du Runge-Kutta et conserver seulement les points interpolés aux frames désirés, selon la durée et le dt utilisé
 
 		DoSimulation.modeRT = false;
-		var sol = Ode.RK547M(0, joints.duration + joints.lagrangianModel.dt, new Vector(AnimationF.xTFrame0), ShortDynamics, options);
+		var sol = Ode.RK547M(0, joints.duration + joints.lagrangianModel.dt, new Microsoft.Research.Oslo.Vector(AnimationF.xTFrame0), ShortDynamics, options);
 		var points = sol.SolveFromToStep(0, joints.duration + joints.lagrangianModel.dt, joints.lagrangianModel.dt).ToArray();
 
 		double[,] q = new double[joints.lagrangianModel.nDDL, points.GetUpperBound(0) + 1];
@@ -226,7 +226,7 @@ public class DoSimulation
 		return xdot;
 	}
 
-	public static Vector ShortDynamics(double t, Vector x)
+	public static Microsoft.Research.Oslo.Vector ShortDynamics(double t, Microsoft.Research.Oslo.Vector x)
 	{
 		int NDDL = MainParameters.c_nQ(MainParameters.Instance.modelBioRBDOffline);		// Récupère le nombre de DDL du modèle BioRBD
 		int NROOT = 6;																	// On admet que la racine possède 6 ddl
@@ -296,7 +296,7 @@ public class DoSimulation
 		Marshal.Copy(ptr_tau, m_taud, 0, m_taud.Length);
 
 		double[,] squareMassMatrix = new double[NDDL, NDDL];
-		squareMassMatrix = Matrix.FromVectorToSquare(massMatrix);            // La matrice de masse générée est sous forme d'un vecteur de taille NDDL*NDDL
+		squareMassMatrix = Vector.ToSquareMatrix(massMatrix);            // La matrice de masse générée est sous forme d'un vecteur de taille NDDL*NDDL
 
 		double[,] matriceA = new double[NROOT, NROOT];
 		matriceA = Matrix.ShrinkSquare(squareMassMatrix, NROOT);                // On réduit la matrice de masse
@@ -335,6 +335,6 @@ public class DoSimulation
 		Marshal.FreeCoTaskMem(ptr_matA);
 		Marshal.FreeCoTaskMem(ptr_solX);
 
-		return new Vector(qddot1integHumans);
+		return new Microsoft.Research.Oslo.Vector(qddot1integHumans);
 	}
 }
