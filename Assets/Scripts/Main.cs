@@ -103,14 +103,6 @@ public class Main : MonoBehaviour
 	}
 
 	// =================================================================================================================================================================
-	// Quand le logiciel se termine, alors il faut supprimer les libraries DLL chargées en mémoire
-
-	void OnDestroy()
-	{
-		MainParameters.Instance.FreeLib();
-	}
-
-	// =================================================================================================================================================================
 	/// <summary> Bouton ToolTips a été appuyer. </summary>
 
 	public void ButtonToolTips()

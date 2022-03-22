@@ -15,6 +15,7 @@ using XDA;
 
 public class XSensInterface : MonoBehaviour
 {
+	IntPtr[] handlesDLL = new IntPtr[3];
 	public static XSensInterface Instance;
 
 	private MyXda _xda;
@@ -73,6 +74,10 @@ public class XSensInterface : MonoBehaviour
 
     void Start()
 	{
+		//handlesDLL[0] = DllManagement.LoadLib(@"Assets\Avatar\XSens\bin\xstypes64.dll");
+		//handlesDLL[1] = DllManagement.LoadLib(@"Assets\Avatar\XSens\bin\xsensdeviceapi64.dll");
+		//handlesDLL[2] = DllManagement.LoadLib(@"Assets\Avatar\XSens\bin\xsensdeviceapi_csharp64.dll");
+
 		Instance = this;
 		processPeriodInMs = 1000 / processFreq;
 		zerosMatrix.setZero();
@@ -277,6 +282,11 @@ public class XSensInterface : MonoBehaviour
 			_xda.Dispose ();
 			_xda = null;
 		}
+
+		//foreach (IntPtr handle in handlesDLL)
+		//{
+		//	DllManagement.FreeLib(handle);
+		//}
 	}
 
 	// =================================================================================================================================================================

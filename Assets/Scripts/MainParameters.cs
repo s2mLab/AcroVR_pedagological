@@ -267,12 +267,6 @@ public class MainParameters
 	#endregion
 
 	#region DLLImport
-	/// <summary> Accès à la fonction LoadLibrary, utilisée pour charger les librairies DLL en mémoire. </summary>
-	[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-	private static extern IntPtr LoadLibrary(string libname);
-	/// <summary> Accès à la fonction FreeLibrary, utilisée pour supprimer les librairies DLL en mémoire. </summary>
-	[DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-	private static extern bool FreeLibrary(IntPtr hModule);
 	/// <summary> Liste des pointeurs de librairies DLL qui ont été charger en mémoire. </summary>
 	public IntPtr[] handlesDLL;
 	#endregion
@@ -295,16 +289,6 @@ public class MainParameters
 
 	private MainParameters()
 	{
-		#region InitDLLImport
-		// Chargement en mémoire des libraires DLL utilisées plus tard (librairies XSens et S2M)
-
-		handlesDLL = new IntPtr[4];
-		handlesDLL[0] = LoadLib(@"Assets\XSens\bin\xstypes64.dll");
-		handlesDLL[1] = LoadLib(@"Assets\XSens\bin\xsensdeviceapi64.dll");
-		handlesDLL[2] = LoadLib(@"Assets\XSens\bin\xsensdeviceapi_csharp64.dll");
-		handlesDLL[3] = LoadLib(@"Assets\Biorbd\bin\S2M.dll");
-		#endregion
-
 		#region InitParameters
 		// Initialisation des paramètres à leurs valeurs de défaut.
 
@@ -340,18 +324,6 @@ public class MainParameters
 		// Initialisation de la liste des messages, utilisé pour la boîte des messages.
 
 		scrollViewMessages = new List<string>();
-
-		// Initialisation du modèle BioRBD utilisé
-
-#if UNITY_STANDALONE_OSX
-		//string fileNameTemplateModelBioRBD = string.Format("{0}/Modele_HuManS_somersault.s2mMod", Application.streamingAssetsPath);			//Recupération du modèle biorbd
-		//string fileNameTemplateOfflineModelBioRBD = @"AcroVR/Contents/Resources/Data/StreamingAssets/Modele_HuManS_somersault.s2mMod";
-		//System.IO.File.AppendAllText(@"AcroVR_Debug.txt", string.Format("{0}{1}", fileNameTemplateModelBioRBD, System.Environment.NewLine));
-		//System.IO.File.AppendAllText(@"AcroVR_Debug.txt", string.Format("{0}{1}", dllpath, System.Environment.NewLine));
-#else
-		string fileNameTemplateOfflineModelBioRBD = @"Assets\Biorbd\Somersault_IMUs.s2mMod";
-#endif
-		BiorbdModel modelOffline = new BiorbdModel(fileNameTemplateOfflineModelBioRBD);
 
 		// Initialisation des numéros des types de graphique des résultats qui seront affiché
 
@@ -649,28 +621,5 @@ public class MainParameters
 		}
 	}
 
-	// =================================================================================================================================================================
-	// Charger une librarie DLL en mémoire
-
-	IntPtr LoadLib(string path)
-	{
-		IntPtr ptr = LoadLibrary(path);
-		if (ptr == IntPtr.Zero)
-		{
-			int errorCode = Marshal.GetLastWin32Error();
-			UnityEngine.Debug.LogError(string.Format("Failed to load library {1} (ErrorCode: {0})", errorCode, path));
-		}
-		return ptr;
-	}
-
-	// =================================================================================================================================================================
-	// Supprimer une librarie DLL en mémoire
-
-	public void FreeLib()
-	{
-		for (int i = 0; i < handlesDLL.Length; i++)
-			if (handlesDLL[i] != IntPtr.Zero)
-				FreeLibrary(handlesDLL[i]);
-	}
 	#endregion
 }
