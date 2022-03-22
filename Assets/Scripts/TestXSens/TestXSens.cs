@@ -602,12 +602,12 @@ public class TestXSens : MonoBehaviour
             calibrationDone = true;
             nFramesCalib = nFrame;
 
-            string pathToTemplate = string.Format(@"{0}\Model_Marcel.s2mMod", Application.streamingAssetsPath);
-            string pathToModel = string.Format(@"{0}\Model.s2mMod", Application.streamingAssetsPath);
+            string pathToTemplate = @"Assets\Biorbd\Model_Marcel.s2mMod";
+            string pathToModel = @"Assets\Biorbd\Model.s2mMod";
             modelS2M.createModelFromStaticXsens(xSdataCalib.getData(), pathToModel, pathToTemplate);
             modelS2M.LoadModel(new System.Text.StringBuilder(pathToModel));
 
-            string pathToTemplateRK8 = string.Format(@"{0}\Modele_Marcel_RK8.s2mMod", Application.streamingAssetsPath);
+            string pathToTemplateRK8 = @"Assets\Biorbd\Modele_Marcel_RK8.s2mMod";
             modelInt = MainParameters.c_biorbdModel(new System.Text.StringBuilder(pathToTemplateRK8));
             nQ_modelInt = MainParameters.c_nQ(modelInt);
             nMarkers_modelInt = MainParameters.c_nMarkers(modelInt);

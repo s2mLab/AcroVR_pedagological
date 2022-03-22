@@ -266,57 +266,6 @@ public class MainParameters
 	public StrucLanguages languages;
 	#endregion
 
-	#region BioRBD
-	//Librairie et fonctions biorbd
-#if UNITY_EDITOR
-	const string dllpath = @"Assets\StreamingAssets\biorbd_c.dll";
-#else
-#if UNITY_STANDALONE_OSX
-	const string dllpath = @"AcroVR/Contents/Resources/Data/StreamingAssets/libbiorbd.dylib";	// Fonctionne pas
-	//static System.IO.DirectoryInfo info = new System.IO.DirectoryInfo(dllpath);
-	//string fileInfo = info.FullName;
-#else
-	const string dllpath = @"..\StreamingAssets\biorbd_c.dll";
-#endif
-#endif
-	[DllImport(dllpath)] public static extern IntPtr c_biorbdModel(StringBuilder pathToModel);
-	[DllImport(dllpath)] public static extern IntPtr c_deleteBiorbdModel(IntPtr model);
-	[DllImport(dllpath)] public static extern IntPtr c_writeBiorbdModel(IntPtr model, StringBuilder path);
-	[DllImport(dllpath)] public static extern void c_globalJCS(IntPtr model, IntPtr Q, IntPtr jcs);
-	[DllImport(dllpath)] public static extern void c_inverseDynamics(IntPtr model, IntPtr q, IntPtr qdot, IntPtr qddot, IntPtr tau);
-	[DllImport(dllpath)] public static extern void c_NonlinearEffects(IntPtr model, IntPtr q, IntPtr qdot, IntPtr tau);
-	[DllImport(dllpath)] public static extern void c_massMatrix(IntPtr model, IntPtr q, IntPtr massMatrix);
-	[DllImport(dllpath)] public static extern int c_nQ(IntPtr model);
-	[DllImport(dllpath)] public static extern int c_nQDot(IntPtr model);
-	[DllImport(dllpath)] public static extern int c_nQDDot(IntPtr model);
-	[DllImport(dllpath)] public static extern int c_nMarkers(IntPtr model);
-	[DllImport(dllpath)] public static extern int c_markersInLocal(IntPtr model, IntPtr markPos);
-	[DllImport(dllpath)] public static extern void c_markers(IntPtr model, IntPtr q, IntPtr markPos, bool removeAxis, bool updateKin);
-	[DllImport(dllpath)] public static extern int c_nIMUs(IntPtr model);
-	[DllImport(dllpath)] public static extern void c_addIMU(IntPtr model, IntPtr imuRT, StringBuilder name, StringBuilder parentName, bool technical = true, bool anatomical = true);
-	[DllImport(dllpath)] public static extern IntPtr c_BiorbdKalmanReconsIMU(IntPtr model, IntPtr QinitialGuess, double freq = 100, double noiseF = 5e-3, double errorF = 1e-10);
-	[DllImport(dllpath)] public static extern void c_deleteBiorbdKalmanReconsIMU(IntPtr kalman);
-	[DllImport(dllpath)] public static extern void c_BiorbdKalmanReconsIMUstep(IntPtr model, IntPtr kalman, IntPtr imu, IntPtr Q, IntPtr QDo, IntPtr QDDot);
-	//[DllImport(dllpath)] public static extern void c_getA(IntPtr kalman, IntPtr Mout);
-	//[DllImport(dllpath)] public static extern void c_getJacobian();
-	[DllImport(dllpath)] public static extern void c_matrixMultiplication(IntPtr M1, IntPtr M2, IntPtr Mout);
-	[DllImport(dllpath)] public static extern void c_meanRT(IntPtr imuRT, int nFrame, IntPtr imuRT_mean);
-	[DllImport(dllpath)] public static extern void c_projectJCSinParentBaseCoordinate(IntPtr parent, IntPtr jcs, IntPtr out1);
-	[DllImport(dllpath)] public static extern void c_solveLinearSystem(IntPtr matA, int nbCol, int nbLigne, IntPtr matB, IntPtr solX);
-    [DllImport(dllpath)] public static extern void c_alignSpecificAxisWithParentVertical(IntPtr r1, IntPtr r2, int idxAxe, IntPtr rot_out);
-    [DllImport(dllpath)] public static extern void c_rotation(double v00, double v01, double v02, double v10, double v11, double v12, double v20, double v21, double v22, IntPtr rot_out);
-    [DllImport(dllpath)] public static extern void c_rotationToEulerAngles(IntPtr rot, StringBuilder seq, IntPtr euler_out);
-    [DllImport(dllpath)] public static extern void c_getGravity(IntPtr model, IntPtr gravity);
-    [DllImport(dllpath)] public static extern void c_setGravity(IntPtr model, IntPtr newGravity);
-
-    /// <summary> Répertoire et nom du fichier contenant le modèle BioRBD de base (template) pour TestXSens. </summary>
-    public string fileNameTemplateXSensModelBioRBD;
-	/// <summary> Répertoire et nom du fichier contenant le modèle BioRBD de base (template) pour AcroVR Offline. </summary>
-	public string fileNameTemplateOfflineModelBioRBD;
-	/// <summary> Pointeur qui désigne le modèle BioRBD utilisé pour AcroVR Offline. </summary>
-	public IntPtr modelBioRBDOffline;
-	#endregion
-
 	#region DLLImport
 	/// <summary> Accès à la fonction LoadLibrary, utilisée pour charger les librairies DLL en mémoire. </summary>
 	[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
@@ -350,10 +299,10 @@ public class MainParameters
 		// Chargement en mémoire des libraires DLL utilisées plus tard (librairies XSens et S2M)
 
 		handlesDLL = new IntPtr[4];
-		handlesDLL[0] = LoadLib(string.Format(@"{0}\XSens\xstypes64.dll", UnityEngine.Application.streamingAssetsPath));
-		handlesDLL[1] = LoadLib(string.Format(@"{0}\XSens\xsensdeviceapi64.dll", UnityEngine.Application.streamingAssetsPath));
-		handlesDLL[2] = LoadLib(string.Format(@"{0}\XSens\xsensdeviceapi_csharp64.dll", UnityEngine.Application.streamingAssetsPath));
-		handlesDLL[3] = LoadLib(string.Format(@"{0}\s2m.dll", UnityEngine.Application.streamingAssetsPath));
+		handlesDLL[0] = LoadLib(@"Assets\XSens\bin\xstypes64.dll");
+		handlesDLL[1] = LoadLib(@"Assets\XSens\bin\xsensdeviceapi64.dll");
+		handlesDLL[2] = LoadLib(@"Assets\XSens\bin\xsensdeviceapi_csharp64.dll");
+		handlesDLL[3] = LoadLib(@"Assets\Biorbd\bin\S2M.dll");
 		#endregion
 
 		#region InitParameters
@@ -396,12 +345,12 @@ public class MainParameters
 
 #if UNITY_STANDALONE_OSX
 		//string fileNameTemplateModelBioRBD = string.Format("{0}/Modele_HuManS_somersault.s2mMod", Application.streamingAssetsPath);			//Recupération du modèle biorbd
-		string fileNameTemplateOfflineModelBioRBD = @"AcroVR/Contents/Resources/Data/StreamingAssets/Modele_HuManS_somersault.s2mMod";
+		//string fileNameTemplateOfflineModelBioRBD = @"AcroVR/Contents/Resources/Data/StreamingAssets/Modele_HuManS_somersault.s2mMod";
 		//System.IO.File.AppendAllText(@"AcroVR_Debug.txt", string.Format("{0}{1}", fileNameTemplateModelBioRBD, System.Environment.NewLine));
 		//System.IO.File.AppendAllText(@"AcroVR_Debug.txt", string.Format("{0}{1}", dllpath, System.Environment.NewLine));
 #else
-		fileNameTemplateXSensModelBioRBD = string.Format("{0}/Model_Marcel.s2mMod", UnityEngine.Application.streamingAssetsPath);
-		fileNameTemplateOfflineModelBioRBD = string.Format("{0}/Somersault_IMUs.s2mMod", UnityEngine.Application.streamingAssetsPath);
+		fileNameTemplateXSensModelBioRBD = @"Assets\Biorbd\Model_Marcel.s2mMod";
+		fileNameTemplateOfflineModelBioRBD = @"Assets\Biorbd\Somersault_IMUs.s2mMod";
 #endif
 		modelBioRBDOffline = c_biorbdModel(new StringBuilder(fileNameTemplateOfflineModelBioRBD));
 

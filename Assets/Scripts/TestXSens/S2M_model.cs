@@ -1,54 +1,13 @@
-﻿#define BIORBD
-
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using XDA;
 
 public class S2M_model : MonoBehaviour
 {
-#if !BIORBD
-	const string dllpath = "S2M.dll";
-	[DllImport(dllpath)] static extern IntPtr c_s2mMusculoSkeletalModel(StringBuilder pathToModel);
-	[DllImport(dllpath)] static extern void c_deleteS2mMusculoSkeletalModel(IntPtr model);
-	[DllImport(dllpath)] static extern void c_writeS2mMusculoSkeletalModel(IntPtr model, StringBuilder path);
-
-	// IMUs functions
-	[DllImport(dllpath)] static extern int c_nIMUs(IntPtr model);
-	[DllImport(dllpath)] static extern void c_addIMU(IntPtr model, IntPtr imuRT, StringBuilder name, StringBuilder parent, bool isTechnical = true, bool isAnatomical = true);
-	[DllImport(dllpath)] static extern void c_meanIMU(IntPtr imuRT, int nFrame, IntPtr imuRT_mean);
-	[DllImport(dllpath)] static extern IntPtr c_s2mKalmanReconsIMU(IntPtr model, IntPtr QinitialGuess, double freq = 100, double noiseF = 5e-3, double errorF = 1e-10);
-	[DllImport(dllpath)] static extern void c_deleteS2mKalmanReconsIMU(IntPtr kalman);
-	[DllImport(dllpath)] static extern void c_s2mKalmanReconsIMUstep(IntPtr model, IntPtr kalman, IntPtr imu, IntPtr Q, IntPtr QDo, IntPtr QDDot);
-
-	// Joint related
-	[DllImport(dllpath)] static extern void c_globalJCS(IntPtr model, IntPtr Q, IntPtr jcs);
-	[DllImport(dllpath)] static extern void c_projectJCSinParentBaseCoordinate(IntPtr M1, IntPtr M2, IntPtr M3);
-	[DllImport(dllpath)] static extern void c_matrixMultiplication(IntPtr M1, IntPtr M2, IntPtr M3);
-	[DllImport(dllpath)] static extern void c_localJCS(IntPtr model, int i, IntPtr RtOut);  // Return the LCS for segment named segName in parent coordinate system
-	[DllImport(dllpath)] static extern void c_alignSpecificAxisWithParentVertical(IntPtr parentRT, IntPtr childRT, int idxAxe, IntPtr rotation);
-
-	// Dof related
-	[DllImport(dllpath)] static extern int c_nQ(IntPtr model);
-	[DllImport(dllpath)] static extern int c_nQDot(IntPtr model);
-	[DllImport(dllpath)] static extern int c_nQDDot(IntPtr model);
-	[DllImport(dllpath)] static extern int c_nTau(IntPtr model);
-
-	// Markers related
-	[DllImport(dllpath)] static extern int c_nTags(IntPtr model);
-	[DllImport(dllpath)] static extern void c_Tags(IntPtr model, IntPtr Q, IntPtr mark, bool removeAxis = true, bool updateKin = true);
-	[DllImport(dllpath)] static extern void c_TagsInLocal(IntPtr model, IntPtr mark);
-	[DllImport(dllpath)] static extern void c_addTags(IntPtr model, IntPtr markPos, StringBuilder name, StringBuilder parent, bool isTechnical, bool isAnatomical, StringBuilder axesToRemove);
-
-	// Maths related
-	[DllImport(dllpath)] static extern void c_transformMatrixToCardan(IntPtr M, StringBuilder sequence, IntPtr cardanOut);
-#endif
 
 	// Tous les pointeurs et nombre qui peuvent sauver du temps ou des appels
 
