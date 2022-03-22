@@ -19,7 +19,6 @@ public class TestXSens : MonoBehaviour
 {
     public static TestXSens Instance;
 
-    public static BiorbdModel model = new BiorbdModel(@"Assets/Biorbd/Model_Marcel.bioMod");
     public GameObject buttonTestXSens;
     public GameObject buttonXSensON;
     public Text textTestXSensStatus;
@@ -145,7 +144,8 @@ public class TestXSens : MonoBehaviour
         eulerDataCalib = null;
         eulerDataTrial = null;
 
-        XSensInterface._numberIMUtoConnect = model.nIMUs;
+        Debug.Log("Fix this");
+        XSensInterface._numberIMUtoConnect = 6; // model.nIMUs;
 
         imusMatrixPrev = new XsMatrix[XSensInterface._numberIMUtoConnect];
         for (int i = 0; i < XSensInterface._numberIMUtoConnect; i++)
@@ -856,12 +856,14 @@ public class TestXSens : MonoBehaviour
                 double[] newGravity = new double[3] { -9.81, 0, 0 };
                 IntPtr ptrNewGravity = Marshal.AllocCoTaskMem(sizeof(double) * 3);
                 Marshal.Copy(newGravity, 0, ptrNewGravity, 3);
-                BiorbdModel.c_setGravity(model._ptr_model, ptrNewGravity);
+                Debug.Log("Fix this");
+                //BiorbdModel.c_setGravity(model._ptr_model, ptrNewGravity);
                 Marshal.FreeCoTaskMem(ptrNewGravity);
 
                 double[] gravity = new double[3];
                 IntPtr ptrGravity = Marshal.AllocCoTaskMem(sizeof(double) * 3);
-                BiorbdModel.c_getGravity(model._ptr_model, ptrGravity);
+                Debug.Log("Fix this");
+                //BiorbdModel.c_getGravity(model._ptr_model, ptrGravity);
                 Marshal.Copy(ptrGravity, gravity, 0, 3);
                 Marshal.FreeCoTaskMem(ptrGravity);
                 Debug.Log(string.Format("Gravity = {0}, {1}, {2}", gravity[0], gravity[1], gravity[2]));

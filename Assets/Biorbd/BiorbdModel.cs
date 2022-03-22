@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using UnityEngine;
 using System.Text;
 using System.Runtime.InteropServices;
@@ -54,6 +55,7 @@ public class BiorbdModel
 
 	/// <summary> Pointeur qui désigne le modèle BioRBD utilisé pour AcroVR Offline. </summary>
 	public IntPtr _ptr_model;
+	bool _initialized = false;
 	public int nRoot;
 	public int nQ;
 	public int nQDot;
@@ -73,14 +75,25 @@ public class BiorbdModel
 	double[] _q;
 	double[] _qdot;
 	double[] _qddot;
-	double[] _tau;
 	double[] _massMatrixVector;
 	double[,] _massMatrix;
 	double[] _linearSolutionForRoot;
 
 	public BiorbdModel(string path)
     {
+		Initialize(path);
+    }
+
+	void Initialize(string path)
+    {
+		if (_initialized || !File.Exists(path))
+        {
+			Debug.Log(String.Format("Biorbd model not found ({0}), Initialization skipped", path));
+			return;
+		}
+
 		_ptr_model = c_biorbdModel(new StringBuilder(path));
+		_initialized = true;
 
 		// Precompute some values to prevent unnecessary DLL calls
 		nRoot = 6; //  c_nRoot(_ptr_model);
@@ -103,7 +116,6 @@ public class BiorbdModel
 		_q = new double[nQ];
 		_qdot = new double[nQ];
 		_qddot = new double[nQ];
-		_tau = new double[nTau];
 		_massMatrixVector = new double[nQ * nQ];
 		_massMatrix = new double[nQ, nQ];
 		_linearSolutionForRoot = new double[nRoot];
@@ -170,7 +182,7 @@ public class BiorbdModel
 
 	public double[] RootDynamics(
 		double t, double[] x, double[] q_measured, double[] qdot_measured, double[] qddot_measured
-		)
+	)
 	{
 		// Dispatch entry values
 		for (int i = 0; i < nQ; i++)

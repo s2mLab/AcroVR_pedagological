@@ -1,6 +1,6 @@
 ﻿// =================================================================================================================================================================
 /// <summary> Paramètres et fonctions utilisés selon le modèle de Langrangien utilisé (classe abstraite de défaut, qui ne peut pas être appelé directement). </summary>
-
+using UnityEngine;
 public abstract class LagrangianModelManager
 {
 	/// <summary> Description de la structure contenant les paramètres relatifs au modèle Lagrangien. </summary>
@@ -55,7 +55,8 @@ public class LagrangianModelSimple : LagrangianModelManager
 		get
 		{
 			StrucLagrangianModel lagrangianModel = new StrucLagrangianModel();
-			lagrangianModel.nDDL = TestXSens.model.nQ;
+			Debug.Log("Fix this");
+			lagrangianModel.nDDL = 8; // TestXSens.model.nQ;
 			lagrangianModel.nTAG = 4;
 			lagrangianModel.q1 = new int[] { 1, 2, 3, 4, 5, 6 };                    // Racine
 			lagrangianModel.q2 = new int[lagrangianModel.nDDL - 6];

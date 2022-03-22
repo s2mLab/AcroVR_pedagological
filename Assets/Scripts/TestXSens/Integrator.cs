@@ -298,16 +298,29 @@ public class Integrator : MonoBehaviour
     //				Simple RK implementation with fixed time step. Not intended for practical use</summary>
     //				[Obsolete("Fixed step RK45 method is provided only as an example")]
 
-    public static Microsoft.Research.Oslo.Vector RK4(Microsoft.Research.Oslo.Vector x0, double[] qFrame0, double[] qdFrame0, double[] qddFrame0, double[] qFrame1, double[] qdFrame1, double[] qddFrame1, double[] qFrame2, double[] qdFrame2, double[] qddFrame2)
+    public static Microsoft.Research.Oslo.Vector RK4(
+        Func<double, double[], double[], double[], double[], Microsoft.Research.Oslo.Vector> DynamicFunc,
+        Microsoft.Research.Oslo.Vector x0, 
+        double[] qFrame0, 
+        double[] qdFrame0,
+        double[] qddFrame0, 
+        double[] qFrame1, 
+        double[] qdFrame1, 
+        double[] qddFrame1, 
+        double[] qFrame2, 
+        double[] qdFrame2,
+        double[] qddFrame2
+    )
     {
         Microsoft.Research.Oslo.Vector x = x0;
         double dt = MainParameters.Instance.joints.lagrangianModel.dt;
         double dt2 = dt / 2;
 
-        Microsoft.Research.Oslo.Vector x1 = TestXSens.model.RootDynamics(0, x, qFrame0, qdFrame0, qddFrame0);
-        Microsoft.Research.Oslo.Vector x2 = TestXSens.model.RootDynamics(0, x + x1 * dt2, qFrame1, qdFrame1, qddFrame1);
-        Microsoft.Research.Oslo.Vector x3 = TestXSens.model.RootDynamics(0, x + x2 * dt2, qFrame1, qdFrame1, qddFrame1);
-        Microsoft.Research.Oslo.Vector x4 = TestXSens.model.RootDynamics(0, x + x3 * dt, qFrame2, qdFrame2, qddFrame2);
+        //DynamicFunc = TestXSens.model.RootDynamics;
+        Microsoft.Research.Oslo.Vector x1 = DynamicFunc(0, x, qFrame0, qdFrame0, qddFrame0);
+        Microsoft.Research.Oslo.Vector x2 = DynamicFunc(0, x + x1 * dt2, qFrame1, qdFrame1, qddFrame1);
+        Microsoft.Research.Oslo.Vector x3 = DynamicFunc(0, x + x2 * dt2, qFrame1, qdFrame1, qddFrame1);
+        Microsoft.Research.Oslo.Vector x4 = DynamicFunc(0, x + x3 * dt, qFrame2, qdFrame2, qddFrame2);
         x = x + (dt / 6.0) * (x1 + 2.0 * x2 + 2.0 * x3 + x4);
 
         return x;  //retourne état suivant à l'instant t+dt         
@@ -756,7 +769,8 @@ public class Integrator : MonoBehaviour
 
 		Marshal.Copy(q, 0, ptr_Q, q.Length);
 		Marshal.Copy(qdot, 0, ptr_Qdot, qdot.Length);
-		BiorbdModel.c_NonlinearEffects(TestXSens.model._ptr_model, ptr_Q, ptr_Qdot, ptr_Tau);
+        Debug.Log("Fix this");
+		//BiorbdModel.c_NonlinearEffects(TestXSens.model._ptr_model, ptr_Q, ptr_Qdot, ptr_Tau);
 		Marshal.Copy(ptr_Tau, tau, 0, tau.Length);
 
 		Marshal.FreeCoTaskMem(ptr_Q);
@@ -777,7 +791,8 @@ public class Integrator : MonoBehaviour
 		IntPtr ptr_massMatrix = Marshal.AllocCoTaskMem(sizeof(double) * massMatrix.Length);
 
 		Marshal.Copy(q, 0, ptr_Q, q.Length);
-		BiorbdModel.c_massMatrix(TestXSens.model._ptr_model, ptr_Q, ptr_massMatrix);
+        Debug.Log("Fix this");
+        //BiorbdModel.c_massMatrix(TestXSens.model._ptr_model, ptr_Q, ptr_massMatrix);
 		Marshal.Copy(ptr_massMatrix, massMatrix, 0, massMatrix.Length);
 
 		Marshal.FreeCoTaskMem(ptr_Q);
@@ -798,7 +813,8 @@ public class Integrator : MonoBehaviour
 
 		Marshal.Copy(q, 0, ptr_Q, q.Length);
 
-		BiorbdModel.c_markers(TestXSens.model._ptr_model, ptr_Q, ptr_markPos, false, true);
+        Debug.Log("Fix this");
+        //BiorbdModel.c_markers(TestXSens.model._ptr_model, ptr_Q, ptr_markPos, false, true);
 
 		Marshal.Copy(ptr_markPos, markPos, 0, markPos.Length);
 
