@@ -1,0 +1,176 @@
+version 3
+
+
+// General informations
+
+// Informations about Pelvis segment
+	// Segment
+	segment	Pelvis
+		parent	root
+		RTinMatrix	1
+		RT
+			0.000696327           0           1           0
+			           1  0.000696327 -0.000696327            0
+			-0.000696327            1  4.84871e-07        0.185
+			0 0 0 1
+		translations	xyz
+		rotations	xyz
+		mass	1e-08
+		inertia
+			1 0 0
+0 1 0
+0 0 1
+		com	0 0 0
+	endsegment	
+
+	// Markers
+	marker	Dos
+		parent	Pelvis
+		position	0 0 0
+		technical	1
+		anatomical	0
+	endmarker	
+
+	// Inertial Magnetic Unit
+	imu	Pelvis_IMU
+		parent	Pelvis
+		RTinMatrix	1
+		RT
+			  -0.437439   -0.899248 0.000115517           0
+			 0.885417 -0.430734 -0.174657         0
+			   0.15711 -0.0762997   0.984629          0
+			0 0 0 1
+		technical	1
+		anatomical	1
+	endimu	
+
+
+// Informations about RightArm segment
+	// Segment
+	segment	RightArm
+		parent	Pelvis
+		RTinMatrix	1
+		RT
+			0.000696327          -1           0      -0.185
+			          1 0.000696327           0       0.294
+			0 0 1 0
+			0 0 0 1
+		rotations	xyz
+		mass	1e-08
+		inertia
+			1 0 0
+0 1 0
+0 0 1
+		com	0 0 0
+	endsegment	
+
+	// Markers
+	marker	mainD
+		parent	RightArm
+		position	    0 0.294     0
+		technical	1
+		anatomical	0
+	endmarker	
+
+	// Inertial Magnetic Unit
+	imu	RightUpperArm_IMU
+		parent	RightArm
+		RTinMatrix	1
+		RT
+			-0.779131  0.610493  0.142315         0
+			-0.591172 -0.791096  0.157106     0.294
+			 0.208497 0.0382734  0.977274         0
+			0 0 0 1
+		technical	1
+		anatomical	1
+	endimu	
+
+
+// Informations about LeftArm segment
+	// Segment
+	segment	LeftArm
+		parent	Pelvis
+		RTinMatrix	1
+		RT
+			0.000696327           1           0       0.185
+			         -1 0.000696327           0       0.294
+			0 0 1 0
+			0 0 0 1
+		rotations	xyz
+		mass	1e-08
+		inertia
+			1 0 0
+0 1 0
+0 0 1
+		com	0 0 0
+	endsegment	
+
+	// Markers
+	marker	mainG
+		parent	LeftArm
+		position	    0 0.294     0
+		technical	1
+		anatomical	0
+	endmarker	
+
+	// Inertial Magnetic Unit
+	imu	LeftUpperArm_IMU
+		parent	LeftArm
+		RTinMatrix	1
+		RT
+			 0.345515 -0.900223 -0.264988         0
+			 0.889677  0.404058 -0.212631     0.294
+			 0.298485 -0.162286  0.940516         0
+			0 0 0 1
+		technical	1
+		anatomical	1
+	endimu	
+
+
+// Informations about Thorax segment
+	// Segment
+	segment	Thorax
+		parent	Pelvis
+		RTinMatrix	1
+		RT
+			1 0 0 0
+			0 1 0 0
+			0 0 1 0
+			0 0 0 1
+		mass	1e-08
+		inertia
+			1 0 0
+0 1 0
+0 0 1
+		com	0 0 0
+	endsegment	
+
+	// Markers
+	marker	Bedaine
+		parent	Thorax
+		position	  0   0 0.2
+		technical	1
+		anatomical	0
+	endmarker	
+
+	// Inertial Magnetic Unit
+	imu	Bedaine_IMU
+		parent	Thorax
+		RTinMatrix	1
+		RT
+			 0.575681  0.801254 -0.163042         0
+			-0.737608  0.594936  0.319351         0
+			  0.352881 -0.0635837   0.933505        0.2
+			0 0 0 1
+		technical	1
+		anatomical	1
+	endimu	
+
+
+
+
+
+
+
+
+

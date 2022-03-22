@@ -1,0 +1,98 @@
+version 3
+
+
+// General informations
+
+// Informations about Pelvis segment
+	// Segment
+	segment	Pelvis
+		parent	root
+		RTinMatrix	1
+		RT
+			1	0	0	0
+			0	1	0	0
+			0	0	1	0
+			0	0	0	1
+		translations	xyz
+		rotations	xyz
+		mass	58.801
+		com		0  0.09410  0
+			8.12771	0.00000	0.00000
+			0.00000	0.51802	0.00000
+			0.00000	0.00000	7.85829
+		mesh	0	0	0
+		mesh	1	0	0
+		mesh	-1	0	0
+	endsegment	
+	marker CoM_Global_zero
+		parent Pelvis
+		position	0.196	0	0
+	endmarker
+	marker ChevilleD
+		parent Pelvis
+		position -0.44-0.482 0 0 
+	endmarker
+	marker ChevilleG
+		parent Pelvis
+		position -0.44-0.482 0 0 
+	endmarker
+
+// Informations about RightArm segment
+	// Segment
+	segment	RightArm
+		parent	Pelvis
+		RTinMatrix	1
+		RT
+			1	0	0	0.294
+			0	1	0	-0.185
+			0	0	1	0
+			0	0	0	1
+		rotations	xyz
+		mass	3.106
+		inertia
+			0.0909983	0.00000	0.00000
+			0.00000	0.00292	0.00000
+			0.00000	0.00000	0.0910283
+		com	0	-0.233088	0
+		mesh	0	0	0
+		mesh	-0.3	0	0
+	endsegment	
+	marker PoignetD
+		parent RightArm
+		position	-0.3	0	0
+	endmarker
+
+// Informations about LeftArm segment
+	// Segment
+	segment	LeftArm
+		parent	Pelvis
+		RTinMatrix	1
+		RT
+			1	0	0	0.294
+			0	1	0	0.185
+			0	0	1	0
+			0	0	0	1
+		rotations	xyz
+		mass	3.106
+		inertia
+			0.0909983	0.00000	0.00000
+			0.00000	0.00292	0.00000
+			0.00000	0.00000	0.0910283
+		com	0	-0.233088	0
+		mesh	0	0	0
+		mesh	-0.3	0	0
+	endsegment	
+
+	marker PoignetG
+		parent LeftArm
+		position	-0.3	0	0
+	endmarker
+
+
+
+
+
+
+
+
+
