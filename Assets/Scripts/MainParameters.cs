@@ -268,7 +268,7 @@ public class MainParameters
 
 	#region DLLImport
 	/// <summary> Liste des pointeurs de librairies DLL qui ont été charger en mémoire. </summary>
-	public IntPtr[] handlesDLL;
+	public IntPtr[] handlesDLL = new IntPtr[3];
 	#endregion
 
 	/// <summary> Numéros des types de graphique des résultats qui seront affiché dans le panneau des graphiques des résultats. </summary>
@@ -333,12 +333,18 @@ public class MainParameters
 
 		softwareRunMode = softwareRunModeType.AcroVR;
 
-#endregion
+		#endregion
+
+		#region InitDll
+		handlesDLL[0] = DllManagement.LoadLib(@"Assets\Avatar\XSensController\XSens\bin\xstypes64.dll");
+		handlesDLL[1] = DllManagement.LoadLib(@"Assets\Avatar\XSensController\XSens\bin\xsensdeviceapi64.dll");
+		handlesDLL[2] = DllManagement.LoadLib(@"Assets\Avatar\XSensController\XSens\bin\xsensdeviceapi_csharp64.dll");
+		#endregion
 
 		#region InitLanguages
-	// Initialisation de la liste des messages en français et en anglais.
+		// Initialisation de la liste des messages en français et en anglais.
 
-	languages.french.leftSide = "Gauche";
+		languages.french.leftSide = "Gauche";
 		languages.english.leftSide = "Left";
 		languages.french.rightSide = "Droit";
 		languages.english.rightSide = "Right";

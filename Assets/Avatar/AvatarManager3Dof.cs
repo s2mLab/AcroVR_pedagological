@@ -11,6 +11,7 @@ public class AvatarManager3Dof : MonoBehaviour
 	public GameObject rightUpperArm;
 	public GameObject leftUpperArm;
 
+	int nQ = 9;
 	float[] _anglesAvatar;
 
 	[SerializeField] public string modelPath;
@@ -18,8 +19,19 @@ public class AvatarManager3Dof : MonoBehaviour
 
     void Start()
 	{
-		_anglesAvatar = new float[8];
+		_anglesAvatar = new float[nQ];
         _biorbdModel = new BiorbdModel(@"Assets/" + modelPath);
+    }
+
+	void Update()
+	{
+		var rand = new System.Random();
+		double[] x = new double[nQ];
+		for (int i = 0; i < nQ; i++)
+        {
+			x[i] = rand.NextDouble();
+        }
+		SetSegmentsRotations(x);
     }
 
 	public void SetSegmentsRotations(double[] q)
