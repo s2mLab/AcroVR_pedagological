@@ -63,7 +63,7 @@ public class LagrangianModelSimple : LagrangianModelManager
 			for (int i = 0; i < lagrangianModel.nDDL - 6; i++)
 				lagrangianModel.q2[i] = i + 7;
 			lagrangianModel.dt = 0.01f;
-            //lagrangianModel.dt = 1 / XSensInterface.processFreq;
+            //lagrangianModel.dt = 1 / XSensModule.processFreq;
 
             //lagrangianModel.root_right = 1;
             //lagrangianModel.root_foreward = 3;

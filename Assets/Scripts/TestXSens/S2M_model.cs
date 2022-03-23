@@ -320,7 +320,7 @@
 
 //		if (TestXSens.nMsgS2M < TestXSens.nMsgSize - 2)																			// Debug Marcel (Début)
 //		{
-//			TestXSens.msgS2M[TestXSens.nMsgS2M] = string.Format("LoadModel #1: processFreq, m_nQ = {0}, {1}", XSensInterface.processFreq, m_nQ);
+//			TestXSens.msgS2M[TestXSens.nMsgS2M] = string.Format("LoadModel #1: processFreq, m_nQ = {0}, {1}", XSensModule.processFreq, m_nQ);
 //			TestXSens.nMsgS2M++;
 //			TestXSens.msgS2M[TestXSens.nMsgS2M] = string.Format("LoadModel #2: Q = ");
 //			for (int i = 0; i < m_nQ; i++)
@@ -330,10 +330,10 @@
 
 //		// Préparer le filtre
 //#if BIORBD
-//		m_kalman = MainParameters.c_BiorbdKalmanReconsIMU(m_s2m, QinitialGuess, XSensInterface.processFreq, 0.005f, 1E-5);              // Fonction #13
+//		m_kalman = MainParameters.c_BiorbdKalmanReconsIMU(m_s2m, QinitialGuess, XSensModule.processFreq, 0.005f, 1E-5);              // Fonction #13
 //		m_nIMUs = MainParameters.c_nIMUs(m_s2m);
 //#else
-//		m_kalman = c_s2mKalmanReconsIMU(m_s2m, QinitialGuess, XSensInterface.processFreq, 0.005f, 1E-5);
+//		m_kalman = c_s2mKalmanReconsIMU(m_s2m, QinitialGuess, XSensModule.processFreq, 0.005f, 1E-5);
 //		m_nIMUs = c_nIMUs (m_s2m);
 //#endif
 //		//double[] kalm = new double[10];

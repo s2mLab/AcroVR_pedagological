@@ -54,14 +54,14 @@ public class BiorbdModel
 
 	/// <summary> Pointeur qui désigne le modèle BioRBD utilisé pour AcroVR Offline. </summary>
 	public IntPtr _ptr_model;
-	bool _initialized = false;
-	public int nRoot;
-	public int nQ;
-	public int nQDot;
-	public int nQDDot;
-	public int nTau;
-	public int nMarkers;
-	public int nIMUs; 
+	bool _initialized { get; set; } = false;
+	public int NbRoot { get; protected set; }
+	public int NbQ { get; protected set; }
+	public int NbQDot { get; protected set; }
+	public int NbQDDot { get; protected set; }
+	public int NbTau { get; protected set; }
+	public int NbMarkers { get; protected set; }
+	public int NbImus { get; protected set; }
 
 	// Temporary vectors that are allocated for dll calls
 	IntPtr _ptr_q;
@@ -95,29 +95,29 @@ public class BiorbdModel
 		_initialized = true;
 
 		// Precompute some values to prevent unnecessary DLL calls
-		nRoot = 6; //  c_nRoot(_ptr_model);
-		nQ = c_nQ(_ptr_model);
-		nQDot = c_nQDot(_ptr_model);
-		nQDDot = c_nQDDot(_ptr_model);
-		nTau = c_nGeneralizedTorque(_ptr_model);
-		nMarkers = c_nMarkers(_ptr_model);
-		nIMUs = c_nIMUs(_ptr_model);
+		NbRoot = 6; //  c_nRoot(_ptr_model);
+		NbQ = c_nQ(_ptr_model);
+		NbQDot = c_nQDot(_ptr_model);
+		NbQDDot = c_nQDDot(_ptr_model);
+		NbTau = c_nGeneralizedTorque(_ptr_model);
+		NbMarkers = c_nMarkers(_ptr_model);
+		NbImus = c_nIMUs(_ptr_model);
 
 		// Preallocate the vectors for communications with the DLL
-		_ptr_q = Marshal.AllocCoTaskMem(sizeof(double) * nQ);
-		_ptr_qdot = Marshal.AllocCoTaskMem(sizeof(double) * nQ);
-		_ptr_qddot = Marshal.AllocCoTaskMem(sizeof(double) * nQ);
-		_ptr_massMatrixVector = Marshal.AllocCoTaskMem(sizeof(double) * nQ * nQ);
-		_ptr_massMatrixRootVector = Marshal.AllocCoTaskMem(sizeof(double) * nRoot * nRoot);
-		_ptr_linearSolutionForRoot = Marshal.AllocCoTaskMem(sizeof(double) * nRoot);
-		_ptr_tau = Marshal.AllocCoTaskMem(sizeof(double) * nTau);
+		_ptr_q = Marshal.AllocCoTaskMem(sizeof(double) * NbQ);
+		_ptr_qdot = Marshal.AllocCoTaskMem(sizeof(double) * NbQ);
+		_ptr_qddot = Marshal.AllocCoTaskMem(sizeof(double) * NbQ);
+		_ptr_massMatrixVector = Marshal.AllocCoTaskMem(sizeof(double) * NbQ * NbQ);
+		_ptr_massMatrixRootVector = Marshal.AllocCoTaskMem(sizeof(double) * NbRoot * NbRoot);
+		_ptr_linearSolutionForRoot = Marshal.AllocCoTaskMem(sizeof(double) * NbRoot);
+		_ptr_tau = Marshal.AllocCoTaskMem(sizeof(double) * NbTau);
 
-		_q = new double[nQ];
-		_qdot = new double[nQ];
-		_qddot = new double[nQ];
-		_massMatrixVector = new double[nQ * nQ];
-		_massMatrix = new double[nQ, nQ];
-		_linearSolutionForRoot = new double[nRoot];
+		_q = new double[NbQ];
+		_qdot = new double[NbQ];
+		_qddot = new double[NbQ];
+		_massMatrixVector = new double[NbQ * NbQ];
+		_massMatrix = new double[NbQ, NbQ];
+		_linearSolutionForRoot = new double[NbRoot];
 	}
 
 	public static void createModelFromStaticXsens(List<XsMatrix[]> statiqueTrial, string pathToModel, string pathToTemplate)
@@ -184,42 +184,42 @@ public class BiorbdModel
 	)
 	{
 		// Dispatch entry values
-		for (int i = 0; i < nQ; i++)
+		for (int i = 0; i < NbQ; i++)
 		{
 			_q[i] = x[i];
-			_qdot[i] = x[i + nQ];
+			_qdot[i] = x[i + NbQ];
 		}
-		for (int i = 0; i < nQDDot; i++)
+		for (int i = 0; i < NbQDDot; i++)
 		{
 			_qddot[i] = 
-				i < nRoot ? 
+				i < NbRoot ? 
 				0 : 
 				qddot_measured[i] + 10 * (q_measured[i] - _q[i]) + 3 * (qdot_measured[i] - _qdot[i]);
 		}
-		Marshal.Copy(_q, 0, _ptr_q, nQ);
-		Marshal.Copy(_qdot, 0, _ptr_qdot, nQDot);
-		Marshal.Copy(_qddot, 0, _ptr_qddot, nQDDot);
+		Marshal.Copy(_q, 0, _ptr_q, NbQ);
+		Marshal.Copy(_qdot, 0, _ptr_qdot, NbQDot);
+		Marshal.Copy(_qddot, 0, _ptr_qddot, NbQDDot);
 
 		// Compute the inverse dynamics
 		c_inverseDynamics(_ptr_model, _ptr_q, _ptr_qdot, _ptr_qddot, _ptr_tau);
 
 		// Compute root dynamics
 		c_massMatrix(_ptr_model, _ptr_q, _ptr_massMatrixVector);
-		Marshal.Copy(_ptr_massMatrixVector, _massMatrixVector, 0, nQ * nQ);
+		Marshal.Copy(_ptr_massMatrixVector, _massMatrixVector, 0, NbQ * NbQ);
 		_massMatrix = Vector.ToSquareMatrix(_massMatrixVector);
-		double[,] massMatriceRoot = Matrix.Get(_massMatrix, 0, 0, nRoot, nRoot);
+		double[,] massMatriceRoot = Matrix.Get(_massMatrix, 0, 0, NbRoot, NbRoot);
 		double[] massMatriceRootVector = Matrix.toVector(massMatriceRoot);
-		Marshal.Copy(massMatriceRootVector, 0, _ptr_massMatrixRootVector, nRoot * nRoot);
+		Marshal.Copy(massMatriceRootVector, 0, _ptr_massMatrixRootVector, NbRoot * NbRoot);
 
 		// Compute the Tau for the root
-		c_solveLinearSystem(_ptr_massMatrixRootVector, nRoot, nRoot, _ptr_tau, _ptr_linearSolutionForRoot);
-		Marshal.Copy(_ptr_linearSolutionForRoot, _linearSolutionForRoot, 0, nRoot);
+		c_solveLinearSystem(_ptr_massMatrixRootVector, NbRoot, NbRoot, _ptr_tau, _ptr_linearSolutionForRoot);
+		Marshal.Copy(_ptr_linearSolutionForRoot, _linearSolutionForRoot, 0, NbRoot);
 
-		double[] xdot = new double[nQ + nQDot];
-		for (int i = 0; i < nQ; i++)
+		double[] xdot = new double[NbQ + NbQDot];
+		for (int i = 0; i < NbQ; i++)
 		{
 			xdot[i] = _qdot[i];
-			xdot[i + nQ] = i < nRoot ? -_linearSolutionForRoot[i] : _qddot[i];
+			xdot[i + NbQ] = i < NbRoot ? -_linearSolutionForRoot[i] : _qddot[i];
 		}
 
 		return xdot;
