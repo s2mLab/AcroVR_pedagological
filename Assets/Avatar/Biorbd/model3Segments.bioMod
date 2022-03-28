@@ -17,28 +17,6 @@ external_forces 0
 		mesh	0	-0.75	0
 	endsegment
 	
-	//marker Pelvis
-	//	parent Pelvis
-	//	position 0 0 0 
-	//endmarker
-	//marker Pelvis_brasD
-	//	parent Pelvis
-	//	position 0 0.13 0
-	//endmarker
-	//marker	Face
-	//	parent	Pelvis
-	//	position	0	0.6	0.1
-	//	technical	1
-	//	anatomical	0
-	//endmarker
-
-	marker	Dos
-		parent	Pelvis
-		position	0	0	0
-		technical	1
-		anatomical	0
-	endmarker
-
 	segment	RightArm
 		parent	Pelvis
 		RT 0 0 1.5701 xyz -0.185 0.294 0
@@ -46,17 +24,6 @@ external_forces 0
 		mesh	0	0	0
 		mesh	0	0.294	0
 	endsegment	
-
-	//marker BrasD_brasG
-	//	parent Pelvis
-	//	position 0 0.13 0
-	//endmarker
-	marker	mainD
-		parent	RightArm
-		position	0	0.294	0
-		technical	1
-		anatomical	0
-	endmarker	
 
 	segment	LeftArm
 		parent Pelvis
@@ -66,25 +33,17 @@ external_forces 0
 		mesh	0	0.294	0
 	endsegment	
 
-	marker	mainG
-		parent	LeftArm
-		position	0	0.294	0
-		technical	1
-		anatomical	0
-	endmarker	
-
-	segment	Thorax
-	parent	Pelvis
-		RT 0 0 0 xyz 0 0 0
-	endsegment
-
-	marker	Bedaine
-		parent	Thorax
-		position	0	0	0.2
-		technical	1
-		anatomical	0
-	endmarker	
-
-
-
+	imu IMU_thorax
+		parent Pelvis
+		position 0 0 0
+	endimu
 	
+	imu IMU_RightArm
+		parent RightArm
+		position 0 0 0
+	endimu
+
+	imu IMU_LeftArm
+		parent LeftArm
+		position 0 0 0
+	endimu

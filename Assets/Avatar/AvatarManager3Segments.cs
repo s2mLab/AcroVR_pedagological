@@ -12,38 +12,36 @@ public class AvatarManager3Segments : AvatarManager
 	public GameObject rightUpperLimb;
 	public float[] AnglesAvatar { get; protected set; }
 
-	void Start()
+	protected new void Start()
 	{
+		base.Start();
 		AnglesAvatar = new float[Model.NbQ];
 	}
 
-	protected override string GetBiorbdModelPath()
+	protected override string BiomodPath()
     {
 		return @"Assets/Avatar/Biorbd/model3Segments.bioMod";
-
 	}
 
 	void Update()
 	{
-		var rand = new System.Random();
-		double[] x = new double[Model.NbQ];
-		for (int i = 0; i < Model.NbQ; i++)
-        {
-			x[i] = rand.NextDouble();
-        }
-		SetSegmentsRotations(x);
+        //if (Module.IsSensorsConnected)
+        //{
+        //    FillData();
+        //    //SetSegmentsRotations(_data);
+        //}
     }
 
 	public override void SetSegmentsRotations(double[] q)
 	{
-		FillAngles(q);
+		ConvertToAngles(q);
 
 		PerformRotation(hips, new Vector3(AnglesAvatar[0], AnglesAvatar[1], AnglesAvatar[2]));
 		PerformRotation(leftUpperLimb, new Vector3(AnglesAvatar[6], AnglesAvatar[7], AnglesAvatar[8]));
 		PerformRotation(rightUpperLimb, new Vector3(AnglesAvatar[3], AnglesAvatar[4], AnglesAvatar[5]));
 	}
 
-	void FillAngles(double[] q)
+	void ConvertToAngles(double[] q)
 	{
 		// qAvatar = [q0, -q1, -q2, q3, -q4, -q5, q6, -q7, -q8].
 		AnglesAvatar[0] = (float)MathUtils.ToDegree(q[0]);
