@@ -25,11 +25,19 @@ public class AvatarManager3Segments : AvatarManager
 
 	void Update()
 	{
-        //if (Module.IsSensorsConnected)
-        //{
-        //    FillData();
-        //    //SetSegmentsRotations(_data);
-        //}
+        GetCurrentData();
+		if (CurrentData == null)
+        {
+			return;
+        }
+
+		Debug.Log($"Time frame : {CurrentData.TimeIndex}");
+		for (int i=0; i < CurrentData.NbSensorsSet; ++i)
+        {
+			var euler = CurrentData.OrientationEuler[i];
+			Debug.Log($"\tSensor {i}: ({euler.x()}, {euler.y()}, {euler.z()}");
+        }
+        //SetSegmentsRotations(_data);
     }
 
 	public override void SetSegmentsRotations(double[] q)

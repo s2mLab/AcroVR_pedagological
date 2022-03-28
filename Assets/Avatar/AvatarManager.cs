@@ -12,7 +12,9 @@ public abstract class AvatarManager : MonoBehaviour
 
     // XSens related variables
     public XSensModule Module { get; protected set; }
-    protected double[] _data;
+    protected XSensData CurrentData = null;
+	protected bool CurrentDataHasChanged = false;
+	protected int PreviousDataIndex = -1;
 
 	protected abstract string BiomodPath();
 
@@ -21,7 +23,6 @@ public abstract class AvatarManager : MonoBehaviour
 		Model = new BiorbdModel(BiomodPath());
 
 		Module = new XSensModule();
-		_data = new double[Model.NbQ];
 	}
 
 	public IEnumerator InitializeXSens(
@@ -53,10 +54,18 @@ public abstract class AvatarManager : MonoBehaviour
 		yield return 0;
 	}
 
-	protected void FillData()
-    {
-        //double[] data = Module.CurrentData.EulerToDoubleArray();
-    }
+	protected void GetCurrentData()
+	{
+		CurrentDataHasChanged = false;
+		if (Module.IsSensorsConnected)
+		{
+			if (CurrentData == null || CurrentData.TimeIndex != Module.CurrentData.TimeIndex && Module.CurrentData.AllSensorsSet)
+            {
+				CurrentData = Module.CurrentData;
+				CurrentDataHasChanged = true;
+			}
+		}
+	}
 
 	void OnDestroy()
     {

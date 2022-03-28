@@ -26,7 +26,7 @@ public class XSensModule
             return Device.children();
         }
     }
-    protected List<uint> SensorIds = new List<uint>();
+    protected Dictionary<uint, uint> SensorsMap = new Dictionary<uint, uint>();
     Dictionary<XsDevice, MyMtCallback> DevicesCallbackDict = new Dictionary<XsDevice, MyMtCallback>();
     public int NbSensors { get { return (int)Sensors.size(); } }
 
@@ -35,8 +35,8 @@ public class XSensModule
     public int UpdateRate
     {
         get => _updateRate;
-        set { 
-            if (value != 60 || value != 120) 
+        set {
+            if (value != 60 || value != 120)
             {
                 Debug.LogWarning("Wrong values for UpdateRate, only 60 or 120Hz is allowed. Default value (120Hz) is selected");
                 _updateRate = 120;
@@ -52,9 +52,10 @@ public class XSensModule
 
     // Trial related variables
     public bool IsRecording { get; protected set; } = false;
-    DateTime TrialStartingTime;
+    protected DateTime TrialStartingTime;
+    protected int PreviousPacketCounter = -1;
     public XSensData CurrentData { get; protected set; } = null;
-    public List<XSensData> Data { get; protected set; } = new List<XSensData>();
+    public List<XSensData> TrialData { get; protected set; } = new List<XSensData>();
     
     public XSensModule()
 	{
@@ -167,18 +168,20 @@ public class XSensModule
         }
 
         // Setup each sensor
-        SensorIds.Clear();
+        SensorsMap.Clear();
+        Device.clearCallbackHandlers();
+        DevicesCallbackDict.Clear();
         for (uint i = 0; i < Sensors.size(); i++)
         {
             XsDevice mtw = new XsDevice(Sensors.at(i));
-            SensorIds.Add(mtw.deviceId().toInt());
+            SensorsMap.Add(mtw.deviceId().toInt(), i);
 
             // Connect signals
             MyMtCallback callback = new MyMtCallback();
             callback.DataAvailable += new EventHandler<DataAvailableArgs>(HandlerDataAvailableCallback);
 
             mtw.addCallbackHandler(callback);
-            DevicesCallbackDict.Add(mtw, callback); // To be removed?
+            DevicesCallbackDict.Add(mtw, callback);
         }
 
         IsSensorsConnected = NbSensors == _expectedNbSensors;
@@ -190,14 +193,17 @@ public class XSensModule
 
         Device.setOptions(XsOption.XSO_Orientation | XsOption.XSO_Calibrate, XsOption.XSO_None);
         Device.gotoMeasurement();
+
+        CurrentData = null;
     }
 
 
     public void StartTrial()
     {
         TrialStartingTime = DateTime.Now;
+        PreviousPacketCounter = -1;
         IsRecording = true;
-        Data.Clear();
+        TrialData.Clear();
     }
 
     public void StopTrial()
@@ -211,26 +217,27 @@ public class XSensModule
 
 	void HandlerDataAvailableCallback(object sender, DataAvailableArgs e)
 	{
-        var rand = new System.Random();
-        double[] _data = new double[NbSensors];
-        for (int i = 0; i < NbSensors; i++)
+        // If a new time frame comes, save then reinitialize the Data holder
+        int _currentPacketCounter = (int)e.Packet.packetCounter();
+        if (PreviousPacketCounter != _currentPacketCounter)
         {
-            _data[i] = rand.NextDouble();
+            if (IsRecording && CurrentData != null){
+                TrialData.Add(CurrentData);
+            }
+
+            CurrentData = new XSensData(_currentPacketCounter, NbSensors);
+            PreviousPacketCounter = _currentPacketCounter;
         }
 
-        CurrentData = new XSensData(
-            DateTime.Now.Subtract(TrialStartingTime).TotalMilliseconds,
-            (int)e.Packet.timeOfArrival().msTimeOfDay(), 
+        // Store the data into the current Data holder
+        uint _imuIndex  = SensorsMap[e.Device.deviceId().toInt()];
+        CurrentData.AddData(
+            _imuIndex,
             e.Packet.orientationMatrix(),
             e.Packet.orientationEuler(),
             e.Packet.orientationQuaternion(),
             e.Packet.calibratedAcceleration()
         );
-
-        if (IsRecording)
-        {
-            Data.Add(CurrentData);
-        }
     }
 }
 ﻿
