@@ -67,6 +67,16 @@ public class AvatarManager3Segments : AvatarManager
 		SetSegmentsRotations(_dataVector);
     }
 
+	protected double[][] DispatchToAngleVector(AvatarMatrixRotation[] _data)
+	{
+		double[][] _angles = new double[_data.Length][];
+		for (int i = 0; i < _data.Length; ++i)
+		{
+			_angles[i] = _data[i].ToEulerYXZ();
+		}
+		return _angles;
+	}
+
 	public override bool SetZeroMatrix(XSensData _zero)
 	{
 		if (!base.SetZeroMatrix(_zero))
@@ -82,12 +92,12 @@ public class AvatarManager3Segments : AvatarManager
 		return true;
 	}
 
-	public override void SetSegmentsRotations(double[][] q)
+	public override void SetSegmentsRotations(double[][] _angles)
 	{
-		double[][] AnglesAvatar = MapToAvatar(q);
-		ApplyRotation(hips, AnglesAvatar[0]);
-		ApplyRotation(leftUpperLimb, AnglesAvatar[1]);
-		ApplyRotation(rightUpperLimb, AnglesAvatar[2]);
+		double[][] _anglesAvatar = MapToAvatar(_angles);
+		ApplyRotation(hips, _anglesAvatar[0]);
+		ApplyRotation(leftUpperLimb, _anglesAvatar[1]);
+		ApplyRotation(rightUpperLimb, _anglesAvatar[2]);
 	}
 
 	static public double[][] MapToInternal(double[][] _angles)
@@ -122,21 +132,21 @@ public class AvatarManager3Segments : AvatarManager
 		double[][] _result = new double[3][];
 		// Hips
 		_result[0] = new double[3];
-		_result[0][0] = (float)_anglesDegree[0][0];
-		_result[0][1] = (float)_anglesDegree[0][1];
-		_result[0][2] = (float)_anglesDegree[0][2];
+		_result[0][0] = _anglesDegree[0][0];
+		_result[0][1] = _anglesDegree[0][1];
+		_result[0][2] = _anglesDegree[0][2];
 
 		// Left arm
 		_result[1] = new double[3];
-		_result[1][0] = (float)_anglesDegree[1][0];
-		_result[1][1] = (float)_anglesDegree[1][1];
-		_result[1][2] = (float)_anglesDegree[1][2];
+		_result[1][0] = _anglesDegree[1][0];
+		_result[1][1] = _anglesDegree[1][1];
+		_result[1][2] = _anglesDegree[1][2];
 
 		// Right arm
 		_result[2] = new double[3];
-		_result[2][0] = (float)_anglesDegree[2][0];
-		_result[2][1] = (float)_anglesDegree[2][1];
-		_result[2][2] = (float)_anglesDegree[2][2];
+		_result[2][0] = _anglesDegree[2][0];
+		_result[2][1] = _anglesDegree[2][1];
+		_result[2][2] = _anglesDegree[2][2];
 		
 		return _result;
     }

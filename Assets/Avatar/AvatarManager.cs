@@ -135,16 +135,6 @@ public abstract class AvatarManager : MonoBehaviour
 		}
 	}
 
-	protected double[][] DispatchToAngleVector(AvatarMatrixRotation[] _data)
-	{
-		double[][] _angles = new double[_data.Length][];
-		for (int i = 0; i < _data.Length; ++i)
-		{
-			_angles[i] = _data[i].ToEulerYXZ();
-		}
-		return _angles;
-	}
-
 	void OnDestroy()
     {
         Module.Disconnect();
