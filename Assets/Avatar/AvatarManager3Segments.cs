@@ -10,12 +10,38 @@ public class AvatarManager3Segments : AvatarManager
 	public GameObject hips;
 	public GameObject leftUpperLimb;
 	public GameObject rightUpperLimb;
-	public float[] AnglesAvatar { get; protected set; }
+
+	protected double[][] ZeroPosition;
 
 	protected new void Start()
 	{
 		base.Start();
-		AnglesAvatar = new float[Model.NbQ];
+		ZeroPosition = GetOrientationFromAvatar();
+	}
+
+	protected double[][] GetOrientationFromAvatar()
+    {
+		double[] _hipsOrientation = {
+			//hips.transform.localEulerAngles[0],
+			//hips.transform.localEulerAngles[1],
+			//hips.transform.localEulerAngles[2]
+			0, 0, 0
+		};
+		double[] _leftUpperLimbOrientation = {
+			//leftUpperLimb.transform.localEulerAngles[0],
+			//leftUpperLimb.transform.localEulerAngles[1],
+			//leftUpperLimb.transform.localEulerAngles[2]
+			0, 0, 0
+		};
+		double[] _rightUpperLimbOrientation = {
+			//rightUpperLimb.transform.localEulerAngles[0],
+			//rightUpperLimb.transform.localEulerAngles[1],
+			//rightUpperLimb.transform.localEulerAngles[2]
+			0, 0, 0
+		};
+		
+		double[][] result = { _hipsOrientation, _leftUpperLimbOrientation, _rightUpperLimbOrientation };
+		return MapToInternal(result);
 	}
 
 	protected override string BiomodPath()
@@ -26,41 +52,93 @@ public class AvatarManager3Segments : AvatarManager
 	void Update()
 	{
         GetCurrentData();
-		if (CurrentData == null)
+		if (CurrentData == null || !CurrentData.AllSensorsSet)
         {
 			return;
         }
 
-		Debug.Log($"Time frame : {CurrentData.TimeIndex}");
-		for (int i=0; i < CurrentData.NbSensorsSet; ++i)
+		AvatarMatrixRotation[] _data = ApplyZeroMatrix(CurrentData);
+		if (_data is null)
         {
-			var euler = CurrentData.OrientationEuler[i];
-			Debug.Log($"\tSensor {i}: ({euler.x()}, {euler.y()}, {euler.z()}");
+			return;
         }
-        //SetSegmentsRotations(_data);
+
+		double[][] _dataVector = DispatchToAngleVector(_data);
+		SetSegmentsRotations(_dataVector);
     }
 
-	public override void SetSegmentsRotations(double[] q)
+	public override bool SetZeroMatrix(XSensData _zero)
 	{
-		ConvertToAngles(q);
+		if (!base.SetZeroMatrix(_zero))
+        {
+			return false;
+        }
 
-		PerformRotation(hips, new Vector3(AnglesAvatar[0], AnglesAvatar[1], AnglesAvatar[2]));
-		PerformRotation(leftUpperLimb, new Vector3(AnglesAvatar[6], AnglesAvatar[7], AnglesAvatar[8]));
-		PerformRotation(rightUpperLimb, new Vector3(AnglesAvatar[3], AnglesAvatar[4], AnglesAvatar[5]));
+		// Put the body as it is at the beginning 
+		for (int i = 0; i < 3; i++)
+        {
+			ZeroMatrix[i] *= AvatarMatrixRotation.FromEulerYXZ(ZeroPosition[i]);
+		}
+		return true;
 	}
 
-	void ConvertToAngles(double[] q)
+	public override void SetSegmentsRotations(double[][] q)
 	{
-		// qAvatar = [q0, -q1, -q2, q3, -q4, -q5, q6, -q7, -q8].
-		AnglesAvatar[0] = (float)MathUtils.ToDegree(q[0]);
-		AnglesAvatar[1] = (float)MathUtils.ToDegree(q[1]);
-		AnglesAvatar[2] = (float)MathUtils.ToDegree(q[2]);
-		AnglesAvatar[3] = (float)MathUtils.ToDegree(q[3]);
-		AnglesAvatar[4] = (float)MathUtils.ToDegree(q[4]);
-		AnglesAvatar[5] = (float)MathUtils.ToDegree(q[5]);
-		AnglesAvatar[6] = (float)MathUtils.ToDegree(q[6]);
-		AnglesAvatar[7] = (float)MathUtils.ToDegree(q[7]);
-		AnglesAvatar[8] = (float)MathUtils.ToDegree(q[8]);
+		double[][] AnglesAvatar = MapToAvatar(q);
+		ApplyRotation(hips, AnglesAvatar[0]);
+		ApplyRotation(leftUpperLimb, AnglesAvatar[1]);
+		ApplyRotation(rightUpperLimb, AnglesAvatar[2]);
+	}
+
+	static public double[][] MapToInternal(double[][] _angles)
+    {
+		double[][] _result = new double[3][];
+
+		// Hips
+		{
+			double[] tp = { _angles[0][0], _angles[0][1], _angles[0][2] };
+			_result[0] = MathUtils.ToRadian(tp);
+		}
+
+		// Left arm
+		{
+			double[] tp = { _angles[1][0], _angles[1][1], _angles[1][2] };
+			_result[1] = MathUtils.ToRadian(tp);
+		}
+
+		// Right arm
+		{
+			double[] tp = { _angles[2][0], _angles[2][1], _angles[2][2] };
+			_result[2] = MathUtils.ToRadian(tp);
+		}
+
+		return _result;
+    }
+
+	static public double[][] MapToAvatar(double[][] _angles)
+	{
+		double[][] _anglesDegree = MathUtils.ToDegree(_angles);
+
+		double[][] _result = new double[3][];
+		// Hips
+		_result[0] = new double[3];
+		_result[0][0] = (float)_anglesDegree[0][0];
+		_result[0][1] = (float)_anglesDegree[0][1];
+		_result[0][2] = (float)_anglesDegree[0][2];
+
+		// Left arm
+		_result[1] = new double[3];
+		_result[1][0] = (float)_anglesDegree[1][0];
+		_result[1][1] = (float)_anglesDegree[1][1];
+		_result[1][2] = (float)_anglesDegree[1][2];
+
+		// Right arm
+		_result[2] = new double[3];
+		_result[2][0] = (float)_anglesDegree[2][0];
+		_result[2][1] = (float)_anglesDegree[2][1];
+		_result[2][2] = (float)_anglesDegree[2][2];
+		
+		return _result;
     }
 
 

@@ -58,7 +58,7 @@ public class XSensModule
     public List<XSensData> TrialData { get; protected set; } = new List<XSensData>();
     
     public XSensModule()
-	{
+    {
         // Make sure decimal separator is the point (for instance, on french computers)
         System.Globalization.NumberFormatInfo nfi = new System.Globalization.NumberFormatInfo();
         nfi.NumberDecimalSeparator = ".";

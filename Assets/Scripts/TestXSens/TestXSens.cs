@@ -1140,12 +1140,12 @@ public class TestXSens : MonoBehaviour
         //    TestXSens.nMsgDebug++;
         //}
 
-        BiorbdModel.c_rotation(imu0[0, 0], imu0[0, 1], imu0[0, 2], imu0[1, 0], imu0[1, 1], imu0[1, 2], imu0[2, 0], imu0[2, 1], imu0[2, 2], ptr_Rot0);
-        BiorbdModel.c_rotationToEulerAngles(ptr_Rot0, new System.Text.StringBuilder("xyz"), ptr_EulerTransfo0);
+        //BiorbdModel.c_rotation(imu0[0, 0], imu0[0, 1], imu0[0, 2], imu0[1, 0], imu0[1, 1], imu0[1, 2], imu0[2, 0], imu0[2, 1], imu0[2, 2], ptr_Rot0);
+        //BiorbdModel.c_rotationToEulerAngles(ptr_Rot0, new System.Text.StringBuilder("xyz"), ptr_EulerTransfo0);
 
-        double[,] rotMat1 = Matrix.Multiplication(imu1, imu0_T);
-        BiorbdModel.c_rotation(rotMat1[0, 0], rotMat1[0, 1], rotMat1[0, 2], rotMat1[1, 0], rotMat1[1, 1], rotMat1[1, 2], rotMat1[2, 0], rotMat1[2, 1], rotMat1[2, 2], ptr_Rot1);
-        BiorbdModel.c_rotationToEulerAngles(ptr_Rot1, new System.Text.StringBuilder("xyz"), ptr_EulerTransfo1);
+        //double[,] rotMat1 = Matrix.Multiplication(imu1, imu0_T);
+        //BiorbdModel.c_rotation(rotMat1[0, 0], rotMat1[0, 1], rotMat1[0, 2], rotMat1[1, 0], rotMat1[1, 1], rotMat1[1, 2], rotMat1[2, 0], rotMat1[2, 1], rotMat1[2, 2], ptr_Rot1);
+        //BiorbdModel.c_rotationToEulerAngles(ptr_Rot1, new System.Text.StringBuilder("xyz"), ptr_EulerTransfo1);
 
         //if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize - 4)
         //{
@@ -1159,9 +1159,9 @@ public class TestXSens : MonoBehaviour
         //    TestXSens.nMsgDebug++;
         //}
 
-        double[,] rotMat2 = Matrix.Multiplication(imu2, imu0_T);
-        BiorbdModel.c_rotation(rotMat2[0, 0], rotMat2[0, 1], rotMat2[0, 2], rotMat2[1, 0], rotMat2[1, 1], rotMat2[1, 2], rotMat2[2, 0], rotMat2[2, 1], rotMat2[2, 2], ptr_Rot2);
-        BiorbdModel.c_rotationToEulerAngles(ptr_Rot2, new System.Text.StringBuilder("xyz"), ptr_EulerTransfo2);
+        //double[,] rotMat2 = Matrix.Multiplication(imu2, imu0_T);
+        //BiorbdModel.c_rotation(rotMat2[0, 0], rotMat2[0, 1], rotMat2[0, 2], rotMat2[1, 0], rotMat2[1, 1], rotMat2[1, 2], rotMat2[2, 0], rotMat2[2, 1], rotMat2[2, 2], ptr_Rot2);
+        //BiorbdModel.c_rotationToEulerAngles(ptr_Rot2, new System.Text.StringBuilder("xyz"), ptr_EulerTransfo2);
 
         //if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize - 4)
         //{

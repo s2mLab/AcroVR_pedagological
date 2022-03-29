@@ -24,7 +24,6 @@ public class XSensData
 		NbExpectedSensors = _nbSensors;
 		IsSensorsSet = new bool[NbExpectedSensors];
 
-
 		OrientationMatrix = new XsMatrix[NbExpectedSensors];
 		OrientationEuler = new XsEuler[NbExpectedSensors];
 		OrientationQuaternion = new XsQuaternion[NbExpectedSensors];

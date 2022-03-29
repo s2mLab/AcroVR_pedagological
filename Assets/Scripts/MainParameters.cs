@@ -333,18 +333,18 @@ public class MainParameters
 
 		softwareRunMode = softwareRunModeType.AcroVR;
 
-		#endregion
+        #endregion
 
-		#region InitDll
-		handlesDLL[0] = DllManagement.LoadLib(@"Assets\Avatar\XSensController\XSens\bin\xstypes64.dll");
-		handlesDLL[1] = DllManagement.LoadLib(@"Assets\Avatar\XSensController\XSens\bin\xsensdeviceapi64.dll");
-		handlesDLL[2] = DllManagement.LoadLib(@"Assets\Avatar\XSensController\XSens\bin\xsensdeviceapi_csharp64.dll");
-		#endregion
+        #region InitDll
+        handlesDLL[0] = DllManagement.LoadLib(@"Assets\Avatar\XSensController\XSens\bin\xstypes64.dll");
+        handlesDLL[1] = DllManagement.LoadLib(@"Assets\Avatar\XSensController\XSens\bin\xsensdeviceapi64.dll");
+        handlesDLL[2] = DllManagement.LoadLib(@"Assets\Avatar\XSensController\XSens\bin\xsensdeviceapi_csharp64.dll");
+        #endregion
 
-		#region InitLanguages
-		// Initialisation de la liste des messages en français et en anglais.
+        #region InitLanguages
+        // Initialisation de la liste des messages en français et en anglais.
 
-		languages.french.leftSide = "Gauche";
+        languages.french.leftSide = "Gauche";
 		languages.english.leftSide = "Left";
 		languages.french.rightSide = "Droit";
 		languages.english.rightSide = "Right";
