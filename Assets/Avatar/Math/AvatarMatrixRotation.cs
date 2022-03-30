@@ -46,6 +46,15 @@ public class AvatarMatrixRotation
         }
     }
 
+    static public AvatarMatrixRotation Identity()
+    {
+        return new AvatarMatrixRotation(
+            1, 0, 0,
+            0, 1, 0,
+            0, 0, 1
+        );
+    }
+
     static protected AvatarMatrixRotation BaseRotationX(double x)
     {
         return new AvatarMatrixRotation(

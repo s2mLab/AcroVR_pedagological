@@ -11,12 +11,12 @@ public class AvatarManager3Segments : AvatarManager
 	public GameObject leftUpperLimb;
 	public GameObject rightUpperLimb;
 
-	protected double[][] ZeroPosition;
+	protected double[][] InitialPose;
 
 	protected new void Start()
 	{
 		base.Start();
-		ZeroPosition = GetOrientationFromAvatar();
+		InitialPose = GetOrientationFromAvatar();
 	}
 
 	protected double[][] GetOrientationFromAvatar()
@@ -57,7 +57,7 @@ public class AvatarManager3Segments : AvatarManager
 			return;
         }
 
-		AvatarMatrixRotation[] _data = ApplyZeroMatrix(CurrentData);
+		AvatarMatrixRotation[] _data = ProjectWrtToZeroPosition(CurrentData);
 		if (_data is null)
         {
 			return;
@@ -77,9 +77,9 @@ public class AvatarManager3Segments : AvatarManager
 		return _angles;
 	}
 
-	public override bool SetZeroMatrix(XSensData _zero)
+	public override bool SetZeroPositionMatrices(XSensData _zero)
 	{
-		if (!base.SetZeroMatrix(_zero))
+		if (!base.SetZeroPositionMatrices(_zero))
         {
 			return false;
         }
@@ -87,7 +87,7 @@ public class AvatarManager3Segments : AvatarManager
 		// Put the body as it is at the beginning 
 		for (int i = 0; i < 3; i++)
         {
-			ZeroMatrix[i] *= AvatarMatrixRotation.FromEulerYXZ(ZeroPosition[i]);
+			ZeroPositionMatrices[i] *= AvatarMatrixRotation.FromEulerYXZ(InitialPose[i]);
 		}
 		return true;
 	}
@@ -106,19 +106,19 @@ public class AvatarManager3Segments : AvatarManager
 
 		// Hips
 		{
-			double[] tp = { _angles[0][0], _angles[0][1], _angles[0][2] };
+			double[] tp = { -_angles[0][1], -_angles[0][0], -_angles[0][2] };
 			_result[0] = MathUtils.ToRadian(tp);
 		}
 
 		// Left arm
 		{
-			double[] tp = { _angles[1][0], _angles[1][1], _angles[1][2] };
+			double[] tp = { _angles[1][1], -_angles[1][2], -_angles[1][0] };
 			_result[1] = MathUtils.ToRadian(tp);
 		}
 
 		// Right arm
 		{
-			double[] tp = { _angles[2][0], _angles[2][1], _angles[2][2] };
+			double[] tp = { _angles[2][1], _angles[2][2], _angles[2][0] };
 			_result[2] = MathUtils.ToRadian(tp);
 		}
 
@@ -132,21 +132,21 @@ public class AvatarManager3Segments : AvatarManager
 		double[][] _result = new double[3][];
 		// Hips
 		_result[0] = new double[3];
-		_result[0][0] = _anglesDegree[0][0];
-		_result[0][1] = _anglesDegree[0][1];
-		_result[0][2] = _anglesDegree[0][2];
+		_result[0][0] = -_anglesDegree[0][1];
+		_result[0][1] = -_anglesDegree[0][0];
+		_result[0][2] = -_anglesDegree[0][2];
 
 		// Left arm
 		_result[1] = new double[3];
-		_result[1][0] = _anglesDegree[1][0];
-		_result[1][1] = _anglesDegree[1][1];
-		_result[1][2] = _anglesDegree[1][2];
+		_result[1][0] = -_anglesDegree[1][2];
+		_result[1][1] = _anglesDegree[1][0];
+		_result[1][2] = -_anglesDegree[1][1];
 
 		// Right arm
 		_result[2] = new double[3];
-		_result[2][0] = _anglesDegree[2][0];
-		_result[2][1] = _anglesDegree[2][1];
-		_result[2][2] = _anglesDegree[2][2];
+		_result[2][0] = _anglesDegree[2][2];
+		_result[2][1] = _anglesDegree[2][0];
+		_result[2][2] = _anglesDegree[2][1];
 		
 		return _result;
     }

@@ -9,7 +9,7 @@ public abstract class AvatarManager : MonoBehaviour
 	public BiorbdModel Model { get; protected set; }
 	public abstract void SetSegmentsRotations(double[][] q);
 
-	protected AvatarMatrixRotation[] ZeroMatrix;
+	protected AvatarMatrixRotation[] ZeroPositionMatrices;
 	bool IsZeroSet = false;
 
 	// XSens related variables
@@ -57,28 +57,30 @@ public abstract class AvatarManager : MonoBehaviour
 
 		Module = new XSensModule();
 
-		ZeroMatrix = new AvatarMatrixRotation[Model.NbSegments];
+		ZeroPositionMatrices = new AvatarMatrixRotation[Model.NbSegments];
 	}
 
-	public virtual bool SetZeroMatrix(XSensData _zero)
+	public virtual bool SetZeroPositionMatrices(XSensData _zero)
 	{
 		if (!_zero.AllSensorsSet)
         {
 			return false;
         }
 
-		for (int i = 0; i < Model.NbSegments; i++)
-		{
-			ZeroMatrix[i] = new AvatarMatrixRotation(_zero.OrientationMatrix[i]);
-			ZeroMatrix[i] = ZeroMatrix[i].Transpose();
-		}
-		return true;
+		// The first Sensor is the reference sensor to which all the others report wrt
+		ZeroPositionMatrices[0] = new AvatarMatrixRotation(_zero.OrientationMatrix[0]);
+		//AvatarMatrixRotation ReferenceTransposed = ZeroPositionMatrices[0].Transpose();
+		for (int i = 1; i < Model.NbSegments; i++)
+        {
+			ZeroPositionMatrices[i] = AvatarMatrixRotation.Identity();  // ReferenceTransposed * _zero.OrientationMatrix[i];
+        }
+        return true;
 	}
-	protected AvatarMatrixRotation[] ApplyZeroMatrix(XSensData _currentData)
+	protected AvatarMatrixRotation[] ProjectWrtToZeroPosition(XSensData _currentData)
 	{
 		if (!IsZeroSet)
 		{
-			if (!SetZeroMatrix(CurrentData))
+			if (!SetZeroPositionMatrices(CurrentData))
 			{
 				return null;
 			}
@@ -86,9 +88,13 @@ public abstract class AvatarManager : MonoBehaviour
 		}
 
 		AvatarMatrixRotation[] output = new AvatarMatrixRotation[Model.NbSegments];
-		for (int i = 0; i < Model.NbSegments; i++)
+		output[0] = ZeroPositionMatrices[0].Transpose() * _currentData.OrientationMatrix[0];
+		//AvatarMatrixRotation ReferenceTransposed = ZeroPositionMatrices[0].Transpose();
+		for (int i = 1; i < Model.NbSegments; i++)
 		{
-			output[i] = ZeroMatrix[i] * _currentData.OrientationMatrix[i];
+			//output[i] = ReferenceTransposed * ZeroPositionMatrices[i] * _currentData.OrientationMatrix[i];
+			AvatarMatrixRotation Ref = new AvatarMatrixRotation(_currentData.OrientationMatrix[0]);
+			output[i] = Ref.Transpose() * _currentData.OrientationMatrix[i];
 		}
 		return output;
 	}
