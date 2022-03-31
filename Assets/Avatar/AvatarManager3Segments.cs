@@ -11,15 +11,14 @@ public class AvatarManager3Segments : AvatarManager
 	public GameObject leftUpperLimb;
 	public GameObject rightUpperLimb;
 
-	protected double[][] InitialPose;
 
 	protected new void Start()
 	{
 		base.Start();
-		InitialPose = GetOrientationFromAvatar();
+		AvatarOffset = GetOrientationFromAvatar();
 	}
 
-	protected double[][] GetOrientationFromAvatar()
+	protected AvatarMatrixRotation[] GetOrientationFromAvatar()
     {
 		double[] _hipsOrientation = {
 			//hips.transform.localEulerAngles[0],
@@ -40,8 +39,8 @@ public class AvatarManager3Segments : AvatarManager
 			0, 0, 0
 		};
 		
-		double[][] result = { _hipsOrientation, _leftUpperLimbOrientation, _rightUpperLimbOrientation };
-		return MapToInternal(result);
+		double[][] _result = { _hipsOrientation, _leftUpperLimbOrientation, _rightUpperLimbOrientation };
+		return MapEulerToInternal(_result);
 	}
 
 	protected override string BiomodPath()
@@ -57,14 +56,13 @@ public class AvatarManager3Segments : AvatarManager
 			return;
         }
 
-		AvatarMatrixRotation[] _data = ProjectWrtToZeroPosition(CurrentData);
+		AvatarMatrixRotation[] _data = ProjectWrtToCalibrationPosition();
 		if (_data is null)
         {
 			return;
         }
 
-		double[][] _dataVector = DispatchToAngleVector(_data);
-		SetSegmentsRotations(_dataVector);
+		SetSegmentsRotations(_data);
     }
 
 	protected double[][] DispatchToAngleVector(AvatarMatrixRotation[] _data)
@@ -77,55 +75,41 @@ public class AvatarManager3Segments : AvatarManager
 		return _angles;
 	}
 
-	public override bool SetZeroPositionMatrices(XSensData _zero)
+	public override void SetSegmentsRotations(AvatarMatrixRotation[] _data)
 	{
-		if (!base.SetZeroPositionMatrices(_zero))
-        {
-			return false;
-        }
-
-		// Put the body as it is at the beginning 
-		for (int i = 0; i < 3; i++)
-        {
-			ZeroPositionMatrices[i] *= AvatarMatrixRotation.FromEulerYXZ(InitialPose[i]);
-		}
-		return true;
-	}
-
-	public override void SetSegmentsRotations(double[][] _angles)
-	{
+		double[][] _angles = DispatchToAngleVector(_data);
 		double[][] _anglesAvatar = MapToAvatar(_angles);
 		ApplyRotation(hips, _anglesAvatar[0]);
 		ApplyRotation(leftUpperLimb, _anglesAvatar[1]);
 		ApplyRotation(rightUpperLimb, _anglesAvatar[2]);
 	}
 
-	static public double[][] MapToInternal(double[][] _angles)
+	public AvatarMatrixRotation[] MapEulerToInternal(double[][] _angles)
     {
-		double[][] _result = new double[3][];
+		AvatarMatrixRotation[] _result = new AvatarMatrixRotation[3];
 
 		// Hips
 		{
 			double[] tp = { -_angles[0][1], -_angles[0][0], -_angles[0][2] };
-			_result[0] = MathUtils.ToRadian(tp);
+			_result[0] = AvatarMatrixRotation.FromEulerYXZ(MathUtils.ToRadian(tp));
 		}
 
 		// Left arm
 		{
 			double[] tp = { _angles[1][1], -_angles[1][2], -_angles[1][0] };
-			_result[1] = MathUtils.ToRadian(tp);
+			_result[1] = AvatarMatrixRotation.FromEulerYXZ(MathUtils.ToRadian(tp));
 		}
 
 		// Right arm
 		{
 			double[] tp = { _angles[2][1], _angles[2][2], _angles[2][0] };
-			_result[2] = MathUtils.ToRadian(tp);
+			_result[2] = AvatarMatrixRotation.FromEulerYXZ(MathUtils.ToRadian(tp));
 		}
 
 		return _result;
     }
 
-	static public double[][] MapToAvatar(double[][] _angles)
+	public double[][] MapToAvatar(double[][] _angles)
 	{
 		double[][] _anglesDegree = MathUtils.ToDegree(_angles);
 

@@ -7,9 +7,10 @@ public abstract class AvatarManager : MonoBehaviour
 {
 	// Biorbd related variables
 	public BiorbdModel Model { get; protected set; }
-	public abstract void SetSegmentsRotations(double[][] q);
+	public abstract void SetSegmentsRotations(AvatarMatrixRotation[] _data);
 
-	protected AvatarMatrixRotation[] ZeroPositionMatrices;
+	protected AvatarMatrixRotation[] AvatarOffset;
+	protected AvatarMatrixRotation[] CalibrationPositionMatrices;
 	bool IsZeroSet = false;
 
 	// XSens related variables
@@ -21,66 +22,33 @@ public abstract class AvatarManager : MonoBehaviour
 	protected abstract string BiomodPath();
 
 	protected void Start()
-    {
-		///// DEBUG /////
-		double[][] orig = new double[3][];
-		for (int i = 0; i < orig.Length; i++)
-		{
-			orig[i] = new double[3];
-		}
-		orig[0][0] = 1;
-		orig[0][1] = 2;
-		orig[0][2] = 3;
-		orig[1][0] = 4;
-		orig[1][1] = 5;
-		orig[1][2] = 6;
-		orig[2][0] = 7;
-		orig[2][1] = 8;
-		orig[2][2] = 9;
-		double[][] avatar = AvatarManager3Segments.MapToInternal(orig);
-		double[][] final = AvatarManager3Segments.MapToAvatar(avatar);
-		Debug.Log(
-			$"{orig[0][0]}, {orig[0][1]}, {orig[0][2]}\n" +
-			$"{orig[1][0]}, {orig[1][1]}, {orig[1][2]}\n" +
-			$"{orig[2][0]}, {orig[2][1]}, {orig[2][2]}\n"
-		);
-		Debug.Log(
-			$"{final[0][0]}, {final[0][1]}, {final[0][2]}\n" +
-            $"{final[1][0]}, {final[1][1]}, {final[1][2]}\n" +
-            $"{final[2][0]}, {final[2][1]}, {final[2][2]}\n"
-		);
-		/////////////////
-
-
-
-		Model = new BiorbdModel(BiomodPath());
-
+	{
 		Module = new XSensModule();
-
-		ZeroPositionMatrices = new AvatarMatrixRotation[Model.NbSegments];
+		Model = new BiorbdModel(BiomodPath());
+		CalibrationPositionMatrices = new AvatarMatrixRotation[Model.NbSegments];
 	}
 
-	public virtual bool SetZeroPositionMatrices(XSensData _zero)
+	virtual protected bool SetCalibrationPositionMatrices()
 	{
-		if (!_zero.AllSensorsSet)
+		if (!CurrentData.AllSensorsSet)
         {
 			return false;
         }
 
 		// The first Sensor is the reference sensor to which all the others report wrt
-		ZeroPositionMatrices[0] = new AvatarMatrixRotation(_zero.OrientationMatrix[0]);
-		//AvatarMatrixRotation ReferenceTransposed = ZeroPositionMatrices[0].Transpose();
-		for (int i = 1; i < Model.NbSegments; i++)
+		CalibrationPositionMatrices[0] = new AvatarMatrixRotation(CurrentData.OrientationMatrix[0]);
+        AvatarMatrixRotation ReferenceTransposed = CalibrationPositionMatrices[0].Transpose();
+        for (int i = 1; i < Model.NbSegments; i++)
         {
-			ZeroPositionMatrices[i] = AvatarMatrixRotation.Identity();  // ReferenceTransposed * _zero.OrientationMatrix[i];
+			CalibrationPositionMatrices[i] = ReferenceTransposed * CurrentData.OrientationMatrix[i];
         }
         return true;
 	}
-	protected AvatarMatrixRotation[] ProjectWrtToZeroPosition(XSensData _currentData)
+	virtual protected AvatarMatrixRotation[] ProjectWrtToCalibrationPosition()
 	{
 		if (!IsZeroSet)
 		{
-			if (!SetZeroPositionMatrices(CurrentData))
+			if (!SetCalibrationPositionMatrices())
 			{
 				return null;
 			}
@@ -88,13 +56,13 @@ public abstract class AvatarManager : MonoBehaviour
 		}
 
 		AvatarMatrixRotation[] output = new AvatarMatrixRotation[Model.NbSegments];
-		output[0] = ZeroPositionMatrices[0].Transpose() * _currentData.OrientationMatrix[0];
+		output[0] = CalibrationPositionMatrices[0].Transpose() * CurrentData.OrientationMatrix[0];
 		//AvatarMatrixRotation ReferenceTransposed = ZeroPositionMatrices[0].Transpose();
 		for (int i = 1; i < Model.NbSegments; i++)
 		{
-			//output[i] = ReferenceTransposed * ZeroPositionMatrices[i] * _currentData.OrientationMatrix[i];
-			AvatarMatrixRotation Ref = new AvatarMatrixRotation(_currentData.OrientationMatrix[0]);
-			output[i] = Ref.Transpose() * _currentData.OrientationMatrix[i];
+			//output[i] = ReferenceTransposed * ZeroPositionMatrices[i] * _sensors.OrientationMatrix[i];
+			AvatarMatrixRotation Ref = new AvatarMatrixRotation(CurrentData.OrientationMatrix[0]);
+			output[i] = Ref.Transpose() * CurrentData.OrientationMatrix[i];
 		}
 		return output;
 	}
