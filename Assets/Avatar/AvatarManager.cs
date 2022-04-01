@@ -5,15 +5,18 @@ using UnityEngine;
 
 public abstract class AvatarManager : MonoBehaviour
 {
-	// Biorbd related variables
-	public BiorbdModel Model { get; protected set; }
+	protected SensorType CurrentSensorType = SensorType.None;
+
+    // Biorbd related variables
+    public BiorbdModel Model { get; protected set; }
 
 	protected AvatarMatrixRotation[] AvatarOffset;
 	protected AvatarMatrixRotation[] CalibrationMatrices_CalibInParent;
 	protected bool IsZeroSet = false;
 
+
 	// XSens related variables
-	public XSensModule Module { get; protected set; }
+	public XSensModule XSensModule { get; protected set; }
     protected XSensData CurrentData = null;
 	protected bool CurrentDataHasChanged = false;
 	protected int PreviousDataIndex = -1;
@@ -22,7 +25,7 @@ public abstract class AvatarManager : MonoBehaviour
 
 	protected void Start()
 	{
-		Module = new XSensModule();
+		XSensModule = new XSensModule();
 		Model = new BiorbdModel(BiomodPath());
 		CalibrationMatrices_CalibInParent = new AvatarMatrixRotation[Model.NbSegments];
 		AvatarOffset = GetOrientationFromAvatar();
@@ -56,25 +59,33 @@ public abstract class AvatarManager : MonoBehaviour
 		Action InitializationFailedCallback
 	)
     {
-		if (!Module.IsStationInitialized)
+		if (CurrentSensorType != SensorType.None)
         {
-			if (!Module.InitializeStationsAndDevice())
+			Debug.Log("Sensor already chosen. Cannot load XSens.");
+			InitializationFailedCallback();
+			yield break;
+		}
+
+		if (!XSensModule.IsStationInitialized)
+        {
+			if (!XSensModule.InitializeStationsAndDevice())
 			{
 				InitializationFailedCallback();
 				yield break;
 			}
 		}
 
-        while (!Module.IsSensorsConnected)
+        while (!XSensModule.IsSensorsConnected)
         {
-            Module.SetupSensors(Model.NbImus);
+            XSensModule.SetupSensors(Model.NbImus);
             UpdateConnectingStatusCallback(
-                Module.NbSensors, Model.NbImus);
+                XSensModule.NbSensors, Model.NbImus);
             yield return 0;
         }
 
-        Module.FinalizeSetup();
-        ConectingIsCompletedCallback();
+        XSensModule.FinalizeSetup();
+		CurrentSensorType = SensorType.XSens;
+		ConectingIsCompletedCallback();
 		
 		yield return 0;
 	}
@@ -82,11 +93,11 @@ public abstract class AvatarManager : MonoBehaviour
 	protected void GetCurrentData()
 	{
 		CurrentDataHasChanged = false;
-		if (Module.IsSensorsConnected)
+		if (XSensModule.IsSensorsConnected)
 		{
-			if (CurrentData == null || CurrentData.TimeIndex != Module.CurrentData.TimeIndex && Module.CurrentData.AllSensorsSet)
+			if (CurrentData == null || CurrentData.TimeIndex != XSensModule.CurrentData.TimeIndex && XSensModule.CurrentData.AllSensorsSet)
             {
-				CurrentData = Module.CurrentData;
+				CurrentData = XSensModule.CurrentData;
 				CurrentDataHasChanged = true;
 			}
 		}
@@ -94,7 +105,7 @@ public abstract class AvatarManager : MonoBehaviour
 
 	void OnDestroy()
     {
-        Module.Disconnect();
+        XSensModule.Disconnect();
 	}
 
 
