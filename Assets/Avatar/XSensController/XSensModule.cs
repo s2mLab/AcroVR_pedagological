@@ -59,7 +59,7 @@ public class XSensModule : AvatarModule
     // Trial related variables
     protected int PreviousPacketCounter = -1;
     
-    public XSensModule(int _expectedNbSensors)
+    public XSensModule(int _expectedNbSensors) 
     {
         // Make sure decimal separator is the point (for instance, on french computers)
         System.Globalization.NumberFormatInfo nfi = new System.Globalization.NumberFormatInfo();

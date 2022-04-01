@@ -24,9 +24,14 @@ public class AvatarUnityGUI : MonoBehaviour
 		{
 			XSensPanelConnexion.SetActive(true);
 		}
+		else if (_sensorType.type == SensorType.XSensFake)
+		{
+			XSensPanelConnexion.SetActive(true);
+		}
 		else
         {
 			Debug.Log("Wrong type of module. Nothing is done.");
+			return;
         }
 
 		StartCoroutine(

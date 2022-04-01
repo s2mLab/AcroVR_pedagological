@@ -11,5 +11,6 @@ public class AvatarSensorType : MonoBehaviour
 public enum SensorType
 {
 	XSens,
+	XSensFake,
 	None
 };

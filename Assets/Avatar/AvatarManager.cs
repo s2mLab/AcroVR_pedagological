@@ -68,6 +68,14 @@ public abstract class AvatarManager : MonoBehaviour
 		else if (_sensorType == SensorType.XSens){
 			ControllerModule = new XSensModule(Model.NbImus);
 		}
+		else if (_sensorType == SensorType.XSensFake)
+        {
+			ControllerModule = new XSensFakeModule(Model.NbImus);
+        }
+		else
+        {
+			throw new NotImplementedException("This controller is not implemented");
+        }
 
 		if (!ControllerModule.SetupMaterial())
         {
@@ -106,7 +114,7 @@ public abstract class AvatarManager : MonoBehaviour
 
 	void OnDestroy()
     {
-		ControllerModule.Disconnect();
+		if (ControllerModule != null) ControllerModule.Disconnect();
 	}
 
 
