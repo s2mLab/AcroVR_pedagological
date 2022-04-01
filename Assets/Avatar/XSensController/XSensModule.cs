@@ -7,14 +7,20 @@ using XDA;
 // =================================================================================================================================================================
 /// <summary> This is the actual module that interfaces XSens so it is usable by the avatar. </summary>
 
-public class XSensModule
+public class XSensModule : AvatarModule
 {
     // Xda related variables
     MyXda _xda = new MyXda();
-    public List<MasterInfo> AllScannedStations { get; protected set; } = new List<MasterInfo>();
-    public int SelectedScanStationIndex { get; protected set; } = 0; // Select the first station, even though more are found
-    public XsDevice Device { get; protected set; } = null;
-    public XsDevicePtrArray Sensors {
+
+    // Devices
+    protected List<MasterInfo> AllScannedStations = new List<MasterInfo>();
+    protected int SelectedScanStationIndex = 0; // Select the first station, even though more are found
+    protected XsDevice Device = null;
+    public bool IsStationInitialized { get; protected set; } = false;
+
+
+    // Sensors (IMUs)
+    protected XsDevicePtrArray Sensors {
         get
         {
             if (Device is null)
@@ -26,9 +32,12 @@ public class XSensModule
             return Device.children();
         }
     }
+    public override int NbSensorsConnected() 
+    { 
+        return (int)Sensors.size(); 
+    } 
     protected Dictionary<uint, uint> SensorsMap = new Dictionary<uint, uint>();
     Dictionary<XsDevice, MyMtCallback> DevicesCallbackDict = new Dictionary<XsDevice, MyMtCallback>();
-    public int NbSensors { get { return (int)Sensors.size(); } }
 
     // Sensor configuration variables
     protected int _updateRate = 120; // Acquisition frequency driven by UpdateRate property
@@ -46,18 +55,11 @@ public class XSensModule
             }
         }
     }
-    // Status related variables
-    public bool IsStationInitialized { get; protected set; } = false;
-    public bool IsSensorsConnected { get; protected set; } = false;
-
-    // Trial related variables
-    public bool IsRecording { get; protected set; } = false;
-    protected DateTime TrialStartingTime;
-    protected int PreviousPacketCounter = -1;
-    public AvatarData CurrentData { get; protected set; } = null;
-    public List<AvatarData> TrialData { get; protected set; } = new List<AvatarData>();
     
-    public XSensModule()
+    // Trial related variables
+    protected int PreviousPacketCounter = -1;
+    
+    public XSensModule(int _expectedNbSensors)
     {
         // Make sure decimal separator is the point (for instance, on french computers)
         System.Globalization.NumberFormatInfo nfi = new System.Globalization.NumberFormatInfo();
@@ -66,10 +68,10 @@ public class XSensModule
         ci.NumberFormat = nfi;
         System.Threading.Thread.CurrentThread.CurrentCulture = ci;
 
-        // processPeriodInMs = 1000 / processFreq;
+        NbSensorsExpected = _expectedNbSensors;
     }
 
-    public void Disconnect()
+    public override void Disconnect()
     {
         // Closing devices so they can be reuse by another software
         if (Device != null)
@@ -91,13 +93,13 @@ public class XSensModule
         IsSensorsConnected = false;
     }
 
-    public bool InitializeStationsAndDevice()
+    public override bool SetupMaterial()
     {
         // Prevents from connecting multiple times
-        if (IsSensorsConnected)
+        if (IsStationInitialized)
         {
             Debug.Log("System already connected. Nothing to do");
-            return false;
+            return true;
         }
 
         // Find the station to connect to
@@ -159,7 +161,7 @@ public class XSensModule
         return false;
     }
 
-    public bool SetupSensors(int _expectedNbSensors)
+    public override bool SetupSensors()
     {
         if (AllScannedStations.Count == 0)
         {
@@ -186,7 +188,7 @@ public class XSensModule
                 DevicesCallbackDict.Add(mtw, callback);
             }
         }
-        catch (Exception e)
+        catch (Exception)
         {
             // If any exception is thrown, the process has failed, but probably not for good. 
             // So allow to continue
@@ -194,37 +196,28 @@ public class XSensModule
             return false;
         }
 
-        IsSensorsConnected = NbSensors == _expectedNbSensors;
+        IsSensorsConnected = NbSensorsConnected() == NbSensorsExpected;
         return IsSensorsConnected;
     }
 
-    public void FinalizeSetup()
+    public override bool FinalizeSetup()
     {
 
         Device.setOptions(XsOption.XSO_Orientation | XsOption.XSO_Calibrate, XsOption.XSO_None);
         Device.gotoMeasurement();
 
-        CurrentData = null;
+        return base.FinalizeSetup();
     }
 
 
-    public void StartTrial()
+    public override void StartTrial()
     {
-        TrialStartingTime = DateTime.Now;
+        base.StartTrial();
         PreviousPacketCounter = -1;
-        IsRecording = true;
-        TrialData.Clear();
     }
-
-    public void StopTrial()
-    {
-        IsRecording = false;
-    }
-
 
 	// =================================================================================================================================================================
-	/// <summary> Fonction "callback" utilisé pour lire les données des senseurs XSens à la fréquence d'échantillonnage spécifiée. </summary>
-
+	/// <summary> Callback for the data. </summary>
 	void HandlerDataAvailableCallback(object sender, DataAvailableArgs e)
 	{
         // If a new time frame comes, save then reinitialize the Data holder
@@ -235,7 +228,7 @@ public class XSensModule
                 TrialData.Add(CurrentData);
             }
 
-            CurrentData = new AvatarData(_currentPacketCounter, NbSensors);
+            CurrentData = new AvatarData(_currentPacketCounter, NbSensorsConnected());
             PreviousPacketCounter = _currentPacketCounter;
         }
 

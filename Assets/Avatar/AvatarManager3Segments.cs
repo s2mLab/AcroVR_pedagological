@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 // =================================================================================================================================================================
 /// <summary> Script utilisé pour faire bouger l'avatar. </summary>
@@ -18,10 +17,7 @@ public class AvatarManager3Segments : AvatarManager
 
 	protected override bool SetCalibrationPositionMatrices()
 	{
-		if (!CurrentData.AllSensorsSet)
-		{
-			return false;
-		}
+		if (!CurrentData.AllSensorsConnected) return false;
 
 		// The first Sensor is the reference sensor to which all the others report wrt
 		// With more segments, one should define a "parent" vector and Reference should be 
@@ -32,16 +28,15 @@ public class AvatarManager3Segments : AvatarManager
 			CalibrationMatrices_CalibInParent[i] =
 				(CalibrationMatrices_CalibInParent[0] * AvatarOffset[i]).Transpose() * CurrentData.OrientationMatrix[i];
 		}
+
 		return true;
 	}
 	protected override AvatarMatrixRotation[] ProjectWrtToCalibrationPosition()
 	{
 		if (!IsZeroSet)
 		{
-			if (!SetCalibrationPositionMatrices())
-			{
-				return null;
-			}
+			if (!SetCalibrationPositionMatrices()) return null;
+
 			IsZeroSet = true;
 		}
 

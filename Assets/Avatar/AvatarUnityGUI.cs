@@ -23,18 +23,20 @@ public class AvatarUnityGUI : MonoBehaviour
 		if (_sensorType.type == SensorType.XSens)
 		{
 			XSensPanelConnexion.SetActive(true);
-			StartCoroutine(
-				Avatar.InitializeXSens(
-					IsConnectingCallback,
-					IsReadyCallback,
-					ConnectionFailed
-				)
-			);
 		}
 		else
         {
 			Debug.Log("Wrong type of module. Nothing is done.");
         }
+
+		StartCoroutine(
+			Avatar.InitializeController(
+				_sensorType.type,
+				IsConnectingCallback,
+				IsReadyCallback,
+				ConnectionFailed
+			)
+		);
 		return;
 	}
 

@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class AvatarManager : MonoBehaviour
 {
-	protected SensorType CurrentSensorType = SensorType.None;
-
     // Biorbd related variables
     public BiorbdModel Model { get; protected set; }
 
@@ -15,8 +12,8 @@ public abstract class AvatarManager : MonoBehaviour
 	protected bool IsZeroSet = false;
 
 
-	// XSens related variables
-	public XSensModule XSensModule { get; protected set; }
+	// Controller related variables
+	public AvatarModule ControllerModule { get; protected set; } = null;
     protected AvatarData CurrentData = null;
 	protected bool CurrentDataHasChanged = false;
 	protected int PreviousDataIndex = -1;
@@ -25,7 +22,6 @@ public abstract class AvatarManager : MonoBehaviour
 
 	protected void Start()
 	{
-		XSensModule = new XSensModule();
 		Model = new BiorbdModel(BiomodPath());
 		CalibrationMatrices_CalibInParent = new AvatarMatrixRotation[Model.NbSegments];
 		AvatarOffset = GetOrientationFromAvatar();
@@ -33,17 +29,13 @@ public abstract class AvatarManager : MonoBehaviour
 
 	void Update()
 	{
+		if (ControllerModule == null) return;
+
 		GetCurrentData();
-		if (CurrentData == null || !CurrentData.AllSensorsSet)
-		{
-			return;
-		}
+		if (CurrentData == null || !CurrentData.AllSensorsConnected) return;
 
 		AvatarMatrixRotation[] _data = ProjectWrtToCalibrationPosition();
-		if (_data is null)
-		{
-			return;
-		}
+		if (_data is null) return;
 
 		SetSegmentsRotations(_data);
 	}
@@ -53,38 +45,44 @@ public abstract class AvatarManager : MonoBehaviour
 	protected abstract bool SetCalibrationPositionMatrices();
 	protected abstract AvatarMatrixRotation[] ProjectWrtToCalibrationPosition();
 
-	public IEnumerator InitializeXSens(
+	public IEnumerator InitializeController(
+		SensorType _sensorType,
 		Action<int, int>  UpdateConnectingStatusCallback,
 		Action ConectingIsCompletedCallback,
 		Action InitializationFailedCallback
 	)
     {
-		if (CurrentSensorType != SensorType.None)
+		if (ControllerModule != null)
         {
-			Debug.Log("Sensor already chosen. Cannot load XSens.");
+			Debug.Log("Controller already chosen. Restart the software to change controller.");
 			InitializationFailedCallback();
 			yield break;
 		}
 
-		if (!XSensModule.IsStationInitialized)
-        {
-			if (!XSensModule.InitializeStationsAndDevice())
-			{
-				InitializationFailedCallback();
-				yield break;
-			}
+		if (_sensorType == SensorType.None)
+		{
+			Debug.Log("A controller must be chosen");
+			InitializationFailedCallback();
+			yield break;
+		}
+		else if (_sensorType == SensorType.XSens){
+			ControllerModule = new XSensModule(Model.NbImus);
 		}
 
-        while (!XSensModule.IsSensorsConnected)
+		if (!ControllerModule.SetupMaterial())
         {
-            XSensModule.SetupSensors(Model.NbImus);
+			InitializationFailedCallback();
+			yield break;
+		}
+
+        while (!ControllerModule.SetupSensors())
+        {
             UpdateConnectingStatusCallback(
-                XSensModule.NbSensors, Model.NbImus);
+				ControllerModule.NbSensorsConnected(), ControllerModule.NbSensorsExpected);
             yield return 0;
         }
 
-        XSensModule.FinalizeSetup();
-		CurrentSensorType = SensorType.XSens;
+		ControllerModule.FinalizeSetup();
 		ConectingIsCompletedCallback();
 		
 		yield return 0;
@@ -93,23 +91,22 @@ public abstract class AvatarManager : MonoBehaviour
 	protected void GetCurrentData()
 	{
 		CurrentDataHasChanged = false;
-		if (CurrentSensorType == SensorType.XSens)
-        {
-			if (XSensModule.IsSensorsConnected)
+		if (ControllerModule.IsSensorsConnected)
+		{
+			if (CurrentData == null 
+				|| CurrentData.TimeIndex != ControllerModule.CurrentData.TimeIndex 
+					&& ControllerModule.CurrentData.AllSensorsConnected
+			)
 			{
-				if (CurrentData == null || CurrentData.TimeIndex != XSensModule.CurrentData.TimeIndex && XSensModule.CurrentData.AllSensorsSet)
-				{
-					CurrentData = XSensModule.CurrentData;
-					CurrentDataHasChanged = true;
-				}
+				CurrentData = ControllerModule.CurrentData;
+				CurrentDataHasChanged = true;
 			}
 		}
-		
 	}
 
 	void OnDestroy()
     {
-        XSensModule.Disconnect();
+		ControllerModule.Disconnect();
 	}
 
 

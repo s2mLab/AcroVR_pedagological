@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class AvatarData
 {
@@ -10,7 +8,7 @@ public class AvatarData
 	protected int NbExpectedSensors = -1;
 	public bool[] IsSensorsSet;
 	public int NbSensorsSet = 0;
-	public bool AllSensorsSet { get { return NbExpectedSensors == NbSensorsSet ? true : false; } }
+	public bool AllSensorsConnected { get { return NbExpectedSensors == NbSensorsSet ? true : false; } }
 
 	public AvatarData(
 		int _timeStamps,
