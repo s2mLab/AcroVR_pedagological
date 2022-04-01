@@ -54,8 +54,8 @@ public class XSensModule
     public bool IsRecording { get; protected set; } = false;
     protected DateTime TrialStartingTime;
     protected int PreviousPacketCounter = -1;
-    public XSensData CurrentData { get; protected set; } = null;
-    public List<XSensData> TrialData { get; protected set; } = new List<XSensData>();
+    public AvatarData CurrentData { get; protected set; } = null;
+    public List<AvatarData> TrialData { get; protected set; } = new List<AvatarData>();
     
     public XSensModule()
     {
@@ -171,17 +171,27 @@ public class XSensModule
         SensorsMap.Clear();
         Device.clearCallbackHandlers();
         DevicesCallbackDict.Clear();
-        for (uint i = 0; i < Sensors.size(); i++)
+        try
         {
-            XsDevice mtw = new XsDevice(Sensors.at(i));
-            SensorsMap.Add(mtw.deviceId().toInt(), i);
+            for (uint i = 0; i < Sensors.size(); i++)
+            {
+                XsDevice mtw = new XsDevice(Sensors.at(i));
+                SensorsMap.Add(mtw.deviceId().toInt(), i);
 
-            // Connect signals
-            MyMtCallback callback = new MyMtCallback();
-            callback.DataAvailable += new EventHandler<DataAvailableArgs>(HandlerDataAvailableCallback);
+                // Connect signals
+                MyMtCallback callback = new MyMtCallback();
+                callback.DataAvailable += new EventHandler<DataAvailableArgs>(HandlerDataAvailableCallback);
 
-            mtw.addCallbackHandler(callback);
-            DevicesCallbackDict.Add(mtw, callback);
+                mtw.addCallbackHandler(callback);
+                DevicesCallbackDict.Add(mtw, callback);
+            }
+        }
+        catch (Exception e)
+        {
+            // If any exception is thrown, the process has failed, but probably not for good. 
+            // So allow to continue
+            Debug.Log("Unhandled exception in XSens initialization.");
+            return false;
         }
 
         IsSensorsConnected = NbSensors == _expectedNbSensors;
@@ -225,7 +235,7 @@ public class XSensModule
                 TrialData.Add(CurrentData);
             }
 
-            CurrentData = new XSensData(_currentPacketCounter, NbSensors);
+            CurrentData = new AvatarData(_currentPacketCounter, NbSensors);
             PreviousPacketCounter = _currentPacketCounter;
         }
 
@@ -233,11 +243,8 @@ public class XSensModule
         uint _imuIndex  = SensorsMap[e.Device.deviceId().toInt()];
         CurrentData.AddData(
             _imuIndex,
-            e.Packet.orientationMatrix(),
-            e.Packet.orientationEuler(),
-            e.Packet.orientationQuaternion(),
-            e.Packet.calibratedAcceleration()
+            new AvatarMatrixRotation(e.Packet.orientationMatrix())
         );
     }
 }
-﻿
+

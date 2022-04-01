@@ -35,6 +35,16 @@ public class AvatarMatrixRotation
         Value[2, 2] = r2c2;
     }
 
+    public AvatarMatrixRotation(AvatarMatrixRotation other)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                Value[i, j] = other.Value[i, j];
+            }
+        }
+    }
     public AvatarMatrixRotation(XDA.XsMatrix other)
     {
         for (int i = 0; i < 3; i++)

@@ -17,7 +17,7 @@ public abstract class AvatarManager : MonoBehaviour
 
 	// XSens related variables
 	public XSensModule XSensModule { get; protected set; }
-    protected XSensData CurrentData = null;
+    protected AvatarData CurrentData = null;
 	protected bool CurrentDataHasChanged = false;
 	protected int PreviousDataIndex = -1;
 
@@ -93,14 +93,18 @@ public abstract class AvatarManager : MonoBehaviour
 	protected void GetCurrentData()
 	{
 		CurrentDataHasChanged = false;
-		if (XSensModule.IsSensorsConnected)
-		{
-			if (CurrentData == null || CurrentData.TimeIndex != XSensModule.CurrentData.TimeIndex && XSensModule.CurrentData.AllSensorsSet)
-            {
-				CurrentData = XSensModule.CurrentData;
-				CurrentDataHasChanged = true;
+		if (CurrentSensorType == SensorType.XSens)
+        {
+			if (XSensModule.IsSensorsConnected)
+			{
+				if (CurrentData == null || CurrentData.TimeIndex != XSensModule.CurrentData.TimeIndex && XSensModule.CurrentData.AllSensorsSet)
+				{
+					CurrentData = XSensModule.CurrentData;
+					CurrentDataHasChanged = true;
+				}
 			}
 		}
+		
 	}
 
 	void OnDestroy()

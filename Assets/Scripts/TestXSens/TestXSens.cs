@@ -30,10 +30,10 @@ public class TestXSens : MonoBehaviour
     public static int nQ_modelInt = 0;
     public static int nMarkers_modelInt = 0;
 
-    XSensData xSdataCalib;
+    AvatarData xSdataCalib;
     List<XsEuler[]> xEulerDataCalib = new List<XsEuler[]>();
     double[,,] eulerDataCalib;
-    public XSensData xSdataTrial;
+    public AvatarData xSdataTrial;
     List<XsEuler[]> xEulerDataTrial = new List<XsEuler[]>();
     public double[,,] eulerDataTrial;
 
