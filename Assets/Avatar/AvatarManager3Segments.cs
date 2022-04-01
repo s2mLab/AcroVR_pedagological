@@ -22,12 +22,13 @@ public class AvatarManager3Segments : AvatarManager
 		// The first Sensor is the reference sensor to which all the others report wrt
 		// With more segments, one should define a "parent" vector and Reference should be 
 		// from that parent
-		CalibrationMatrices_CalibInParent[0] =
-			AvatarOffset[0] * CurrentData.OrientationMatrix[0];
+		CalibrationMatrices_CalibInParent[0] = CurrentData.OrientationMatrix[0];
 		for (int i = 1; i < Model.NbSegments; i++)
 		{
 			CalibrationMatrices_CalibInParent[i] =
-				CalibrationMatrices_CalibInParent[0].Transpose() * CurrentData.OrientationMatrix[i];
+				AvatarOffset[0].Transpose()
+				* CalibrationMatrices_CalibInParent[0].Transpose()
+				* CurrentData.OrientationMatrix[i];
 		}
 
 		return true;
@@ -45,14 +46,15 @@ public class AvatarManager3Segments : AvatarManager
 		// do this shortcut
 		AvatarMatrixRotation[] _currentInAvatar = new AvatarMatrixRotation[Model.NbSegments];
 		_currentInAvatar[0] =
-			AvatarOffset[0]; 
-			// * CalibrationMatrices_CalibInParent[0].Transpose()
-			// * CurrentData.OrientationMatrix[0];
-        for (int i = 1; i < Model.NbSegments; i++)
+			AvatarOffset[0] 
+			* CalibrationMatrices_CalibInParent[0].Transpose() 
+			* CurrentData.OrientationMatrix[0];
+		for (int i = 1; i < Model.NbSegments; i++)
 		{
-			_currentInAvatar[i] = 
+			_currentInAvatar[i] =
 				AvatarOffset[i]
 				* CalibrationMatrices_CalibInParent[i].Transpose()
+				* AvatarOffset[0].Transpose()
 				* CurrentData.OrientationMatrix[0].Transpose()
 				* CurrentData.OrientationMatrix[i];
 		}

@@ -45,12 +45,18 @@ public class XSensFakeModule : XSensModule
 
     void HandlerDataAvailableCallback(object sender, ElapsedEventArgs e)
     {
+        // Note: If the IMU is resting on its largest surface with the 
+        // connectic hole towards you. Then the axes points (using left hand)
+        // X+ rightward
+        // Y+ frontward
+        // Z+ downward
+
         PreviousPacketCounter++;
 
         CurrentData = new AvatarData(PreviousPacketCounter, NbSensorsConnected());
         for (uint i = 0; i < NbSensorsConnected(); i++)
         {
-            double[] _angles = { Math.PI/12, -Math.PI / 12, Math.PI / 6 };
+            double[] _angles = { PreviousPacketCounter, 0, 0 };
             CurrentData.AddData(
                 i, AvatarMatrixRotation.FromEulerXYZ(_angles)
             );
