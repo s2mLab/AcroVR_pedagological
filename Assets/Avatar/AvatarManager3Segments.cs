@@ -11,68 +11,55 @@ public class AvatarManager3Segments : AvatarManager
 	public GameObject leftUpperLimb;
 	public GameObject rightUpperLimb;
 
-
-	protected new void Start()
-	{
-		base.Start();
-		AvatarOffset = GetOrientationFromAvatar();
-	}
-
-	protected AvatarMatrixRotation[] GetOrientationFromAvatar()
-    {
-		double[] _hipsOrientation = {
-			//hips.transform.localEulerAngles[0],
-			//hips.transform.localEulerAngles[1],
-			//hips.transform.localEulerAngles[2]
-			0, 0, 0
-		};
-		double[] _leftUpperLimbOrientation = {
-			//leftUpperLimb.transform.localEulerAngles[0],
-			//leftUpperLimb.transform.localEulerAngles[1],
-			//leftUpperLimb.transform.localEulerAngles[2]
-			0, 0, 0
-		};
-		double[] _rightUpperLimbOrientation = {
-			//rightUpperLimb.transform.localEulerAngles[0],
-			//rightUpperLimb.transform.localEulerAngles[1],
-			//rightUpperLimb.transform.localEulerAngles[2]
-			0, 0, 0
-		};
-		
-		double[][] _result = { _hipsOrientation, _leftUpperLimbOrientation, _rightUpperLimbOrientation };
-		return MapEulerToInternal(_result);
-	}
-
 	protected override string BiomodPath()
-    {
+	{
 		return @"Assets/Avatar/Biorbd/model3Segments.bioMod";
 	}
 
-	void Update()
+	protected override bool SetCalibrationPositionMatrices()
 	{
-        GetCurrentData();
-		if (CurrentData == null || !CurrentData.AllSensorsSet)
-        {
-			return;
-        }
-
-		AvatarMatrixRotation[] _data = ProjectWrtToCalibrationPosition();
-		if (_data is null)
-        {
-			return;
-        }
-
-		SetSegmentsRotations(_data);
-    }
-
-	protected double[][] DispatchToAngleVector(AvatarMatrixRotation[] _data)
-	{
-		double[][] _angles = new double[_data.Length][];
-		for (int i = 0; i < _data.Length; ++i)
+		if (!CurrentData.AllSensorsSet)
 		{
-			_angles[i] = _data[i].ToEulerYXZ();
+			return false;
 		}
-		return _angles;
+
+		// The first Sensor is the reference sensor to which all the others report wrt
+		// With more segments, one should define a "parent" vector and Reference should be 
+		// from that parent
+		CalibrationMatrices_CalibInParent[0] = new AvatarMatrixRotation(CurrentData.OrientationMatrix[0]);
+		for (int i = 1; i < Model.NbSegments; i++)
+		{
+			CalibrationMatrices_CalibInParent[i] =
+				CalibrationMatrices_CalibInParent[0].Transpose() * CurrentData.OrientationMatrix[i];
+		}
+		return true;
+	}
+	protected override AvatarMatrixRotation[] ProjectWrtToCalibrationPosition()
+	{
+		if (!IsZeroSet)
+		{
+			if (!SetCalibrationPositionMatrices())
+			{
+				return null;
+			}
+			IsZeroSet = true;
+		}
+
+		// output[0] is the reference for both Left and Right arm that is why we can
+		// do this shortcut
+		AvatarMatrixRotation[] _currentInCalib = new AvatarMatrixRotation[Model.NbSegments];
+		_currentInCalib[0] = CalibrationMatrices_CalibInParent[0]
+			* CalibrationMatrices_CalibInParent[0].Transpose()
+			* CurrentData.OrientationMatrix[0];
+		for (int i = 1; i < Model.NbSegments; i++)
+		{
+			_currentInCalib[i] = CalibrationMatrices_CalibInParent[i]
+				* (
+					(_currentInCalib[0] * CalibrationMatrices_CalibInParent[i]).Transpose()
+					* CurrentData.OrientationMatrix[i]
+				);
+		}
+		return _currentInCalib;
 	}
 
 	public override void SetSegmentsRotations(AvatarMatrixRotation[] _data)
@@ -84,7 +71,39 @@ public class AvatarManager3Segments : AvatarManager
 		ApplyRotation(rightUpperLimb, _anglesAvatar[2]);
 	}
 
-	public AvatarMatrixRotation[] MapEulerToInternal(double[][] _angles)
+	protected override AvatarMatrixRotation[] GetOrientationFromAvatar()
+    {
+		double[] _hipsOrientation = {
+            hips.transform.localEulerAngles[0],
+            hips.transform.localEulerAngles[1],
+            hips.transform.localEulerAngles[2]
+        };
+		double[] _leftUpperLimbOrientation = {
+            leftUpperLimb.transform.localEulerAngles[0],
+            leftUpperLimb.transform.localEulerAngles[1],
+            leftUpperLimb.transform.localEulerAngles[2]
+        };
+		double[] _rightUpperLimbOrientation = {
+            rightUpperLimb.transform.localEulerAngles[0],
+            rightUpperLimb.transform.localEulerAngles[1],
+            rightUpperLimb.transform.localEulerAngles[2]
+        };
+		
+		double[][] _result = { _hipsOrientation, _leftUpperLimbOrientation, _rightUpperLimbOrientation };
+		return MapAvatarToInternal(_result);
+	}
+
+	protected double[][] DispatchToAngleVector(AvatarMatrixRotation[] _data)
+	{
+		double[][] _angles = new double[_data.Length][];
+		for (int i = 0; i < _data.Length; ++i)
+		{
+			_angles[i] = _data[i].ToEulerYXZ();
+		}
+		return _angles;
+	}
+
+	protected AvatarMatrixRotation[] MapAvatarToInternal(double[][] _angles)
     {
 		AvatarMatrixRotation[] _result = new AvatarMatrixRotation[3];
 
@@ -109,7 +128,7 @@ public class AvatarManager3Segments : AvatarManager
 		return _result;
     }
 
-	public double[][] MapToAvatar(double[][] _angles)
+	protected double[][] MapToAvatar(double[][] _angles)
 	{
 		double[][] _anglesDegree = MathUtils.ToDegree(_angles);
 

@@ -7,11 +7,10 @@ public abstract class AvatarManager : MonoBehaviour
 {
 	// Biorbd related variables
 	public BiorbdModel Model { get; protected set; }
-	public abstract void SetSegmentsRotations(AvatarMatrixRotation[] _data);
 
 	protected AvatarMatrixRotation[] AvatarOffset;
-	protected AvatarMatrixRotation[] CalibrationPositionMatrices;
-	bool IsZeroSet = false;
+	protected AvatarMatrixRotation[] CalibrationMatrices_CalibInParent;
+	protected bool IsZeroSet = false;
 
 	// XSens related variables
 	public XSensModule Module { get; protected set; }
@@ -25,47 +24,31 @@ public abstract class AvatarManager : MonoBehaviour
 	{
 		Module = new XSensModule();
 		Model = new BiorbdModel(BiomodPath());
-		CalibrationPositionMatrices = new AvatarMatrixRotation[Model.NbSegments];
+		CalibrationMatrices_CalibInParent = new AvatarMatrixRotation[Model.NbSegments];
+		AvatarOffset = GetOrientationFromAvatar();
 	}
 
-	virtual protected bool SetCalibrationPositionMatrices()
+	void Update()
 	{
-		if (!CurrentData.AllSensorsSet)
-        {
-			return false;
-        }
-
-		// The first Sensor is the reference sensor to which all the others report wrt
-		CalibrationPositionMatrices[0] = new AvatarMatrixRotation(CurrentData.OrientationMatrix[0]);
-        AvatarMatrixRotation ReferenceTransposed = CalibrationPositionMatrices[0].Transpose();
-        for (int i = 1; i < Model.NbSegments; i++)
-        {
-			CalibrationPositionMatrices[i] = ReferenceTransposed * CurrentData.OrientationMatrix[i];
-        }
-        return true;
-	}
-	virtual protected AvatarMatrixRotation[] ProjectWrtToCalibrationPosition()
-	{
-		if (!IsZeroSet)
+		GetCurrentData();
+		if (CurrentData == null || !CurrentData.AllSensorsSet)
 		{
-			if (!SetCalibrationPositionMatrices())
-			{
-				return null;
-			}
-			IsZeroSet = true;
+			return;
 		}
 
-		AvatarMatrixRotation[] output = new AvatarMatrixRotation[Model.NbSegments];
-		output[0] = CalibrationPositionMatrices[0].Transpose() * CurrentData.OrientationMatrix[0];
-		//AvatarMatrixRotation ReferenceTransposed = ZeroPositionMatrices[0].Transpose();
-		for (int i = 1; i < Model.NbSegments; i++)
+		AvatarMatrixRotation[] _data = ProjectWrtToCalibrationPosition();
+		if (_data is null)
 		{
-			//output[i] = ReferenceTransposed * ZeroPositionMatrices[i] * _sensors.OrientationMatrix[i];
-			AvatarMatrixRotation Ref = new AvatarMatrixRotation(CurrentData.OrientationMatrix[0]);
-			output[i] = Ref.Transpose() * CurrentData.OrientationMatrix[i];
+			return;
 		}
-		return output;
+
+		SetSegmentsRotations(_data);
 	}
+
+	public abstract void SetSegmentsRotations(AvatarMatrixRotation[] _data);
+	protected abstract AvatarMatrixRotation[] GetOrientationFromAvatar();
+	protected abstract bool SetCalibrationPositionMatrices();
+	protected abstract AvatarMatrixRotation[] ProjectWrtToCalibrationPosition();
 
 	public IEnumerator InitializeXSens(
 		Action<int, int>  UpdateConnectingStatusCallback,
