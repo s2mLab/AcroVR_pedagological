@@ -10,6 +10,8 @@ using XDA;
 public class XSensModule : AvatarModule
 {
     // Xda related variables
+    protected AvatarManager Avatar;
+    public bool UseKalmanFilter { get; protected set; }
     MyXda _xda = new MyXda();
 
     // Devices
@@ -18,6 +20,19 @@ public class XSensModule : AvatarModule
     protected XsDevice Device = null;
     public bool IsStationInitialized { get; protected set; } = false;
 
+    public XSensModule(AvatarManager _avatar)
+    {
+        // Make sure decimal separator is the point (for instance, on french computers)
+        System.Globalization.NumberFormatInfo nfi = new System.Globalization.NumberFormatInfo();
+        nfi.NumberDecimalSeparator = ".";
+        System.Globalization.CultureInfo ci = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
+        ci.NumberFormat = nfi;
+        System.Threading.Thread.CurrentThread.CurrentCulture = ci;
+
+        Avatar = _avatar;
+        NbSensorsExpected = Avatar.NbSensors();
+        UseKalmanFilter = Avatar.UseKalmanFilter;
+    }
 
     // Sensors (IMUs)
     protected XsDevicePtrArray Sensors {
@@ -59,18 +74,6 @@ public class XSensModule : AvatarModule
     // Trial related variables
     protected int PreviousPacketCounter = -1;
     
-    public XSensModule(int _expectedNbSensors) 
-    {
-        // Make sure decimal separator is the point (for instance, on french computers)
-        System.Globalization.NumberFormatInfo nfi = new System.Globalization.NumberFormatInfo();
-        nfi.NumberDecimalSeparator = ".";
-        System.Globalization.CultureInfo ci = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
-        ci.NumberFormat = nfi;
-        System.Threading.Thread.CurrentThread.CurrentCulture = ci;
-
-        NbSensorsExpected = _expectedNbSensors;
-    }
-
     public override void Disconnect()
     {
         // Closing devices so they can be reuse by another software
@@ -216,8 +219,17 @@ public class XSensModule : AvatarModule
         PreviousPacketCounter = -1;
     }
 
-	// =================================================================================================================================================================
-	/// <summary> Callback for the data. </summary>
+    public void CalibrateKinematicModel()
+    {
+        // If we don't use kalman filter, there is no point calibrating biorbd as it is ignored
+        if (!UseKalmanFilter) return;
+
+        // If no data exists, it is not possible to calibrate
+        if (CurrentData == null) return;
+
+        
+    }
+
 	void HandlerDataAvailableCallback(object sender, DataAvailableArgs e)
 	{
         // If a new time frame comes, save then reinitialize the Data holder

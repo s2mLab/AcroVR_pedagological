@@ -5,14 +5,22 @@
 
 public class AvatarManager3Segments : AvatarManager
 {
+	public override string BiomodPath() { 
+		return @"Assets/Avatar/Biorbd/model3Segments.bioMod"; 
+	}
+
 	// Moving Joints
 	public GameObject hips;
 	public GameObject leftUpperLimb;
 	public GameObject rightUpperLimb;
 
-	protected override string BiomodPath()
+	public override int NbSegments()
 	{
-		return @"Assets/Avatar/Biorbd/model3Segments.bioMod";
+		return 3;
+	}
+	public override int NbSensors()
+	{
+		return 3;
 	}
 
 	protected override int ParentIndex(int _segment)

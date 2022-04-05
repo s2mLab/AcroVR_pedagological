@@ -20,9 +20,9 @@ public class BiorbdModel
 	const string dllpath = @"..\Biorbd\bin\biorbd_c.dll";
 #endif
 #endif
-	IntPtr rbdlHandlesDLL = DllManagement.LoadLib($"{dllfolder}\\rbdl.dll");
-	IntPtr tinyXmlHandlesDLL = DllManagement.LoadLib($"{dllfolder}\\tinyxml.dll");
-	IntPtr biorbdHandlesDLL = DllManagement.LoadLib($"{dllfolder}\\{dllname}");
+	protected IntPtr rbdlHandlesDLL = DllManagement.LoadLib($"{dllfolder}\\rbdl.dll");
+	protected IntPtr tinyXmlHandlesDLL = DllManagement.LoadLib($"{dllfolder}\\tinyxml.dll");
+	protected IntPtr biorbdHandlesDLL = DllManagement.LoadLib($"{dllfolder}\\{dllname}");
 
     [DllImport(dllname)] public static extern IntPtr c_biorbdModel(StringBuilder pathToModel);
     [DllImport(dllname)] public static extern IntPtr c_deleteBiorbdModel(IntPtr model);
@@ -60,7 +60,7 @@ public class BiorbdModel
 
     /// <summary> Pointeur qui désigne le modèle BioRBD utilisé pour AcroVR Offline. </summary>
     public IntPtr _ptr_model;
-	bool _initialized { get; set; } = false;
+	public bool IsInitialized { get; protected set; } = false;
 	public int NbSegments { get; protected set; }
 	public int NbRoot { get; protected set; }
 	public int NbQ { get; protected set; }
@@ -104,14 +104,14 @@ public class BiorbdModel
 
 	void Initialize(string path)
     {
-		if (_initialized || !File.Exists(path))
+		if (IsInitialized || !File.Exists(path))
         {
 			Debug.Log(String.Format("Biorbd model not found ({0}), Initialization skipped", path));
 			return;
 		}
 
         _ptr_model = c_biorbdModel(new StringBuilder(path));
-        _initialized = true;
+        IsInitialized = true;
 
 		// Precompute some values to prevent unnecessary DLL calls
 		NbSegments = c_nSegments(_ptr_model);
@@ -140,7 +140,11 @@ public class BiorbdModel
 		_linearSolutionForRoot = new double[NbRoot];
 	}
 
-	public static void createModelFromStaticXsens(List<XsMatrix[]> statiqueTrial, string pathToModel, string pathToTemplate)
+	public static void createModelFromStaticXsens(
+		List<XsMatrix[]> statiqueTrial, 
+		string pathToModel, 
+		string pathToTemplate
+	)
 	{
 		// Load of a generic model
 		if (!System.IO.File.Exists(pathToTemplate))

@@ -6,7 +6,8 @@ public class XSensFakeModule : XSensModule
 {
     Timer TimerHolder;
 
-    public XSensFakeModule(int _expectedNbSensors) : base(_expectedNbSensors)
+    public XSensFakeModule(AvatarManager _avatar) 
+        : base(_avatar)
     {
     }
     public override bool SetupMaterial()

@@ -45,6 +45,7 @@ public class AvatarUnityGUI : MonoBehaviour
 		StartCoroutine(
 			Avatar.InitializeController(
 				_sensorType.type,
+				Avatar.UseKalmanFilter,
 				IsConnectingCallback,
 				IsReadyCallback,
 				ConnectionFailed
@@ -79,6 +80,7 @@ public class AvatarUnityGUI : MonoBehaviour
     {
 		Debug.Log("Error in initializing");
 
+		XSensPanelConnexion.SetActive(false);
 		ButtonUtils.EnableButton(InitalizeButton);
 		ButtonUtils.DisableButton(CalibrateButton);
 	}
