@@ -15,39 +15,10 @@ public class AvatarManager3Segments : AvatarManager
 		return @"Assets/Avatar/Biorbd/model3Segments.bioMod";
 	}
 
-	public override bool SetCalibrationPositionMatrices()
-	{
-		if (!CurrentData.AllSensorsConnected) return false;
-
-		for (int i = 0; i < Model.NbSegments; i++)
-		{
-			// Hips are the reference for both Left and Right arm that is why we can do this shortcut
-			AvatarMatrixRotation _orientationParentTransposed =
-				i == 0 ? AvatarMatrixRotation.Identity() : CurrentData.OrientationMatrix[0].Transpose();
-			CalibrationMatrices[i] = _orientationParentTransposed * CurrentData.OrientationMatrix[i];
-		}
-		return true;
-	}
-	protected override AvatarMatrixRotation[] ProjectWrtToCalibrationPosition()
-	{
-		if (!IsCalibrated)
-		{
-			if (!SetCalibrationPositionMatrices()) return null;
-			IsCalibrated = true;
-		}
-
-		AvatarMatrixRotation[] _currentInAvatar = new AvatarMatrixRotation[Model.NbSegments];
-		for (int i = 0; i < Model.NbSegments; i++)
-		{
-			// Hips are the reference for both Left and Right arm that is why we can do this shortcut
-			AvatarMatrixRotation _orientationParentTransposed =
-				i == 0 ? AvatarMatrixRotation.Identity() : CurrentData.OrientationMatrix[0].Transpose();
-			_currentInAvatar[i] =
-				CalibrationMatrices[i].Transpose() * _orientationParentTransposed 
-				* CurrentData.OrientationMatrix[i];
-		}
-		return _currentInAvatar;
-	}
+	protected override int ParentIndex(int _segment)
+    {
+		return _segment == 0 ? -1 : 0;  // Parent of all segments is hips
+    }
 
 	public override void SetSegmentsRotations(AvatarMatrixRotation[] _data)
 	{

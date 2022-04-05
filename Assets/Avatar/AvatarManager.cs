@@ -18,6 +18,7 @@ public abstract class AvatarManager : MonoBehaviour
 	protected int PreviousDataIndex = -1;
 
 	protected abstract string BiomodPath();
+	protected abstract int ParentIndex(int _segment);
 
 	protected void Start()
 	{
@@ -39,8 +40,43 @@ public abstract class AvatarManager : MonoBehaviour
 	}
 
 	public abstract void SetSegmentsRotations(AvatarMatrixRotation[] _data);
-	public abstract bool SetCalibrationPositionMatrices();
-	protected abstract AvatarMatrixRotation[] ProjectWrtToCalibrationPosition();
+	public virtual bool SetCalibrationPositionMatrices()
+	{
+		if (!CurrentData.AllSensorsConnected) return false;
+
+		for (int i = 0; i < Model.NbSegments; i++)
+		{
+			int _parentIndex = ParentIndex(i);
+			// Hips are the reference for both Left and Right arm that is why we can do this shortcut
+			AvatarMatrixRotation _orientationParentTransposed =
+				_parentIndex < 0 ?
+				AvatarMatrixRotation.Identity() : CurrentData.OrientationMatrix[_parentIndex].Transpose();
+			CalibrationMatrices[i] = _orientationParentTransposed * CurrentData.OrientationMatrix[i];
+		}
+		return true;
+	}
+	protected virtual AvatarMatrixRotation[] ProjectWrtToCalibrationPosition()
+	{
+		if (!IsCalibrated)
+		{
+			if (!SetCalibrationPositionMatrices()) return null;
+			IsCalibrated = true;
+		}
+
+		AvatarMatrixRotation[] _currentInAvatar = new AvatarMatrixRotation[Model.NbSegments];
+		for (int i = 0; i < Model.NbSegments; i++)
+		{
+			int _parentIndex = ParentIndex(i);
+			// Hips are the reference for both Left and Right arm that is why we can do this shortcut
+			AvatarMatrixRotation _orientationParentTransposed =
+				_parentIndex < 0 ?
+				AvatarMatrixRotation.Identity() : CurrentData.OrientationMatrix[_parentIndex].Transpose();
+			_currentInAvatar[i] =
+				CalibrationMatrices[i].Transpose() * _orientationParentTransposed
+				* CurrentData.OrientationMatrix[i];
+		}
+		return _currentInAvatar;
+	}
 
 	public IEnumerator InitializeController(
 		SensorType _sensorType,
