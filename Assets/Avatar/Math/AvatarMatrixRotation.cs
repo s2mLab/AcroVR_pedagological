@@ -3,26 +3,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AvatarMatrixRotation
+public class AvatarMatrixRotation : AvatarMatrix
 {
-    public double[,] Value = new double[3, 3];
 
-    public AvatarMatrixRotation()
+    public AvatarMatrixRotation() : base(3, 3)
     {
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < 3; j++)
-            {
-                Value[i, j] = 0;
-            }
-        }
+        
     }
 
     public AvatarMatrixRotation(
         double r0c0, double r0c1, double r0c2,
         double r1c0, double r1c1, double r1c2,
         double r2c0, double r2c1, double r2c2
-    )
+    ) : base(3, 3)
     {
         Value[0, 0] = r0c0;
         Value[1, 0] = r1c0;
@@ -35,25 +28,13 @@ public class AvatarMatrixRotation
         Value[2, 2] = r2c2;
     }
 
-    public AvatarMatrixRotation(AvatarMatrixRotation other)
+    public AvatarMatrixRotation(AvatarMatrixRotation _other) : base(_other)
     {
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < 3; j++)
-            {
-                Value[i, j] = other.Value[i, j];
-            }
-        }
+        
     }
-    public AvatarMatrixRotation(XDA.XsMatrix other)
+    public AvatarMatrixRotation(XDA.XsMatrix _other) : base(_other)
     {
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < 3; j++)
-            {
-                Value[i, j] = other.value((uint)i, (uint)j);
-            }
-        }
+        
     }
 
     static public AvatarMatrixRotation Identity()
@@ -89,58 +70,33 @@ public class AvatarMatrixRotation
             0, 0, 1
         );
     }
-
-    static public AvatarMatrixRotation operator *(AvatarMatrixRotation first, AvatarMatrixRotation second)
+    static public AvatarMatrixRotation operator *(AvatarMatrixRotation _first, AvatarMatrixRotation _second)
     {
-        return first.Multiply(second);
+        return _first.Multiply(_second);
     }
-    static public AvatarMatrixRotation operator *(AvatarMatrixRotation first, XDA.XsMatrix second)
+    static public AvatarMatrixRotation operator *(AvatarMatrixRotation _first, XDA.XsMatrix _second)
     {
-        return first.Multiply(second);
-    }
-
-    public AvatarMatrixRotation Multiply(AvatarMatrixRotation other)
-    {
-        AvatarMatrixRotation _result = new AvatarMatrixRotation();
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < 3; j++)
-            {
-                for (int k = 0; k < 3; k++)
-                {
-                    _result.Value[i, j] += Value[i, k] * other.Value[k, j];
-                }
-            }
-        }
-        return _result;
-    }
-    public AvatarMatrixRotation Multiply(XDA.XsMatrix other)
-    {
-        AvatarMatrixRotation _result = new AvatarMatrixRotation();
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < 3; j++)
-            {
-                for (int k = 0; k < 3; k++)
-                {
-                    _result.Value[i, j] += Value[i, k] * other.value((uint)k, (uint)j);
-                }
-            }
-        }
-        return _result;
+        return _first.Multiply(_second);
     }
 
-    public AvatarMatrixRotation Transpose()
+    public AvatarMatrixRotation Multiply(AvatarMatrixRotation _other)
     {
-        AvatarMatrixRotation _result = new AvatarMatrixRotation();
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < 3; j++)
-            {
-                _result.Value[i, j] = Value[j, i];
-            }
-        }
-        return _result;
+        AvatarMatrix _result = new AvatarMatrixRotation();
+        Multiply(this, _other, ref _result);
+        return (AvatarMatrixRotation)_result;
+    }
+    public new AvatarMatrixRotation Multiply(XDA.XsMatrix _other)
+    {
+        AvatarMatrix _result = new AvatarMatrixRotation();
+        Multiply(this, _other, ref _result);
+        return (AvatarMatrixRotation)_result;
+    }
+
+    public new AvatarMatrixRotation Transpose()
+    {
+        AvatarMatrix _result = new AvatarMatrixRotation();
+        Transpose(ref _result);
+        return (AvatarMatrixRotation)_result;
     }
     static public AvatarMatrixRotation FromEulerXYZ(double[] _xyz)
     {

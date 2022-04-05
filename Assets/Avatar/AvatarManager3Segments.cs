@@ -6,8 +6,13 @@
 public class AvatarManager3Segments : AvatarManager
 {
 	public override string BiomodPath() { 
-		return @"Assets/Avatar/Biorbd/model3Segments.bioMod"; 
+		return @"Assets/Avatar/Biorbd/model3Segments.bioMod";
 	}
+	public override void CalibrateSensorToKinematicModel(AvatarData _data)
+    {
+		KinematicModel = new BiorbdModel(@"Assets/Avatar/Biorbd/model3SegmentsWithImu.bioMod");
+		return;
+    }
 
 	// Moving Joints
 	public GameObject hips;

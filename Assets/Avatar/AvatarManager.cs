@@ -8,6 +8,8 @@ public abstract class AvatarManager : MonoBehaviour
 	public BiorbdModel KinematicModel { get; protected set; }
 	public abstract string BiomodPath();
 	[SerializeField] public bool UseKalmanFilter { get; protected set; }
+	public abstract void CalibrateSensorToKinematicModel(AvatarData _data);
+
 
 	// Model related variables
 	protected abstract int ParentIndex(int _segment);
@@ -64,6 +66,8 @@ public abstract class AvatarManager : MonoBehaviour
 				AvatarMatrixRotation.Identity() : _currentData.OrientationMatrix[_parentIndex].Transpose();
 			CalibrationMatrices[i] = _orientationParentTransposed * _currentData.OrientationMatrix[i];
 		}
+
+		ControllerModule.CalibrateKinematicModel();
 		return true;
 	}
 	protected virtual AvatarMatrixRotation[] ProjectWrtToCalibrationPosition()
