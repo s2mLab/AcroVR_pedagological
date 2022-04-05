@@ -7,9 +7,8 @@ public abstract class AvatarManager : MonoBehaviour
     // Biorbd related variables
     public BiorbdModel Model { get; protected set; }
 
-	protected AvatarMatrixRotation[] AvatarOffset;
-	protected AvatarMatrixRotation[] CalibrationMatrices_CalibInParent;
-	protected bool IsZeroSet = false;
+	protected AvatarMatrixRotation[] CalibrationMatrices;
+	protected bool IsCalibrated = false;
 
 
 	// Controller related variables
@@ -23,8 +22,7 @@ public abstract class AvatarManager : MonoBehaviour
 	protected void Start()
 	{
 		Model = new BiorbdModel(BiomodPath());
-		CalibrationMatrices_CalibInParent = new AvatarMatrixRotation[Model.NbSegments];
-		AvatarOffset = GetOrientationFromAvatar();
+		CalibrationMatrices = new AvatarMatrixRotation[Model.NbSegments];
 	}
 
 	void Update()
@@ -41,8 +39,7 @@ public abstract class AvatarManager : MonoBehaviour
 	}
 
 	public abstract void SetSegmentsRotations(AvatarMatrixRotation[] _data);
-	protected abstract AvatarMatrixRotation[] GetOrientationFromAvatar();
-	protected abstract bool SetCalibrationPositionMatrices();
+	public abstract bool SetCalibrationPositionMatrices();
 	protected abstract AvatarMatrixRotation[] ProjectWrtToCalibrationPosition();
 
 	public IEnumerator InitializeController(

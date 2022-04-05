@@ -15,47 +15,35 @@ public class AvatarManager3Segments : AvatarManager
 		return @"Assets/Avatar/Biorbd/model3Segments.bioMod";
 	}
 
-	protected override bool SetCalibrationPositionMatrices()
+	public override bool SetCalibrationPositionMatrices()
 	{
 		if (!CurrentData.AllSensorsConnected) return false;
 
-		// The first Sensor is the reference sensor to which all the others report wrt
-		// With more segments, one should define a "parent" vector and Reference should be 
-		// from that parent
-		CalibrationMatrices_CalibInParent[0] = CurrentData.OrientationMatrix[0];
-		for (int i = 1; i < Model.NbSegments; i++)
+		for (int i = 0; i < Model.NbSegments; i++)
 		{
-			CalibrationMatrices_CalibInParent[i] =
-				AvatarOffset[0].Transpose()
-				* CalibrationMatrices_CalibInParent[0].Transpose()
-				* CurrentData.OrientationMatrix[i];
+			// Hips are the reference for both Left and Right arm that is why we can do this shortcut
+			AvatarMatrixRotation _orientationParentTransposed =
+				i == 0 ? AvatarMatrixRotation.Identity() : CurrentData.OrientationMatrix[0].Transpose();
+			CalibrationMatrices[i] = _orientationParentTransposed * CurrentData.OrientationMatrix[i];
 		}
-
 		return true;
 	}
 	protected override AvatarMatrixRotation[] ProjectWrtToCalibrationPosition()
 	{
-		if (!IsZeroSet)
+		if (!IsCalibrated)
 		{
 			if (!SetCalibrationPositionMatrices()) return null;
-
-			IsZeroSet = true;
+			IsCalibrated = true;
 		}
 
-		// output[0] is the reference for both Left and Right arm that is why we can
-		// do this shortcut
 		AvatarMatrixRotation[] _currentInAvatar = new AvatarMatrixRotation[Model.NbSegments];
-		_currentInAvatar[0] =
-			AvatarOffset[0] 
-			* CalibrationMatrices_CalibInParent[0].Transpose() 
-			* CurrentData.OrientationMatrix[0];
-		for (int i = 1; i < Model.NbSegments; i++)
+		for (int i = 0; i < Model.NbSegments; i++)
 		{
+			// Hips are the reference for both Left and Right arm that is why we can do this shortcut
+			AvatarMatrixRotation _orientationParentTransposed =
+				i == 0 ? AvatarMatrixRotation.Identity() : CurrentData.OrientationMatrix[0].Transpose();
 			_currentInAvatar[i] =
-				AvatarOffset[i]
-				* CalibrationMatrices_CalibInParent[i].Transpose()
-				* AvatarOffset[0].Transpose()
-				* CurrentData.OrientationMatrix[0].Transpose()
+				CalibrationMatrices[i].Transpose() * _orientationParentTransposed 
 				* CurrentData.OrientationMatrix[i];
 		}
 		return _currentInAvatar;
@@ -63,73 +51,23 @@ public class AvatarManager3Segments : AvatarManager
 
 	public override void SetSegmentsRotations(AvatarMatrixRotation[] _data)
 	{
-		double[][] _angles = DispatchToAngleVector(_data);
-		double[][] _anglesAvatar = MapToAvatar(_angles);
+		double[][] _anglesAvatar = MapToAvatar(_data);
 		ApplyRotation(hips, _anglesAvatar[0]);
 		ApplyRotation(leftUpperLimb, _anglesAvatar[1]);
 		ApplyRotation(rightUpperLimb, _anglesAvatar[2]);
 	}
-
-	protected override AvatarMatrixRotation[] GetOrientationFromAvatar()
-    {
-		double[] _hipsOrientation = {
-            hips.transform.localEulerAngles[0],
-            hips.transform.localEulerAngles[1],
-            hips.transform.localEulerAngles[2]
-        };
-		double[] _leftUpperLimbOrientation = {
-            leftUpperLimb.transform.localEulerAngles[0],
-            leftUpperLimb.transform.localEulerAngles[1],
-            leftUpperLimb.transform.localEulerAngles[2]
-        };
-		double[] _rightUpperLimbOrientation = {
-            rightUpperLimb.transform.localEulerAngles[0],
-            rightUpperLimb.transform.localEulerAngles[1],
-            rightUpperLimb.transform.localEulerAngles[2]
-        };
-		
-		double[][] _result = { _hipsOrientation, _leftUpperLimbOrientation, _rightUpperLimbOrientation };
-		return MapAvatarToInternal(_result);
-	}
-
-	protected double[][] DispatchToAngleVector(AvatarMatrixRotation[] _data)
+	protected double[][] MapToAvatar(AvatarMatrixRotation[] _data)
 	{
-		double[][] _angles = new double[_data.Length][];
-		for (int i = 0; i < _data.Length; ++i)
+		double[][] DispatchToAngleVector()
 		{
-			_angles[i] = _data[i].ToEulerYXZ();
+			double[][] _angles = new double[_data.Length][];
+			for (int i = 0; i < _data.Length; ++i)
+			{
+				_angles[i] = _data[i].ToEulerYXZ();
+			}
+			return MathUtils.ToDegree(_angles);
 		}
-		return _angles;
-	}
-
-	protected AvatarMatrixRotation[] MapAvatarToInternal(double[][] _angles)
-    {
-		AvatarMatrixRotation[] _result = new AvatarMatrixRotation[3];
-
-		// Hips
-		{
-			double[] tp = { -_angles[0][1], -_angles[0][0], -_angles[0][2] };
-			_result[0] = AvatarMatrixRotation.FromEulerYXZ(MathUtils.ToRadian(tp));
-		}
-
-		// Left arm
-		{
-			double[] tp = { _angles[1][1], -_angles[1][2], -_angles[1][0] };
-			_result[1] = AvatarMatrixRotation.FromEulerYXZ(MathUtils.ToRadian(tp));
-		}
-
-		// Right arm
-		{
-			double[] tp = { _angles[2][1], _angles[2][2], _angles[2][0] };
-			_result[2] = AvatarMatrixRotation.FromEulerYXZ(MathUtils.ToRadian(tp));
-		}
-
-		return _result;
-    }
-
-	protected double[][] MapToAvatar(double[][] _angles)
-	{
-		double[][] _anglesDegree = MathUtils.ToDegree(_angles);
+		double[][] _anglesDegree = DispatchToAngleVector();
 
 		double[][] _result = new double[3][];
 		// Hips
@@ -149,7 +87,7 @@ public class AvatarManager3Segments : AvatarManager
 		_result[2][0] = _anglesDegree[2][2];
 		_result[2][1] = _anglesDegree[2][0];
 		_result[2][2] = _anglesDegree[2][1];
-		
+
 		return _result;
-    }
+	}
 }

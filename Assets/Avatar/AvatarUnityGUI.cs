@@ -6,9 +6,11 @@ public class AvatarUnityGUI : MonoBehaviour
 {
     AvatarManager Avatar;
 
-    // Unity related variables
-    public GameObject XSensPanelConnexion;
-	public Text TextConnection;
+	// Unity related variables
+	[SerializeField] protected GameObject XSensPanelConnexion;
+	[SerializeField] protected Button InitalizeButton;
+	[SerializeField] protected Button CalibrateButton;
+	[SerializeField] protected Text TextConnection;
 	String InitialConnectingText; 
 
 	void Start()
@@ -16,6 +18,8 @@ public class AvatarUnityGUI : MonoBehaviour
 		Avatar = GetComponent<AvatarManager>();
 		InitialConnectingText = TextConnection.text;
 
+		ButtonUtils.EnableButton(InitalizeButton);
+		ButtonUtils.DisableButton(CalibrateButton);
 	}
 
 	public void ClickInitializeModule(AvatarSensorType _sensorType)
@@ -34,6 +38,10 @@ public class AvatarUnityGUI : MonoBehaviour
 			return;
         }
 
+		// Do not allow for reconnecting
+		ButtonUtils.DisableButton(InitalizeButton);
+		ButtonUtils.DisableButton(CalibrateButton);
+
 		StartCoroutine(
 			Avatar.InitializeController(
 				_sensorType.type,
@@ -44,11 +52,18 @@ public class AvatarUnityGUI : MonoBehaviour
 		);
 		return;
 	}
+	public void ClickCalibrate()
+	{
+		Avatar.SetCalibrationPositionMatrices();
+	}
 
-	public void IsReadyCallback()
+		public void IsReadyCallback()
 	{
 		Debug.Log("System connected and ready");
 		XSensPanelConnexion.SetActive(false);
+
+		ButtonUtils.DisableButton(InitalizeButton);
+		ButtonUtils.EnableButton(CalibrateButton);
 	}
 
 	public void IsConnectingCallback(
@@ -63,5 +78,8 @@ public class AvatarUnityGUI : MonoBehaviour
 	public void ConnectionFailed()
     {
 		Debug.Log("Error in initializing");
+
+		ButtonUtils.EnableButton(InitalizeButton);
+		ButtonUtils.DisableButton(CalibrateButton);
 	}
 }
