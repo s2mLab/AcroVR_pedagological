@@ -29,9 +29,9 @@ public class AvatarMatrix
         NbColumns = _other.NbColumns;
         Value = new double[NbRows, NbColumns];
 
-        for (int i = 0; i < _other.NbRows; i++)
+        for (int j = 0; j < _other.NbColumns; j++)
         {
-            for (int j = 0; j < _other.NbColumns; j++)
+            for (int i = 0; i < _other.NbRows; i++)
             {
                 Value[i, j] = _other.Value[i, j];
             }
@@ -44,13 +44,38 @@ public class AvatarMatrix
         NbColumns = (int)_other.cols();
         Value = new double[NbRows, NbColumns];
 
-        for (int i = 0; i < NbRows; i++)
+        for (int j = 0; j < NbColumns; j++)
         {
-            for (int j = 0; j < NbColumns; j++)
+            for (int i = 0; i < NbRows; i++)
             {
                 Value[i, j] = _other.value((uint)i, (uint)j);
             }
         }
+    }
+
+    public double[,] ToDouble()
+    {
+        double[,] _result = new double[NbRows, NbColumns];
+        for (int j = 0; j < NbColumns; j++)
+        {
+            for (int i = 0; i < NbRows; i++)
+            {
+                _result[i, j] = Value[i, j];
+            }
+        }
+        return _result;
+    }
+    public double[] ToDoubleVector()
+    {
+        double[] _result = new double[NbRows * NbColumns];
+        for (int j = 0; j < NbColumns; j++)
+        {
+            for (int i = 0; i < NbRows; i++)
+            {
+                _result[j * NbColumns + i] = Value[i, j];
+            }
+        }
+        return _result;
     }
 
     static public AvatarMatrix Identity(int _nbRows, int _nbCols)
@@ -64,6 +89,16 @@ public class AvatarMatrix
             _out.Value[i, i] = 1;
         }
         return _out;
+    }
+    public virtual void SetZero()
+    {
+        for (int j = 0; j < NbColumns; j++)
+        {
+            for (int i = 0; i < NbRows; i++)
+            {
+                Value[i, j] = 0;
+            }
+        }
     }
 
     static public AvatarMatrix operator *(AvatarMatrix _first, AvatarMatrix _second)
@@ -86,9 +121,9 @@ public class AvatarMatrix
             return;
         }
 
-        for (int i = 0; i < _first.NbRows; i++)
+        for (int j = 0; j < _second.NbColumns; j++)
         {
-            for (int j = 0; j < _second.NbColumns; j++)
+            for (int i = 0; i < _first.NbRows; i++)
             {
                 for (int k = 0; k < _first.NbColumns; k++)
                 {
@@ -109,9 +144,9 @@ public class AvatarMatrix
             return;
         }
 
-        for (int i = 0; i < _first.NbRows; i++)
+        for (int j = 0; j < _second.cols(); j++)
         {
-            for (int j = 0; j < _second.cols(); j++)
+            for (int i = 0; i < _first.NbRows; i++)
             {
                 for (int k = 0; k < _first.NbColumns; k++)
                 {
@@ -136,9 +171,9 @@ public class AvatarMatrix
 
     protected void Transpose(ref AvatarMatrix _result)
     {
-        for (int i = 0; i < _result.NbRows; i++)
+        for (int j = 0; j < _result.NbColumns; j++)
         {
-            for (int j = 0; j < _result.NbColumns; j++)
+            for (int i = 0; i < _result.NbRows; i++)
             {
                 _result.Value[i, j] = Value[j, i];
             }
@@ -155,9 +190,9 @@ public class AvatarMatrix
     new public string ToString()
     {
         string _result = "";
-        for (int i = 0; i < NbRows; i++)
+        for (int j = 0; j < NbColumns; j++)
         {
-            for (int j = 0; j < NbColumns; j++)
+            for (int i = 0; i < NbRows; i++)
             {
                 _result += Value[i, j];
             }

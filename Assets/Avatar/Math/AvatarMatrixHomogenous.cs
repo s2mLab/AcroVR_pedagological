@@ -40,6 +40,27 @@ public class AvatarMatrixHomogenous : AvatarMatrix
 
     }
 
+    public AvatarMatrixHomogenous(AvatarMatrixRotation _rotation, AvatarVector3 _translation) 
+        : base(4, 4)
+    {
+        Value[0, 0] = _rotation.Get(0, 0);
+        Value[1, 0] = _rotation.Get(1, 0);
+        Value[2, 0] = _rotation.Get(2, 0);
+        Value[3, 0] = 0;
+        Value[0, 1] = _rotation.Get(0, 1);
+        Value[1, 1] = _rotation.Get(1, 1);
+        Value[2, 1] = _rotation.Get(2, 1);
+        Value[3, 1] = 0;
+        Value[0, 2] = _rotation.Get(0, 2);
+        Value[1, 2] = _rotation.Get(1, 2);
+        Value[2, 2] = _rotation.Get(2, 2);
+        Value[3, 2] = 0;
+        Value[0, 3] = _translation.Get(0);
+        Value[1, 3] = _translation.Get(1);
+        Value[2, 3] = _translation.Get(2);
+        Value[3, 3] = 1;
+    }
+
     static public AvatarMatrixHomogenous Identity()
     {
         return new AvatarMatrixHomogenous(
@@ -65,5 +86,23 @@ public class AvatarMatrixHomogenous : AvatarMatrix
     {
         Debug.Log("Transpose not implemented yet for AvatarMatrixHomogenous");
         return null;
+    }
+
+    public AvatarMatrixRotation Rotation 
+    {
+        get {
+            return new AvatarMatrixRotation(
+                Value[0, 0], Value[0, 1], Value[0, 2],
+                Value[1, 0], Value[1, 1], Value[1, 2],
+                Value[2, 0], Value[2, 1], Value[2, 2]);
+        }
+    }
+
+    public AvatarVector3 Translation
+    {
+        get
+        {
+            return new AvatarVector3(Value[3, 0], Value[3, 1], Value[3, 2]);
+        }
     }
 }

@@ -1,17 +1,24 @@
 ﻿using UnityEngine;
 
-// =================================================================================================================================================================
-/// <summary> Script utilisé pour faire bouger l'avatar. </summary>
-
 public class AvatarManager3Segments : AvatarManager
 {
 	public override string BiomodPath() { 
 		return @"Assets/Avatar/Biorbd/model3Segments.bioMod";
 	}
-	public override void CalibrateSensorToKinematicModel(AvatarData _data)
+	protected BiorbdNode[] SensorsInfo()
     {
-		KinematicModel = new BiorbdModel(@"Assets/Avatar/Biorbd/model3SegmentsWithImu.bioMod");
-		return;
+		BiorbdNode[] _info = new BiorbdNode[3];
+		_info[0] = new BiorbdNode("HipsImu", "Hips");
+		_info[1] = new BiorbdNode("LeftArmImu", "LeftArm");
+		_info[2] = new BiorbdNode("RightArmImu", "RightArm");
+		return _info;
+	}
+	public override void CalibrateSensorToKinematicModel(AvatarData _data)
+	{
+		// Erase any previous attempt
+		KinematicModel.ReloadModel();
+		
+		KinematicModel.AddImusFromGlobal(SensorsInfo(), CalibrationMatrices);
     }
 
 	// Moving Joints

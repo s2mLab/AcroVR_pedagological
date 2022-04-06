@@ -28,6 +28,15 @@ public class AvatarVector : AvatarMatrix
     {
 
     }
+    public new double[] ToDouble()
+    {
+        double[] _result = new double[NbRows];
+        for (int i = 0; i < NbRows; i++)
+        {
+            _result[i] = Value[i, 0];
+        }
+        return _result;
+    }
 
     static public AvatarVector operator *(AvatarMatrix _first, AvatarVector _second)
     {

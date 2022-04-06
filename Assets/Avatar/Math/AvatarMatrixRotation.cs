@@ -8,7 +8,7 @@ public class AvatarMatrixRotation : AvatarMatrix
 
     public AvatarMatrixRotation() : base(3, 3)
     {
-        
+
     }
 
     public AvatarMatrixRotation(
@@ -30,11 +30,11 @@ public class AvatarMatrixRotation : AvatarMatrix
 
     public AvatarMatrixRotation(AvatarMatrixRotation _other) : base(_other)
     {
-        
+
     }
     public AvatarMatrixRotation(XDA.XsMatrix _other) : base(_other)
     {
-        
+
     }
 
     static public AvatarMatrixRotation Identity()
