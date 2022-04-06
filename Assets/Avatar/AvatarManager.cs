@@ -173,9 +173,9 @@ public abstract class AvatarManager : MonoBehaviour
 	}
 
 
-	protected void ApplyRotation(GameObject segment, double[] target)
+	protected void ApplyRotation(GameObject segment, AvatarVector target)
 	{
-		Vector3 targetVector = new Vector3((float)target[0], (float)target[1], (float)target[2]);
+		Vector3 targetVector = new Vector3((float)target.Get(0), (float)target.Get(1), (float)target.Get(2));
 		if (segment.transform.localEulerAngles != targetVector)
         {
 			segment.transform.localEulerAngles = targetVector;

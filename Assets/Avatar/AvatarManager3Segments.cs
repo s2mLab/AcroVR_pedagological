@@ -35,42 +35,33 @@ public class AvatarManager3Segments : AvatarManager
 
 	public override void SetSegmentsRotations(AvatarMatrixRotation[] _data)
 	{
-		double[][] _anglesAvatar = MapToAvatar(_data);
+		AvatarVector[] _anglesAvatar = MapToAvatar(_data);
 		ApplyRotation(hips, _anglesAvatar[0]);
 		ApplyRotation(leftUpperLimb, _anglesAvatar[1]);
 		ApplyRotation(rightUpperLimb, _anglesAvatar[2]);
 	}
-	protected double[][] MapToAvatar(AvatarMatrixRotation[] _data)
+	protected AvatarVector3[] MapToAvatar(AvatarMatrixRotation[] _data)
 	{
-		double[][] DispatchToAngleVector()
+		AvatarVector3[] DispatchToAngleVector()
 		{
-			double[][] _angles = new double[_data.Length][];
+			AvatarVector3[] _angles = new AvatarVector3[_data.Length];
 			for (int i = 0; i < _data.Length; ++i)
 			{
 				_angles[i] = _data[i].ToEulerYXZ();
 			}
 			return MathUtils.ToDegree(_angles);
 		}
-		double[][] _anglesDegree = DispatchToAngleVector();
+		AvatarVector3[] _anglesDegree = DispatchToAngleVector();
 
-		double[][] _result = new double[3][];
+		AvatarVector3[] _result = new AvatarVector3[3];
 		// Hips
-		_result[0] = new double[3];
-		_result[0][0] = -_anglesDegree[0][1];
-		_result[0][1] = -_anglesDegree[0][0];
-		_result[0][2] = -_anglesDegree[0][2];
+		_result[0] = new AvatarVector3(-_anglesDegree[0].Get(1), -_anglesDegree[0].Get(0), -_anglesDegree[0].Get(2));
 
 		// Left arm
-		_result[1] = new double[3];
-		_result[1][0] = -_anglesDegree[1][2];
-		_result[1][1] = _anglesDegree[1][0];
-		_result[1][2] = -_anglesDegree[1][1];
+		_result[1] = new AvatarVector3(-_anglesDegree[1].Get(2), _anglesDegree[1].Get(0), -_anglesDegree[1].Get(1));
 
 		// Right arm
-		_result[2] = new double[3];
-		_result[2][0] = _anglesDegree[2][2];
-		_result[2][1] = _anglesDegree[2][0];
-		_result[2][2] = _anglesDegree[2][1];
+		_result[2] = new AvatarVector3(_anglesDegree[2].Get(2), _anglesDegree[2].Get(0), _anglesDegree[2].Get(1));
 
 		return _result;
 	}

@@ -111,9 +111,9 @@ public class AvatarMatrixRotation : AvatarMatrix
         AvatarMatrixRotation BaseZ = BaseRotationZ(z);
         return BaseX * BaseY * BaseZ;
     }
-    static public AvatarMatrixRotation FromEulerYXZ(double[] _xyz)
+    static public AvatarMatrixRotation FromEulerYXZ(AvatarVector3 _xyz)
     {
-        return FromEulerYXZ(_xyz[0], _xyz[1], _xyz[2]);
+        return FromEulerYXZ(_xyz.Get(0), _xyz.Get(1), _xyz.Get(2));
     }
 
     static public AvatarMatrixRotation FromEulerYXZ(double x, double y, double z)
@@ -125,27 +125,22 @@ public class AvatarMatrixRotation : AvatarMatrix
         return BaseY * BaseX * BaseZ;
     }
 
-    public double[] ToEulerXYZ()
+    public AvatarVector3 ToEulerXYZ()
     {
-        double[] _result = new double[3];
-        _result[0] = Math.Atan2(-Value[1, 2], Value[2, 2]);
-        _result[1] = Math.Asin(Value[0, 2]);
-        _result[2] = Math.Atan2(-Value[0, 1], Value[0, 0]);
-        return _result;
+        return new AvatarVector3(
+            Math.Atan2(-Value[1, 2], Value[2, 2]),
+            Math.Asin(Value[0, 2]),
+            Math.Atan2(-Value[0, 1], Value[0, 0])
+        );
     }
-    public double[] ToEulerYXZ()
+    public AvatarVector3 ToEulerYXZ()
     {
-        double[] _result = new double[3];
-        _result[0] = Math.Asin(-Value[1, 2]);
-        _result[1] = Math.Atan2(Value[0, 2], Value[2, 2]);
-        _result[2] = Math.Atan2(Value[1, 0], Value[1, 1]);
-        return _result;
+        double a = Math.Atan2(Value[1, 0], Value[1, 1]);
+        return new AvatarVector3(
+            Math.Asin(-Value[1, 2]),
+            Math.Atan2(Value[0, 2], Value[2, 2]),
+            Math.Atan2(Value[1, 0], Value[1, 1])
+        );
     }
 
-    new public string ToString()
-    {
-        return $"{Value[0, 0]} {Value[0, 1]} {Value[0, 2]}\n" +
-               $"{Value[1, 0]} {Value[1, 1]} {Value[1, 2]}\n" +
-               $"{Value[2, 0]} {Value[2, 1]} {Value[2, 2]}";
-    }
 }

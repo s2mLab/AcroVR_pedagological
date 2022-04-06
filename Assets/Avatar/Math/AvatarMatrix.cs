@@ -4,7 +4,15 @@ using UnityEngine;
 
 public class AvatarMatrix
 {
-    public double[,] Value;
+    protected double[,] Value;
+    public virtual double Get(int row, int col)
+    {
+        return Value[row, col];
+    }
+    public virtual void Set(int row, int col, double val)
+    {
+        Value[row, col] = val;
+    }
     public int NbRows { get; protected set; }
     public int NbColumns { get; protected set; }
 
@@ -141,6 +149,20 @@ public class AvatarMatrix
     {
         AvatarMatrix _result = new AvatarMatrix(NbColumns, NbRows);
         Transpose(ref _result);
+        return _result;
+    }
+
+    new public string ToString()
+    {
+        string _result = "";
+        for (int i = 0; i < NbRows; i++)
+        {
+            for (int j = 0; j < NbColumns; j++)
+            {
+                _result += Value[i, j];
+            }
+            _result += "\n";
+        }
         return _result;
     }
 }
