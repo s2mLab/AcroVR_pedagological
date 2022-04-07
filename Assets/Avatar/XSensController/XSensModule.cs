@@ -7,7 +7,7 @@ using XDA;
 // =================================================================================================================================================================
 /// <summary> This is the actual module that interfaces XSens so it is usable by the avatar. </summary>
 
-public class XSensModule : AvatarModule
+public class XSensModule : AvatarControllerModule
 {
     public XSensModule(AvatarManager _avatar) 
         : base(_avatar)

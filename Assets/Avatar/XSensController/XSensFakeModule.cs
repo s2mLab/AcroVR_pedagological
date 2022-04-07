@@ -1,6 +1,4 @@
-﻿using System;
-using System.Timers;
-using UnityEngine;
+﻿using System.Timers;
 
 public class XSensFakeModule : XSensModule
 {
@@ -32,7 +30,7 @@ public class XSensFakeModule : XSensModule
 
         TimerHolder = new Timer();
         TimerHolder.Interval = 500; // In milliseconds
-        TimerHolder.AutoReset = true; // Stops it from repeating
+        TimerHolder.AutoReset = true;
         TimerHolder.Elapsed += new ElapsedEventHandler(HandlerDataAvailableCallback);
         TimerHolder.Start();
 

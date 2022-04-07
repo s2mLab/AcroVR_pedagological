@@ -5,7 +5,7 @@ using UnityEngine;
 public abstract class AvatarManager : MonoBehaviour
 {
 	// Biorbd related variables
-	public BiorbdModel KinematicModel { get; protected set; }
+	public AvatarBiorbd KinematicModel { get; protected set; }
 	public abstract string BiomodPath();
 	[SerializeField] public bool UseKalmanFilter { get; protected set; }
 	public abstract void CalibrateSensorToKinematicModel(AvatarData _data);
@@ -18,7 +18,7 @@ public abstract class AvatarManager : MonoBehaviour
 
 
 	// Controller related variables
-	public AvatarModule ControllerModule { get; protected set; } = null;
+	public AvatarControllerModule ControllerModule { get; protected set; } = null;
 	protected AvatarMatrixRotation[] CalibrationMatrices;
 	protected bool IsCalibrated = false;
 	protected AvatarData CurrentData = null;
@@ -29,7 +29,7 @@ public abstract class AvatarManager : MonoBehaviour
 	protected virtual void Start()
 	{
 		CalibrationMatrices = new AvatarMatrixRotation[NbSegments()];
-		KinematicModel = new BiorbdModel(BiomodPath()); 
+		KinematicModel = new AvatarBiorbd(BiomodPath()); 
 		if (!KinematicModel.IsInitialized)
 		{
 			Debug.Log("Could not load biorbd, UseKalmanFilter is set to false");
