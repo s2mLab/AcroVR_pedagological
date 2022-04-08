@@ -13,13 +13,6 @@ public class AvatarManager3Segments : AvatarManager
 		_info[2] = new BiorbdNode("RightArmImu", "RightArm");
 		return _info;
 	}
-	public override void CalibrateSensorToKinematicModel(AvatarData _data)
-	{
-		// Erase any previous attempt
-		KinematicModel.ReloadModel();
-		
-		KinematicModel.AddImusFromGlobal(SensorsInfo(), CalibrationMatrices);
-    }
 
 	// Moving Joints
 	public GameObject hips;
@@ -35,26 +28,21 @@ public class AvatarManager3Segments : AvatarManager
 		return 3;
 	}
 
-	protected override int ParentIndex(int _segment)
-    {
-		return _segment == 0 ? -1 : 0;  // Parent of all segments is hips
-    }
-
-	public override void SetSegmentsRotations(AvatarMatrixRotation[] _data)
+	public override void SetSegmentsRotations(AvatarCoordinates _data)
 	{
 		AvatarVector[] _anglesAvatar = MapToAvatar(_data);
 		ApplyRotation(hips, _anglesAvatar[0]);
 		ApplyRotation(leftUpperLimb, _anglesAvatar[1]);
 		ApplyRotation(rightUpperLimb, _anglesAvatar[2]);
 	}
-	protected AvatarVector3[] MapToAvatar(AvatarMatrixRotation[] _data)
+	protected AvatarVector3[] MapToAvatar(AvatarCoordinates _data)
 	{
 		AvatarVector3[] DispatchToAngleVector()
 		{
 			AvatarVector3[] _angles = new AvatarVector3[_data.Length];
 			for (int i = 0; i < _data.Length; ++i)
 			{
-				_angles[i] = _data[i].ToEulerYXZ();
+				_angles[i] = _data.Jcs[i].Rotation.ToEulerYXZ();
 			}
 			return MathUtils.ToDegree(_angles);
 		}

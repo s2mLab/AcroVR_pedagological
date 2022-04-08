@@ -9,7 +9,7 @@ using XDA;
 
 public class XSensModule : AvatarControllerModule
 {
-    public XSensModule(AvatarManager _avatar) 
+    public XSensModule(AvatarKinematicModel _avatar) 
         : base(_avatar)
     {
         UpdateRate = (int)120.0;
@@ -225,7 +225,7 @@ public class XSensModule : AvatarControllerModule
 
         // Store the data into the current Data holder
         int _imuIndex  = (int)(SensorsMap[e.Device.deviceId().toInt()]);
-        CurrentData.AddData(
+        _currentData.AddData(
             _imuIndex,
             new AvatarMatrixRotation(e.Packet.orientationMatrix())
         );

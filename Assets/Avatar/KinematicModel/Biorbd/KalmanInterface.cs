@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-public class KalmanInterface : BiorbdInterface
+public abstract class KalmanInterface : BiorbdInterface
 {
     [DllImport(dllname)] protected static extern IntPtr c_BiorbdKalmanReconsIMU(IntPtr model, IntPtr QinitialGuess, double freq = 100, double noiseF = 5e-3, double errorF = 1e-10);
     [DllImport(dllname)] protected static extern void c_deleteBiorbdKalmanReconsIMU(IntPtr kalman);
@@ -42,7 +42,7 @@ public class KalmanInterface : BiorbdInterface
         base.CloseModel();
     }
 
-    public override AvatarData ApplyFilter(AvatarData _currentData)
+    public override AvatarCoordinates InverseKinematics(AvatarData _currentData)
     {
         //// Apply the filter
         //c_BiorbdKalmanReconsIMUstep(
@@ -59,11 +59,20 @@ public class KalmanInterface : BiorbdInterface
         //c_globalJCS(_ptr_model, _ptr_q, _ptr_allJcs);
         //AvatarMatrixHomogenous[] _jcs = PtrJcsToJcs();
 
-        AvatarData _filteredData = _currentData;  // new AvatarData(_currentData.TimeIndex, 3); // _jcs.Length);
+        //AvatarCoordinates _filteredData =  new AvatarData(_currentData.TimeIndex, 3); // _jcs.Length);
         //for (int i = 0; i < _jcs.Length; i++)
         //{
         //    _filteredData.AddData(i, _jcs[i].Rotation);
         //}
-        return _filteredData;
+        //return _filteredData;
+
+        AvatarMatrixHomogenous[] _segmentsOrientation = new AvatarMatrixHomogenous[NbSegments];
+        for (int i = 0; i < NbSegments; i++)
+        {
+            _segmentsOrientation[i] = new AvatarMatrixHomogenous(
+                _currentData.OrientationMatrix[i], new AvatarVector3()
+            );
+        }
+        return new AvatarCoordinates(_currentData.TimeIndex, _segmentsOrientation);
     }
 }

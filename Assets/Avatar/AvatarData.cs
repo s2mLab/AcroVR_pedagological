@@ -8,7 +8,7 @@ public class AvatarData
 	protected int NbExpectedSensors = -1;
 	public bool[] IsSensorsSet;
 	public int NbSensorsSet = 0;
-	public bool AllSensorsConnected { get { return NbExpectedSensors == NbSensorsSet ? true : false; } }
+	public bool AllSensorsReceived { get { return NbExpectedSensors == NbSensorsSet ? true : false; } }
 
 	public AvatarData(
 		int _timeStamps,

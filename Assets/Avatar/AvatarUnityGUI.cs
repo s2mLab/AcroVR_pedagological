@@ -55,7 +55,7 @@ public class AvatarUnityGUI : MonoBehaviour
 	}
 	public void ClickCalibrate()
 	{
-		Avatar.SetCalibrationPositionMatrices();
+		Avatar.CalibrateKinematicModel();
 	}
 
 		public void IsReadyCallback()

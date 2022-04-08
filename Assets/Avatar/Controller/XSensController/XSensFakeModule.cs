@@ -5,7 +5,7 @@ public class XSensFakeModule : XSensModule
     Timer TimerHolder;
     protected bool IsLocked;  // Very basic mutex to manage the fact that the timer won't stop pushing data while debugging
 
-    public XSensFakeModule(AvatarManager _avatar) 
+    public XSensFakeModule(AvatarKinematicModel _avatar) 
         : base(_avatar)
     {
     }
@@ -28,10 +28,11 @@ public class XSensFakeModule : XSensModule
     public override bool FinalizeSetup()
     {
         _currentData = null;
-        _currentFilteredData = null;
+        _currentAvatarCoordinates = null;
 
+        int _imgPerSecond = 2;
         TimerHolder = new Timer();
-        TimerHolder.Interval = 500; // In milliseconds
+        TimerHolder.Interval = (int)(1/(double)_imgPerSecond * 1000); // In milliseconds
         TimerHolder.AutoReset = true;
         TimerHolder.Elapsed += new ElapsedEventHandler(HandlerDataAvailableCallback);
         TimerHolder.Start();

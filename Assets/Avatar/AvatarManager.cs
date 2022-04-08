@@ -4,95 +4,45 @@ using UnityEngine;
 
 public abstract class AvatarManager : MonoBehaviour
 {
-	// Biorbd related variables
-	public AvatarBiorbd KinematicModel { get; protected set; }
+	// KinematicModel related variables
+	public AvatarKinematicModel KinematicModel { get; protected set; }
 	public abstract string BiomodPath();
 	[SerializeField] public bool FilterKinematicsData;
-	public abstract void CalibrateSensorToKinematicModel(AvatarData _data);
-
+	public void CalibrateKinematicModel()
+	{
+		ControllerModule.PlanKinematicModelCalibration();
+	}
 
 	// Model related variables
-	protected abstract int ParentIndex(int _segment);
 	public abstract int NbSegments();
 	public abstract int NbSensors();
 
 
 	// Controller related variables
 	public AvatarControllerModule ControllerModule { get; protected set; } = null;
-	protected AvatarMatrixRotation[] CalibrationMatrices;
-	protected bool IsCalibrated = false;
-	protected AvatarData CurrentData = null;
-	protected bool CurrentDataHasChanged = false;
+	protected AvatarCoordinates CurrentCoordinates = null;
 	protected int PreviousDataIndex = -1;
 
 
 	protected virtual void Start()
 	{
-		CalibrationMatrices = new AvatarMatrixRotation[NbSegments()];
-		KinematicModel = new AvatarBiorbd(BiomodPath(), ControllerModule); 
-		if (!KinematicModel.IsInitialized)
+        //KinematicModel = new AvatarBiorbd(BiomodPath(), ControllerModule); 
+        KinematicModel = new SimpleKinematicModel(3, 3);
+        if (!KinematicModel.IsInitialized)
 		{
-			Debug.Log("Could not load biorbd, PostProcessKinematicData is set to false");
+			Debug.Log("Could not load the kinematic model, PostProcessKinematicData is set to false");
 			FilterKinematicsData = false;
 		}
 	}
 
 	protected void Update()
 	{
-		if (ControllerModule == null) return;
-
-		FetchCurrentData();
-		AvatarData _currentData = GetCurrentData();
-		if (_currentData == null || !_currentData.AllSensorsConnected) return;
-
-		AvatarMatrixRotation[] _data = ProjectWrtToCalibrationPosition(_currentData);
-		if (_data is null) return;
-
-		SetSegmentsRotations(_data);
+		if (ControllerModule == null || ControllerModule.CurrentCoordinates == null) return;
+		SetSegmentsRotations(ControllerModule.CurrentCoordinates);
 	}
 
-	public abstract void SetSegmentsRotations(AvatarMatrixRotation[] _data);
-	public virtual bool SetCalibrationPositionMatrices()
-	{
-		AvatarData _currentData = GetCurrentData();
-		if (_currentData == null || !_currentData.AllSensorsConnected) return false;
-
-		for (int i = 0; i < NbSegments(); i++)
-		{
-			int _parentIndex = ParentIndex(i);
-			// Hips are the reference for both Left and Right arm that is why we can do this shortcut
-			AvatarMatrixRotation _orientationParentTransposed =
-				_parentIndex < 0 ?
-				AvatarMatrixRotation.Identity() : _currentData.OrientationMatrix[_parentIndex].Transpose();
-			CalibrationMatrices[i] = _orientationParentTransposed * _currentData.OrientationMatrix[i];
-		}
-
-		//ControllerModule.CalibrateKinematicModel();
-		return true;
-	}
-	protected virtual AvatarMatrixRotation[] ProjectWrtToCalibrationPosition(AvatarData _currentData)
-	{
-		if (!IsCalibrated)
-		{
-			if (!SetCalibrationPositionMatrices()) return null;
-			IsCalibrated = true;
-		}
-
-		AvatarMatrixRotation[] _currentCalibrated = new AvatarMatrixRotation[NbSegments()];
-		for (int i = 0; i < NbSegments(); i++)
-		{
-			int _parentIndex = ParentIndex(i);
-			// Hips are the reference for both Left and Right arm that is why we can do this shortcut
-			AvatarMatrixRotation _orientationParentTransposed =
-				_parentIndex < 0 ?
-				AvatarMatrixRotation.Identity() : _currentData.OrientationMatrix[_parentIndex].Transpose();
-			_currentCalibrated[i] =
-				CalibrationMatrices[i].Transpose() * _orientationParentTransposed
-				* _currentData.OrientationMatrix[i];
-		}
-		return _currentCalibrated;
-	}
-
+	public abstract void SetSegmentsRotations(AvatarCoordinates _data);
+	
 	public IEnumerator InitializeController(
 		SensorType _sensorType,
 		bool _postProcessKinematicData,
@@ -115,11 +65,11 @@ public abstract class AvatarManager : MonoBehaviour
 			yield break;
 		}
 		else if (_sensorType == SensorType.XSens){
-			ControllerModule = new XSensModule(this);
+			ControllerModule = new XSensModule(KinematicModel);
 		}
 		else if (_sensorType == SensorType.XSensFake)
         {
-			ControllerModule = new XSensFakeModule(this);
+			ControllerModule = new XSensFakeModule(KinematicModel);
         }
 		else
         {
@@ -145,26 +95,6 @@ public abstract class AvatarManager : MonoBehaviour
 		FilterKinematicsData = _postProcessKinematicData;
 
 		yield return 0;
-	}
-
-	protected virtual AvatarData GetCurrentData()
-	{
-		return CurrentData;
-	}
-	protected virtual void FetchCurrentData()
-	{
-		CurrentDataHasChanged = false;
-		if (ControllerModule.IsSensorsConnected)
-		{
-			if (CurrentData == null 
-				|| CurrentData.TimeIndex != ControllerModule.CurrentData.TimeIndex 
-					&& ControllerModule.CurrentData.AllSensorsConnected
-			)
-			{
-				CurrentData = ControllerModule.CurrentData;
-				CurrentDataHasChanged = true;
-			}
-		}
 	}
 
 	protected void OnDestroy()

@@ -4,7 +4,8 @@ using UnityEngine;
 
 public abstract class AvatarControllerModule
 {
-    public AvatarControllerModule(AvatarManager _avatar)
+    protected AvatarKinematicModel KinematicModel;
+    public AvatarControllerModule(AvatarKinematicModel _kinematicModel)
     {
         // Make sure decimal separator is the point (for instance, on french computers)
         System.Globalization.NumberFormatInfo nfi = new System.Globalization.NumberFormatInfo();
@@ -13,12 +14,11 @@ public abstract class AvatarControllerModule
         ci.NumberFormat = nfi;
         System.Threading.Thread.CurrentThread.CurrentCulture = ci;
 
-        AvatarHandler = _avatar;
-        NbSensorsExpected = _avatar.NbSensors();
+        KinematicModel = _kinematicModel;
     }
 
     public double AcquisitionFrequency { get; protected set; }
-    public int NbSensorsExpected { get; protected set; }
+    public int NbSensorsExpected { get { return KinematicModel.NbSensors; } }
     public abstract int NbSensorsConnected();
     public bool IsSensorsConnected { get; protected set; } = false;
 
@@ -28,32 +28,21 @@ public abstract class AvatarControllerModule
     public virtual bool FinalizeSetup()
     {
         _currentData = null;
-        _currentFilteredData = null;
+        _currentAvatarCoordinates = null;
         return true;
     }
     public abstract void Disconnect();
-
-    // Biorbd related methods
-    protected AvatarManager AvatarHandler;
-
-    public void CalibrateKinematicModel()
-    {
-        // If no data exists, it is not possible to calibrate
-        if (CurrentData == null) return;
-
-        AvatarHandler.CalibrateSensorToKinematicModel(CurrentData);
-    }
 
     // Trial related variables
     public bool IsRecording { get; protected set; } = false;
     protected DateTime TrialStartingTime;
     protected AvatarData _currentData = null;
-    protected AvatarData _currentFilteredData = null;
-    public AvatarData CurrentData
+    protected AvatarCoordinates _currentAvatarCoordinates = null;
+    public AvatarCoordinates CurrentCoordinates
     {
         get
         {
-            return AvatarHandler.FilterKinematicsData ? _currentFilteredData : _currentData;
+            return _currentAvatarCoordinates;
         }
     }
     public List<AvatarData> TrialData { get; protected set; } = new List<AvatarData>();
@@ -69,26 +58,28 @@ public abstract class AvatarControllerModule
         IsRecording = false;
     }
 
+    protected bool ShouldCalibrate = true;
+    public void PlanKinematicModelCalibration()
+    {
+        ShouldCalibrate = true;
+    }
+
     protected virtual void SetNewFrame(int FrameNumber)
     {
-        if (IsRecording && CurrentData != null)
+        if (IsRecording && CurrentCoordinates != null)
         {
-            TrialData.Add(CurrentData);
+            TrialData.Add(_currentData);
         }
 
         // Filters the previous data if requested
-        if (AvatarHandler.FilterKinematicsData && _currentData != null)
+        if (_currentData != null && KinematicModel != null)
         {
-            if (AvatarHandler.KinematicModel == null)
+            if (ShouldCalibrate)
             {
-                _currentFilteredData = null;
+                KinematicModel.CalibrateModel(_currentData);
+                ShouldCalibrate = false;
             }
-            else 
-            {
-                // There is a segfault here after recalibrating
-                _currentFilteredData = _currentData;
-                //_currentFilteredData = AvatarHandler.KinematicModel.ApplyFilter(_currentData); 
-            }
+            _currentAvatarCoordinates = KinematicModel.InverseKinematics(_currentData);
         }
 
         _currentData = new AvatarData(FrameNumber, NbSensorsConnected());

@@ -14,6 +14,16 @@ public class AvatarBiorbd : KalmanInterface
         
 	}
 
+    public override bool CalibrateModel(AvatarData _currentData)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    protected override void Initialize()
+    {
+        Debug.Log("Initialize must be call with path for Biorbd");
+    }
+
     protected override void Initialize(string _path)
     {
         base.Initialize(_path);
@@ -32,7 +42,7 @@ public class AvatarBiorbd : KalmanInterface
     }
 
 
-    public bool AddImusFromGlobal(
+    protected bool AddImusFromGlobal(
         BiorbdNode[] _imuInfo,
         AvatarMatrixRotation[] _dataInGlobal
     )
@@ -41,7 +51,7 @@ public class AvatarBiorbd : KalmanInterface
         return AddImusFromLocal(_imuInfo, _dataInLocal);
     }
 
-    public bool AddImusFromLocal(BiorbdNode[] _imuInfo, AvatarMatrixRotation[] _imuInLocal)
+    protected bool AddImusFromLocal(BiorbdNode[] _imuInfo, AvatarMatrixRotation[] _imuInLocal)
     {
         int _nbNewImus = _imuInLocal.Length;
         if (_imuInfo.Length != _nbNewImus)
