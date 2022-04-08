@@ -8,8 +8,8 @@ public class BiorbdKinematicModel : KalmanInterface
     public AvatarVector CurrentQ { get; protected set; }
     Timer TimerHolder;
 
-    public BiorbdKinematicModel(string _path, AvatarControllerModule _controllerModule) : 
-        base(_path, _controllerModule)
+    public BiorbdKinematicModel(KinematicModelInfo _kinematicModelInfo) : 
+        base(_kinematicModelInfo)
     {
         
 	}
@@ -19,7 +19,7 @@ public class BiorbdKinematicModel : KalmanInterface
         // Make sure previous calibration are not interfering
         ReloadModel();
 
-        //AddImusFromGlobal(_currentData.OrientationMatrix);
+        AddImusFromGlobal(((BiorbdKinematicModelInfo)ModelInfo).SensorNodes, _currentData.OrientationMatrix);
         return true;
     }
 
@@ -43,49 +43,6 @@ public class BiorbdKinematicModel : KalmanInterface
         {
             CurrentQ.Set(0, CurrentQ.Get(0) + 0.01);
         }
-    }
-
-
-    protected bool AddImusFromGlobal(
-        BiorbdNode[] _imuInfo,
-        AvatarMatrixRotation[] _dataInGlobal
-    )
-	{
-        AvatarMatrixRotation[] _dataInLocal = ProjectDataInLocalReferenceFrame(_dataInGlobal);
-        return AddImusFromLocal(_imuInfo, _dataInLocal);
-    }
-
-    protected bool AddImusFromLocal(BiorbdNode[] _imuInfo, AvatarMatrixRotation[] _imuInLocal)
-    {
-        int _nbNewImus = _imuInLocal.Length;
-        if (_imuInfo.Length != _nbNewImus)
-        {
-            Debug.Log("Wrong number of IMU information. Stopping calibration process");
-            return false;
-        }
-
-        // Add to the model
-        for (int i = 0; i < _nbNewImus; i++)
-        {
-            AvatarMatrixHomogenous _rt = new AvatarMatrixHomogenous(_imuInLocal[i], new AvatarVector3());
-            Marshal.Copy(_rt.ToDoubleVector(), 0, _ptr_imu, 16);
-            c_addIMU(_ptr_model, _ptr_imu, new StringBuilder(_imuInfo[i].Name), new StringBuilder(_imuInfo[i].ParentName));
-        }
-
-        NbImus = c_nIMUs(_ptr_model);
-        return true;
-    }
-
-    protected AvatarMatrixRotation[] ProjectDataInLocalReferenceFrame(AvatarMatrixRotation[] _statiqueTrial)
-    {
-        AvatarVector _zeroPosition = new AvatarVector(NbQ);
-        AvatarMatrixHomogenous[] _jcs = GlobalJcs(_zeroPosition);
-        AvatarMatrixRotation[] _dataInLocal = new AvatarMatrixRotation[NbSegments];
-        for (int i = 0; i < NbSegments; i++)
-        {
-            _dataInLocal[i] = _jcs[i].Rotation.Transpose() * _statiqueTrial[i];
-        }
-        return _dataInLocal;
     }
 
     public double[] RootDynamics(

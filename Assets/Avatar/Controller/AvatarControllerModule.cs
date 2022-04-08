@@ -74,7 +74,7 @@ public abstract class AvatarControllerModule
         // Filters the previous data if requested
         if (_currentData != null && KinematicModel != null)
         {
-            if (ShouldCalibrate)
+            if (ShouldCalibrate && _currentData.AllSensorsReceived)
             {
                 KinematicModel.CalibrateModel(_currentData);
                 ShouldCalibrate = false;

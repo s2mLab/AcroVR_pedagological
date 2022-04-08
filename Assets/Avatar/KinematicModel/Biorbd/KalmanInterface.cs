@@ -10,11 +10,11 @@ public abstract class KalmanInterface : BiorbdInterface
 
     protected IntPtr _ptr_kalman_model = IntPtr.Zero;
     public bool IsKalmanInitialized;
-    protected AvatarControllerModule ControllerModuleHandler ;
 
-    public KalmanInterface(string _path, AvatarControllerModule _controllerModule) : base(_path)
+    public KalmanInterface(KinematicModelInfo _kinematicModelInfo) 
+        : base(_kinematicModelInfo)
     {
-        ControllerModuleHandler = _controllerModule;
+
     }
 
     protected override void Initialize(string _path)
@@ -30,6 +30,7 @@ public abstract class KalmanInterface : BiorbdInterface
             _ptr_model,
             VectorToPtrQ(AvatarVector.Zero(NbQ))
         );
+        IsKalmanInitialized = true;
     }
     protected override void CloseModel()
     {

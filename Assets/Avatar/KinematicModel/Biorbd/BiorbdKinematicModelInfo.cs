@@ -4,9 +4,14 @@ using UnityEngine;
 
 public class BiorbdKinematicModelInfo : KinematicModelInfo
 {
+    public string BiorbdPath { get; protected set; }
     public BiorbdNode[] SensorNodes { get; protected set; }
-    public BiorbdKinematicModelInfo(BiorbdNode[] _sensorNodes)
+    public BiorbdKinematicModelInfo(
+        string _biorbdPath,
+        BiorbdNode[] _sensorNodes
+    )
     {
+        BiorbdPath = _biorbdPath;
         SensorNodes = _sensorNodes;
     }
 }

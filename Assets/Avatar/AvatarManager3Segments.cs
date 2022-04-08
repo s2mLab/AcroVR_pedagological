@@ -6,27 +6,34 @@ public class AvatarManager3Segments : AvatarManager
 		return @"Assets/Avatar/KinematicModel/Biorbd/model3Segments.bioMod";
 	}
 
-	protected override KinematicModelInfo GetModelInfo()
+	protected override KinematicModelInfo GetModelInfo(KinematicModelType _type)
     {
-		if (typeof(BiorbdKinematicModel).IsInstanceOfType(KinematicModel))
+		if (_type == KinematicModelType.Biorbd)
         {
-			int[] _parentIndex = { -1, 0, 0 };
-			return new BiorbdKinematicModelInfo(SensorsInfo());
+			return new BiorbdKinematicModelInfo(BiomodPath(), SensorsInfo);
 		}
-		else
+		else if (_type == KinematicModelType.Simple)
 		{
 			int[] _parentIndex = { -1, 0, 0 };
 			return new SimpleKinematicModelInfo(_parentIndex, NbSegments(), NbSensors());
 		}
+        else
+        {
+			Debug.Log("Wrong choice of Kinematic Model type");
+			return null;
+        }
     }
 
-	protected BiorbdNode[] SensorsInfo()
-    {
-		BiorbdNode[] _info = new BiorbdNode[3];
-		_info[0] = new BiorbdNode("HipsImu", "Hips");
-		_info[1] = new BiorbdNode("LeftArmImu", "LeftArm");
-		_info[2] = new BiorbdNode("RightArmImu", "RightArm");
-		return _info;
+	protected BiorbdNode[] SensorsInfo
+	{
+		get
+		{
+			BiorbdNode[] _info = new BiorbdNode[3];
+			_info[0] = new BiorbdNode("HipsImu", "Hips");
+			_info[1] = new BiorbdNode("LeftArmImu", "LeftArm");
+			_info[2] = new BiorbdNode("RightArmImu", "RightArm");
+			return _info;
+		}
 	}
 
 	// Moving Joints
