@@ -4,24 +4,11 @@ using UnityEngine;
 
 public class SimpleKinematicModel : AvatarKinematicModel
 {
+
     protected AvatarMatrixRotation[] CalibrationMatrices;
     protected bool IsCalibrated = false;
-    protected int ParentIndex(int _segment)
-    {
-        return _segment == 0 ? -1 : 0;  // Parent of all segments is the root
-    }
 
-    protected override void Initialize()
-    {
-        IsInitialized = true;
-    }
-
-    public override void ReloadModel()
-    {
-        return;
-    }
-
-    public SimpleKinematicModel(int _nbSegments, int _nbSensors) 
+    public SimpleKinematicModel(int _nbSegments, int _nbSensors)
         : base(_nbSegments, _nbSensors)
     {
         CalibrationMatrices = new AvatarMatrixRotation[NbSegments];
@@ -32,7 +19,25 @@ public class SimpleKinematicModel : AvatarKinematicModel
                 "NbSegments/NbSensors relationship as the orientation of the sensors " +
                 "are simply copied to the orientation of the segments");
         }
+        Initialize();
     }
+
+    protected override void Initialize()
+    {
+        IsInitialized = true;
+    }
+
+    protected int ParentIndex(int _segment)
+    {
+        return _segment == 0 ? -1 : 0;  // Parent of all segments is the root
+    }
+
+
+    public override void ReloadModel()
+    {
+        return;
+    }
+
 
     public override bool CalibrateModel(AvatarData _currentData)
     {

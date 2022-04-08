@@ -7,7 +7,6 @@ public abstract class AvatarManager : MonoBehaviour
 	// KinematicModel related variables
 	public AvatarKinematicModel KinematicModel { get; protected set; }
 	public abstract string BiomodPath();
-	[SerializeField] public bool FilterKinematicsData;
 	public void CalibrateKinematicModel()
 	{
 		ControllerModule.PlanKinematicModelCalibration();
@@ -26,12 +25,12 @@ public abstract class AvatarManager : MonoBehaviour
 
 	protected virtual void Start()
 	{
-        //KinematicModel = new AvatarBiorbd(BiomodPath(), ControllerModule); 
+        //KinematicModel = new AvatarBiorbd(BiomodPath(), ControllerModule);
         KinematicModel = new SimpleKinematicModel(3, 3);
+
         if (!KinematicModel.IsInitialized)
 		{
 			Debug.Log("Could not load the kinematic model, PostProcessKinematicData is set to false");
-			FilterKinematicsData = false;
 		}
 	}
 
@@ -45,7 +44,6 @@ public abstract class AvatarManager : MonoBehaviour
 	
 	public IEnumerator InitializeController(
 		SensorType _sensorType,
-		bool _postProcessKinematicData,
 		Action<int, int>  UpdateConnectingStatusCallback,
 		Action ConectingIsCompletedCallback,
 		Action InitializationFailedCallback
@@ -91,8 +89,6 @@ public abstract class AvatarManager : MonoBehaviour
 
 		ControllerModule.FinalizeSetup();
 		ConectingIsCompletedCallback();
-
-		FilterKinematicsData = _postProcessKinematicData;
 
 		yield return 0;
 	}
