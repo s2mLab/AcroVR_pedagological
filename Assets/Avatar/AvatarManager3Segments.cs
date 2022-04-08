@@ -3,7 +3,7 @@
 public class AvatarManager3Segments : AvatarManager
 {
 	public override string BiomodPath() { 
-		return @"Assets/Avatar/Biorbd/model3Segments.bioMod";
+		return @"Assets/Avatar/KinematicModel/Biorbd/model3Segments.bioMod";
 	}
 	protected BiorbdNode[] SensorsInfo()
     {

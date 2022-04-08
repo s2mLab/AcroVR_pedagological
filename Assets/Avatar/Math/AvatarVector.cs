@@ -13,6 +13,11 @@ public class AvatarVector : AvatarMatrix
         Value[row, 0] = val;
     }
 
+    static public AvatarVector Zero(int _nbRows)
+    {
+        return new AvatarVector(_nbRows);
+    }
+
     public int Length { get { return NbRows; } }
 
     public AvatarVector(double[] _other) 

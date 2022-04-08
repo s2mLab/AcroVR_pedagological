@@ -45,7 +45,7 @@ public class AvatarUnityGUI : MonoBehaviour
 		StartCoroutine(
 			Avatar.InitializeController(
 				_sensorType.type,
-				Avatar.UseKalmanFilter,
+				Avatar.FilterKinematicsData,
 				IsConnectingCallback,
 				IsReadyCallback,
 				ConnectionFailed

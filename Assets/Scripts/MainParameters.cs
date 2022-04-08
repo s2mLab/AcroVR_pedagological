@@ -336,9 +336,9 @@ public class MainParameters
         #endregion
 
         #region InitDll
-        handlesDLL[0] = DllManagement.LoadLib(@"Assets\Avatar\XSensController\XSens\bin\xstypes64.dll");
-        handlesDLL[1] = DllManagement.LoadLib(@"Assets\Avatar\XSensController\XSens\bin\xsensdeviceapi64.dll");
-        handlesDLL[2] = DllManagement.LoadLib(@"Assets\Avatar\XSensController\XSens\bin\xsensdeviceapi_csharp64.dll");
+        handlesDLL[0] = DllManagement.LoadLib(@"Assets\Avatar\Controller\XSensController\XSens\bin\xstypes64.dll");
+        handlesDLL[1] = DllManagement.LoadLib(@"Assets\Avatar\Controller\XSensController\XSens\bin\xsensdeviceapi64.dll");
+        handlesDLL[2] = DllManagement.LoadLib(@"Assets\Avatar\Controller\XSensController\XSens\bin\xsensdeviceapi_csharp64.dll");
         #endregion
 
         #region InitLanguages

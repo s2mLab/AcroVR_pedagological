@@ -23,7 +23,7 @@ public class AvatarData
 	}
 
 	public bool AddData(
-		uint _sensorIndex,
+		int _sensorIndex,
 		AvatarMatrixRotation _orientationMatrix
 	)
 	{

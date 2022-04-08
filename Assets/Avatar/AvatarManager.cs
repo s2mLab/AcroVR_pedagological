@@ -7,7 +7,7 @@ public abstract class AvatarManager : MonoBehaviour
 	// Biorbd related variables
 	public AvatarBiorbd KinematicModel { get; protected set; }
 	public abstract string BiomodPath();
-	[SerializeField] public bool UseKalmanFilter { get; protected set; }
+	[SerializeField] public bool FilterKinematicsData;
 	public abstract void CalibrateSensorToKinematicModel(AvatarData _data);
 
 
@@ -29,11 +29,11 @@ public abstract class AvatarManager : MonoBehaviour
 	protected virtual void Start()
 	{
 		CalibrationMatrices = new AvatarMatrixRotation[NbSegments()];
-		KinematicModel = new AvatarBiorbd(BiomodPath()); 
+		KinematicModel = new AvatarBiorbd(BiomodPath(), ControllerModule); 
 		if (!KinematicModel.IsInitialized)
 		{
-			Debug.Log("Could not load biorbd, UseKalmanFilter is set to false");
-			UseKalmanFilter = false;
+			Debug.Log("Could not load biorbd, PostProcessKinematicData is set to false");
+			FilterKinematicsData = false;
 		}
 	}
 
@@ -45,7 +45,7 @@ public abstract class AvatarManager : MonoBehaviour
 		AvatarData _currentData = GetCurrentData();
 		if (_currentData == null || !_currentData.AllSensorsConnected) return;
 
-		AvatarMatrixRotation[] _data = ProjectWrtToCalibrationPosition();
+		AvatarMatrixRotation[] _data = ProjectWrtToCalibrationPosition(_currentData);
 		if (_data is null) return;
 
 		SetSegmentsRotations(_data);
@@ -55,7 +55,7 @@ public abstract class AvatarManager : MonoBehaviour
 	public virtual bool SetCalibrationPositionMatrices()
 	{
 		AvatarData _currentData = GetCurrentData();
-		if (!_currentData.AllSensorsConnected) return false;
+		if (_currentData == null || !_currentData.AllSensorsConnected) return false;
 
 		for (int i = 0; i < NbSegments(); i++)
 		{
@@ -67,18 +67,16 @@ public abstract class AvatarManager : MonoBehaviour
 			CalibrationMatrices[i] = _orientationParentTransposed * _currentData.OrientationMatrix[i];
 		}
 
-		ControllerModule.CalibrateKinematicModel();
+		//ControllerModule.CalibrateKinematicModel();
 		return true;
 	}
-	protected virtual AvatarMatrixRotation[] ProjectWrtToCalibrationPosition()
+	protected virtual AvatarMatrixRotation[] ProjectWrtToCalibrationPosition(AvatarData _currentData)
 	{
 		if (!IsCalibrated)
 		{
 			if (!SetCalibrationPositionMatrices()) return null;
 			IsCalibrated = true;
 		}
-
-		AvatarData _currentData = GetCurrentData();
 
 		AvatarMatrixRotation[] _currentCalibrated = new AvatarMatrixRotation[NbSegments()];
 		for (int i = 0; i < NbSegments(); i++)
@@ -97,7 +95,7 @@ public abstract class AvatarManager : MonoBehaviour
 
 	public IEnumerator InitializeController(
 		SensorType _sensorType,
-		bool _useKalmanFilter,
+		bool _postProcessKinematicData,
 		Action<int, int>  UpdateConnectingStatusCallback,
 		Action ConectingIsCompletedCallback,
 		Action InitializationFailedCallback
@@ -143,7 +141,9 @@ public abstract class AvatarManager : MonoBehaviour
 
 		ControllerModule.FinalizeSetup();
 		ConectingIsCompletedCallback();
-		
+
+		FilterKinematicsData = _postProcessKinematicData;
+
 		yield return 0;
 	}
 

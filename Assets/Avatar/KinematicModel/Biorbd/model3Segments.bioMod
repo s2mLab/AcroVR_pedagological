@@ -1,0 +1,26 @@
+version	4
+
+	segment	Hips
+		RT 1.5701 1.5701 0 xyz 0 0 0.185
+		translations	xyz
+		rotations	xyz
+		mesh	0	-0.75	0
+		mesh	0	0.75	0
+		mesh	0	-0.75	0
+	endsegment
+	
+	segment	LeftArm
+		parent Hips
+		RT 0 0 -1.5701 xyz 0.185 0.294 0
+		rotations	xyz
+		mesh	0	0	0
+		mesh	0	0.294	0
+	endsegment	
+	
+	segment	RightArm
+		parent	Hips
+		RT 0 0 1.5701 xyz -0.185 0.294 0
+		rotations	xyz
+		mesh	0	0	0
+		mesh	0	0.294	0
+	endsegment	

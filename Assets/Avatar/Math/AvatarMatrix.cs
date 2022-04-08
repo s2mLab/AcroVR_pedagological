@@ -90,6 +90,10 @@ public class AvatarMatrix
         }
         return _out;
     }
+    static public AvatarMatrix Zero(int _nbRows, int _nbCols)
+    {
+        return new AvatarMatrix(_nbRows, _nbCols);
+    }
     public virtual void SetZero()
     {
         for (int j = 0; j < NbColumns; j++)
