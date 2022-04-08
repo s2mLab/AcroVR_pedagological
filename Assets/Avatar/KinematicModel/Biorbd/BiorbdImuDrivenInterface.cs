@@ -82,6 +82,7 @@ public abstract class BiorbdInterface : AvatarKinematicModel
             c_deleteBiorbdModel(_ptr_model);
         }
         _ptr_model = IntPtr.Zero;
+        IsCalibrated = false;
 
         Marshal.FreeCoTaskMem(_ptr_q);
         Marshal.FreeCoTaskMem(_ptr_qdot);

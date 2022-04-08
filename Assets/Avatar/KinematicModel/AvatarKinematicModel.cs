@@ -4,7 +4,8 @@ using UnityEngine;
 
 public abstract class AvatarKinematicModel
 {
-    public bool IsInitialized;
+    public bool IsInitialized = false;
+    public bool IsCalibrated = false;
     protected abstract void Initialize();
 
     protected KinematicModelInfo ModelInfo;

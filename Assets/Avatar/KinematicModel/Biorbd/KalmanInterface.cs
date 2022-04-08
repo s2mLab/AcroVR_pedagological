@@ -43,6 +43,7 @@ public abstract class KalmanInterface : BiorbdInterface
         base.CloseModel();
     }
 
+    protected AvatarMatrixRotation[] CalibrationMatrices;
     public override AvatarCoordinates InverseKinematics(AvatarData _currentData)
     {
         //// Apply the filter
@@ -67,11 +68,21 @@ public abstract class KalmanInterface : BiorbdInterface
         //}
         //return _filteredData;
 
+        if (_currentData == null || !_currentData.AllSensorsReceived || !IsCalibrated) return null;
+
         AvatarMatrixHomogenous[] _segmentsOrientation = new AvatarMatrixHomogenous[NbSegments];
         for (int i = 0; i < NbSegments; i++)
         {
+            int _parentIndex = i == 0 ? -1 : 0 ;
+            // Root is the reference for all the segments, that is why we can do this shortcut
+            AvatarMatrixRotation _orientationParentTransposed =
+                _parentIndex < 0 ?
+                AvatarMatrixRotation.Identity() : _currentData.OrientationMatrix[_parentIndex].Transpose();
             _segmentsOrientation[i] = new AvatarMatrixHomogenous(
-                _currentData.OrientationMatrix[i], new AvatarVector3()
+                CalibrationMatrices[i].Transpose()
+                * _orientationParentTransposed
+                * _currentData.OrientationMatrix[i],
+                new AvatarVector3()
             );
         }
         return new AvatarCoordinates(_currentData.TimeIndex, _segmentsOrientation);

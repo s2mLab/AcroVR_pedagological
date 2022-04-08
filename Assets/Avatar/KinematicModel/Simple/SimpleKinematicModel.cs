@@ -6,7 +6,6 @@ public class SimpleKinematicModel : AvatarKinematicModel
 {
 
     protected AvatarMatrixRotation[] CalibrationMatrices;
-    protected bool IsCalibrated = false;
 
     public SimpleKinematicModel(KinematicModelInfo _modelInfo)
         : base(
