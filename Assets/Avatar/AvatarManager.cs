@@ -22,11 +22,12 @@ public abstract class AvatarManager : MonoBehaviour
 	protected AvatarCoordinates CurrentCoordinates = null;
 	protected int PreviousDataIndex = -1;
 
+	protected abstract KinematicModelInfo GetModelInfo();
 
 	protected virtual void Start()
 	{
-        //KinematicModel = new AvatarBiorbd(BiomodPath(), ControllerModule);
-        KinematicModel = new SimpleKinematicModel(3, 3);
+        //KinematicModel = new BiorbdKinematicModel(BiomodPath(), ControllerModule);
+        KinematicModel = new SimpleKinematicModel(GetModelInfo());
 
         if (!KinematicModel.IsInitialized)
 		{

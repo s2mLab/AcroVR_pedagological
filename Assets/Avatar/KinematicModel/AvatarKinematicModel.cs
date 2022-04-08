@@ -6,10 +6,12 @@ public abstract class AvatarKinematicModel
 {
     public bool IsInitialized;
     protected abstract void Initialize();
-    public abstract void ReloadModel();
 
-    public AvatarKinematicModel(int _nbSegments, int _nbSensors)
+    protected KinematicModelInfo ModelInfo;
+
+    public AvatarKinematicModel(KinematicModelInfo _modelInfo, int _nbSegments, int _nbSensors)
     {
+        ModelInfo = _modelInfo;
         NbSegments = _nbSegments;
         NbSensors = _nbSensors;
     }

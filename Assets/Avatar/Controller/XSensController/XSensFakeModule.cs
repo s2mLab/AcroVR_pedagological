@@ -30,7 +30,7 @@ public class XSensFakeModule : XSensModule
         _currentData = null;
         _currentAvatarCoordinates = null;
 
-        int _imgPerSecond = 2;
+        int _imgPerSecond = 20;
         TimerHolder = new Timer();
         TimerHolder.Interval = (int)(1/(double)_imgPerSecond * 1000); // In milliseconds
         TimerHolder.AutoReset = true;

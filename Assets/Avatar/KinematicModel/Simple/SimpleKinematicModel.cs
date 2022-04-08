@@ -8,8 +8,12 @@ public class SimpleKinematicModel : AvatarKinematicModel
     protected AvatarMatrixRotation[] CalibrationMatrices;
     protected bool IsCalibrated = false;
 
-    public SimpleKinematicModel(int _nbSegments, int _nbSensors)
-        : base(_nbSegments, _nbSensors)
+    public SimpleKinematicModel(KinematicModelInfo _modelInfo)
+        : base(
+            _modelInfo,
+            ((SimpleKinematicModelInfo)_modelInfo).NbSegments, 
+            ((SimpleKinematicModelInfo)_modelInfo).NbSensors
+        )
     {
         CalibrationMatrices = new AvatarMatrixRotation[NbSegments];
         if (NbSegments != NbSensors)
@@ -27,25 +31,13 @@ public class SimpleKinematicModel : AvatarKinematicModel
         IsInitialized = true;
     }
 
-    protected int ParentIndex(int _segment)
-    {
-        return _segment == 0 ? -1 : 0;  // Parent of all segments is the root
-    }
-
-
-    public override void ReloadModel()
-    {
-        return;
-    }
-
-
     public override bool CalibrateModel(AvatarData _currentData)
     {
         if (_currentData == null || !_currentData.AllSensorsReceived) return false;
 
         for (int i = 0; i < NbSegments; i++)
         {
-            int _parentIndex = ParentIndex(i);
+            int _parentIndex = ((SimpleKinematicModelInfo)ModelInfo).ParentIndex[i];
             // Root is the reference for all the segments, that is why we can do this shortcut
             AvatarMatrixRotation _orientationParentTransposed =
                 _parentIndex < 0 ?
@@ -64,7 +56,7 @@ public class SimpleKinematicModel : AvatarKinematicModel
         AvatarMatrixHomogenous[] _segmentsOrientation = new AvatarMatrixHomogenous[NbSegments];
         for (int i = 0; i < NbSegments; i++)
         {
-            int _parentIndex = ParentIndex(i);
+            int _parentIndex = ((SimpleKinematicModelInfo)ModelInfo).ParentIndex[i];
             // Root is the reference for all the segments, that is why we can do this shortcut
             AvatarMatrixRotation _orientationParentTransposed =
                 _parentIndex < 0 ?

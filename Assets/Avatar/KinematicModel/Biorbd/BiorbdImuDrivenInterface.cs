@@ -66,7 +66,7 @@ public abstract class BiorbdInterface : AvatarKinematicModel
     public int NbImus { get; protected set; }
     
     public BiorbdInterface(string _path) : 
-        base(0, 0)  // Initialize takes care of this
+        base(new KinematicModelInfo(), 0, 0)  // Initialize takes care of this
     {
         Initialize(_path);
     }
@@ -93,7 +93,7 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         Marshal.FreeCoTaskMem(_ptr_imu);
         Marshal.FreeCoTaskMem(_ptr_linearSolutionForRoot);
     }
-    public override void ReloadModel()
+    public virtual void ReloadModel()
     {
         CloseModel();
         Initialize(OriginalPath);

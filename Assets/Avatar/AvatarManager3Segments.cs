@@ -5,6 +5,21 @@ public class AvatarManager3Segments : AvatarManager
 	public override string BiomodPath() { 
 		return @"Assets/Avatar/KinematicModel/Biorbd/model3Segments.bioMod";
 	}
+
+	protected override KinematicModelInfo GetModelInfo()
+    {
+		if (typeof(BiorbdKinematicModel).IsInstanceOfType(KinematicModel))
+        {
+			int[] _parentIndex = { -1, 0, 0 };
+			return new BiorbdKinematicModelInfo(SensorsInfo());
+		}
+		else
+		{
+			int[] _parentIndex = { -1, 0, 0 };
+			return new SimpleKinematicModelInfo(_parentIndex, NbSegments(), NbSensors());
+		}
+    }
+
 	protected BiorbdNode[] SensorsInfo()
     {
 		BiorbdNode[] _info = new BiorbdNode[3];
