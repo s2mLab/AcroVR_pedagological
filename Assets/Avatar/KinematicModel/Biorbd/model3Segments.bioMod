@@ -1,7 +1,11 @@
 version	4
 
 	segment	Hips
-		RT 1.5701 1.5701 0 xyz 0 0 0.185
+		RTinMatrix	1
+		RT 1 0 0 0
+		   0 1 0 0
+		   0 0 1 0.185
+		   0 0 0 1
 		translations	xyz
 		rotations	xyz
 		mesh	0	-0.75	0
@@ -11,7 +15,11 @@ version	4
 	
 	segment	LeftArm
 		parent Hips
-		RT 0 0 -1.5701 xyz 0.185 0.294 0
+		RTinMatrix	1
+		RT 1 0 0 0.185
+		   0 1 0 0.294
+		   0 0 1 0
+		   0 0 0 1
 		rotations	xyz
 		mesh	0	0	0
 		mesh	0	0.294	0
@@ -19,7 +27,11 @@ version	4
 	
 	segment	RightArm
 		parent	Hips
-		RT 0 0 1.5701 xyz -0.185 0.294 0
+		RTinMatrix	1
+		RT 1 0 0 -0.185
+		   0 1 0 0.294
+		   0 0 1 0
+		   0 0 0 1
 		rotations	xyz
 		mesh	0	0	0
 		mesh	0	0.294	0

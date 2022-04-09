@@ -14,32 +14,6 @@ public class BiorbdKinematicModel : KalmanInterface
         
 	}
 
-    public override bool CalibrateModel(AvatarData _currentData)
-    {
-
-        if (_currentData == null || !_currentData.AllSensorsReceived) return false;
-
-        CalibrationMatrices = new AvatarMatrixRotation[NbSegments];
-        for (int i = 0; i < NbSegments; i++)
-        {
-            int _parentIndex = i == 0 ? -1 : 0 ;
-            // Root is the reference for all the segments, that is why we can do this shortcut
-            AvatarMatrixRotation _orientationParentTransposed =
-                _parentIndex < 0 ?
-                AvatarMatrixRotation.Identity() : _currentData.OrientationMatrix[_parentIndex].Transpose();
-            CalibrationMatrices[i] = _orientationParentTransposed * _currentData.OrientationMatrix[i];
-        }
-
-        IsCalibrated = true;
-        return true;
-
-        //// Make sure previous calibration are not interfering
-        //ReloadModel();
-
-        //AddImusFromGlobal(((BiorbdKinematicModelInfo)ModelInfo).SensorNodes, _currentData.OrientationMatrix);
-        //return true;
-    }
-
     protected override void Initialize()
     {
         Debug.Log("Initialize must be call with path for Biorbd");

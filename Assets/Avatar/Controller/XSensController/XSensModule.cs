@@ -52,10 +52,10 @@ public class XSensModule : AvatarControllerModule
             if (value != 60 && value != 120)
             {
                 Debug.LogWarning($"Wrong values for UpdateRate (yours : {(value - 120) == 0}), only 60 or 120Hz is allowed. Default value (120Hz) is selected");
-                AcquisitionFrequency = 120;
+                ChangeAcquisitionFrequency(120);
             } else
             {
-                AcquisitionFrequency = value;
+                ChangeAcquisitionFrequency(value);
             }
         }
     }

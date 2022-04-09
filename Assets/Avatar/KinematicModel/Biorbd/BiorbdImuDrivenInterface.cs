@@ -64,7 +64,7 @@ public abstract class BiorbdInterface : AvatarKinematicModel
     public int NbTau { get; protected set; }
     public int NbMarkers { get; protected set; }
     public int NbImus { get; protected set; }
-    
+
     public BiorbdInterface(KinematicModelInfo _kinematicModelInfo) : 
         base(_kinematicModelInfo, 0, ((BiorbdKinematicModelInfo)_kinematicModelInfo).SensorNodes.Length)  // Initialize takes care NbSegments
     {
@@ -93,6 +93,19 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         Marshal.FreeCoTaskMem(_ptr_allJcs);
         Marshal.FreeCoTaskMem(_ptr_imuRT);
         Marshal.FreeCoTaskMem(_ptr_linearSolutionForRoot);
+    }
+    public override bool CalibrateModel(AvatarData _currentData)
+    {
+
+        if (_currentData == null || !_currentData.AllSensorsReceived) return false;
+
+        // Make sure previous calibration are not interfering
+        ReloadModel();
+
+        AddImusFromGlobal(((BiorbdKinematicModelInfo)ModelInfo).SensorNodes, _currentData.OrientationMatrix);
+
+        IsCalibrated = true;
+        return true;
     }
     public virtual void ReloadModel()
     {
@@ -181,7 +194,6 @@ public abstract class BiorbdInterface : AvatarKinematicModel
     {
         if (!IsInitialized || _ptr_model == null || _ptr_allJcs == null || _ptr_q == null)
         {
-            Debug.Log("coucou!");
             AvatarMatrixHomogenous[] _jcs = new AvatarMatrixHomogenous[NbSegments];
             for (int i = 0; i < _jcs.Length; i++)
             {
@@ -268,10 +280,19 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         for (int i = 0; i < _nbNewImus; i++)
         {
             AvatarMatrixHomogenous _rt = new AvatarMatrixHomogenous(_imuInLocal[i], new AvatarVector3());
-            Marshal.Copy(_rt.ToDoubleVector(), 0, _ptr_imuRT, 9);
+            Marshal.Copy(_rt.ToDoubleVector(), 0, _ptr_imuRT, 16);
             c_addIMU(_ptr_model, _ptr_imuRT, new StringBuilder(_imuInfo[i].Name), new StringBuilder(_imuInfo[i].ParentName));
         }
 
+        c_writeBiorbdModel(_ptr_model, new StringBuilder("coucou.bioMod"));
+        //OriginalPath = "coucou.bioMod";
+        //ReloadModel();
+        MemoryManagementAfterAddingImu();
+        return true;
+    }
+
+    protected virtual bool MemoryManagementAfterAddingImu()
+    {
         NbImus = c_nIMUs(_ptr_model);
         Marshal.FreeCoTaskMem(_ptr_allImus);
         _ptr_allImus = Marshal.AllocCoTaskMem(sizeof(double) * NbImus * 3 * 3);

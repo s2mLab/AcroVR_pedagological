@@ -19,6 +19,11 @@ public abstract class AvatarKinematicModel
 
     public abstract bool CalibrateModel(AvatarData _currentData);
     public abstract AvatarCoordinates InverseKinematics(AvatarData _currentData);
+    public virtual void SetFrameRate(double _newFrameRate)
+    {
+        FrameRate = _newFrameRate;
+    }
+    protected double FrameRate;
 
     public int NbSegments { get; protected set; }
     public int NbSensors { get; protected set; }

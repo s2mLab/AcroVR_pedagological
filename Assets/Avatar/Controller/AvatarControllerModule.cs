@@ -17,7 +17,12 @@ public abstract class AvatarControllerModule
         KinematicModel = _kinematicModel;
     }
 
-    public double AcquisitionFrequency { get; protected set; }
+    public double AcquisitionFrequency { get; private set; }
+    protected void ChangeAcquisitionFrequency(double _frequency)
+    {
+        AcquisitionFrequency = _frequency;
+        KinematicModel.SetFrameRate(AcquisitionFrequency);
+    }
     public int NbSensorsExpected { get { return KinematicModel.NbSensors; } }
     public abstract int NbSensorsConnected();
     public bool IsSensorsConnected { get; protected set; } = false;

@@ -25,13 +25,24 @@ public abstract class KalmanInterface : BiorbdInterface
             Debug.Log(String.Format("Kalman already initialized, Initialization skipped", _path));
             return;
         }
-
+        InitializeKalman();
+    }
+    protected virtual void InitializeKalman()
+    {
+        if (_ptr_kalman_model != IntPtr.Zero) c_deleteBiorbdKalmanReconsIMU(_ptr_kalman_model);
+        IsKalmanInitialized = false;
+        double _noiseF = 1e-8;
+        double _errorF = 1e-8;
         _ptr_kalman_model = c_BiorbdKalmanReconsIMU(
             _ptr_model,
-            VectorToPtrQ(AvatarVector.Zero(NbQ))
+            VectorToPtrQ(AvatarVector.Zero(NbQ)),
+            FrameRate,
+            _noiseF,
+            _errorF
         );
         IsKalmanInitialized = true;
     }
+
     protected override void CloseModel()
     {
         if (_ptr_kalman_model != IntPtr.Zero)
@@ -43,48 +54,42 @@ public abstract class KalmanInterface : BiorbdInterface
         base.CloseModel();
     }
 
-    protected AvatarMatrixRotation[] CalibrationMatrices;
+    public override void SetFrameRate(double _newFrameRate)
+    {
+        base.SetFrameRate(_newFrameRate);
+        InitializeKalman();
+    }
+
+    protected override bool MemoryManagementAfterAddingImu()
+    {
+        base.MemoryManagementAfterAddingImu();
+        InitializeKalman();
+        return IsKalmanInitialized;
+    }
+
     public override AvatarCoordinates InverseKinematics(AvatarData _currentData)
     {
-        //// Apply the filter
-        //c_BiorbdKalmanReconsIMUstep(
-        //    _ptr_model,
-        //    _ptr_kalman_model,
-        //    ImuToImuPtr(_currentData.OrientationMatrix), 
-        //    _ptr_q, 
-        //    _ptr_qdot,
-        //    _ptr_qddot
-        //);
-        //if (_ptr_q == IntPtr.Zero) return null;
+        if (
+            _currentData == null || 
+            !_currentData.AllSensorsReceived || 
+            !IsCalibrated
+        ) return null;
 
-        //// Convert to avatars angles
-        //c_globalJCS(_ptr_model, _ptr_q, _ptr_allJcs);
-        //AvatarMatrixHomogenous[] _jcs = PtrJcsToJcs();
+        // Apply the filter
+        c_BiorbdKalmanReconsIMUstep(
+            _ptr_model,
+            _ptr_kalman_model,
+            ImuToImuPtr(_currentData.OrientationMatrix),
+            _ptr_q,
+            _ptr_qdot,
+            _ptr_qddot
+        );
+        if (_ptr_q == IntPtr.Zero) return null;
 
-        //AvatarCoordinates _filteredData =  new AvatarData(_currentData.TimeIndex, 3); // _jcs.Length);
-        //for (int i = 0; i < _jcs.Length; i++)
-        //{
-        //    _filteredData.AddData(i, _jcs[i].Rotation);
-        //}
-        //return _filteredData;
-
-        if (_currentData == null || !_currentData.AllSensorsReceived || !IsCalibrated) return null;
-
-        AvatarMatrixHomogenous[] _segmentsOrientation = new AvatarMatrixHomogenous[NbSegments];
-        for (int i = 0; i < NbSegments; i++)
-        {
-            int _parentIndex = i == 0 ? -1 : 0 ;
-            // Root is the reference for all the segments, that is why we can do this shortcut
-            AvatarMatrixRotation _orientationParentTransposed =
-                _parentIndex < 0 ?
-                AvatarMatrixRotation.Identity() : _currentData.OrientationMatrix[_parentIndex].Transpose();
-            _segmentsOrientation[i] = new AvatarMatrixHomogenous(
-                CalibrationMatrices[i].Transpose()
-                * _orientationParentTransposed
-                * _currentData.OrientationMatrix[i],
-                new AvatarVector3()
-            );
-        }
-        return new AvatarCoordinates(_currentData.TimeIndex, _segmentsOrientation);
+        // Convert to avatars transformation matrix
+        c_globalJCS(_ptr_model, _ptr_q, _ptr_allJcs);
+        AvatarMatrixHomogenous[] _jcs = PtrJcsToJcs();
+        AvatarCoordinates _filteredData = new AvatarCoordinates(_currentData.TimeIndex, _jcs);
+        return _filteredData;
     }
 }

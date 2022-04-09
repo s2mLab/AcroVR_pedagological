@@ -81,7 +81,15 @@ public class XSensFakeModule : XSensModule
 
                 if (i == 1)
                 {
-                    _angles[2] += PreviousPacketCounter / 5.0;
+                    if (PreviousPacketCounter < 100)
+                    {
+                        _angles[2] += PreviousPacketCounter / 5.0;
+                    }
+                    else
+                    {
+                        _angles[2] += 100.0 / 5.0;
+                        _angles[0] += PreviousPacketCounter / 5.0;
+                    }
                 }
 
                 _currentData.AddData(i, AvatarMatrixRotation.FromEulerXYZ(_angles));
