@@ -6,7 +6,7 @@ using UnityEngine;
 public class AvatarMatrixRotation : AvatarMatrix
 {
 
-    public AvatarMatrixRotation() : base(3, 3)
+    public AvatarMatrixRotation() : base(AvatarMatrixRotation.Identity())
     {
 
     }

@@ -5,7 +5,7 @@ using UnityEngine;
 public class AvatarMatrixHomogenous : AvatarMatrix
 {
 
-    public AvatarMatrixHomogenous() : base(4, 4)
+    public AvatarMatrixHomogenous() : base(AvatarMatrixHomogenous.Identity())
     {
 
     }

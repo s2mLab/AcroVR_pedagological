@@ -125,6 +125,7 @@ public class AvatarMatrix
             return;
         }
 
+        _result.SetZero();
         for (int j = 0; j < _second.NbColumns; j++)
         {
             for (int i = 0; i < _first.NbRows; i++)
@@ -148,6 +149,7 @@ public class AvatarMatrix
             return;
         }
 
+        _result.SetZero();
         for (int j = 0; j < _second.cols(); j++)
         {
             for (int i = 0; i < _first.NbRows; i++)
@@ -198,7 +200,7 @@ public class AvatarMatrix
         {
             for (int i = 0; i < NbRows; i++)
             {
-                _result += Value[i, j];
+                _result += Value[i, j] + " ";
             }
             _result += "\n";
         }
