@@ -72,7 +72,7 @@ public class AvatarMatrix
         {
             for (int i = 0; i < NbRows; i++)
             {
-                _result[j * NbColumns + i] = Value[i, j];
+                _result[i + j * NbRows] = Value[i, j];
             }
         }
         return _result;
@@ -196,9 +196,9 @@ public class AvatarMatrix
     new public string ToString()
     {
         string _result = "";
-        for (int j = 0; j < NbColumns; j++)
+        for (int i = 0; i < NbRows; i++)
         {
-            for (int i = 0; i < NbRows; i++)
+            for (int j = 0; j < NbColumns; j++)
             {
                 _result += Value[i, j] + " ";
             }

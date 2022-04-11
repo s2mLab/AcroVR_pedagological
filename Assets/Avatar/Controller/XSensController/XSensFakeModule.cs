@@ -75,21 +75,22 @@ public class XSensFakeModule : XSensModule
             for (int i = 0; i < NbSensorsConnected(); i++)
             {
                 double[] _angles = new double[3];
-                _angles[0] = 0 * ((i + 1) / 2.0);
-                _angles[1] = 0 * ((i + 1) / 2.0);
-                _angles[2] = 0 * ((i + 1) / 2.0);
+                _angles[0] = 0; //* ((i + 1) / 2.0);
+                _angles[1] = 0; //* ((i + 1) / 2.0);
+                _angles[2] = 0; // * ((i + 1) / 2.0);
 
                 if (i == 1)
                 {
-                    if (PreviousPacketCounter < 100)
-                    {
-                        _angles[2] += PreviousPacketCounter / 5.0;
-                    }
-                    else
-                    {
-                        _angles[2] += 100.0 / 5.0;
-                        _angles[0] += PreviousPacketCounter / 5.0;
-                    }
+                    _angles[2] += PreviousPacketCounter / 2.0;
+                    //if (PreviousPacketCounter < 100)
+                    //{
+                    //    _angles[2] += PreviousPacketCounter / 25.0;
+                    //}
+                    //else
+                    //{
+                    //    _angles[2] += 100.0 / 5.0;
+                    //    _angles[0] += PreviousPacketCounter / 25.0;
+                    //}
                 }
 
                 _currentData.AddData(i, AvatarMatrixRotation.FromEulerXYZ(_angles));

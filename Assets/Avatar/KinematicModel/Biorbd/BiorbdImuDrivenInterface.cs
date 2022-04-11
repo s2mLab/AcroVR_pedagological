@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Text;
 using System.Runtime.InteropServices;
@@ -35,24 +35,9 @@ public abstract class BiorbdInterface : AvatarKinematicModel
     [DllImport(dllname)] protected static extern int c_nMarkers(IntPtr model);
 
     [DllImport(dllname)] protected static extern void c_globalJCS(IntPtr model, IntPtr Q, IntPtr jcs);
-    //[DllImport(dllname)] protected static extern void c_inverseDynamics(IntPtr model, IntPtr q, IntPtr qdot, IntPtr qddot, IntPtr tau);
-    //[DllImport(dllname)] protected static extern void c_NonlinearEffects(IntPtr model, IntPtr q, IntPtr qdot, IntPtr tau);
-    //[DllImport(dllname)] protected static extern void c_massMatrix(IntPtr model, IntPtr q, IntPtr massMatrix);
-    //[DllImport(dllname)] protected static extern int c_markersInLocal(IntPtr model, IntPtr markPos);
-    //[DllImport(dllname)] protected static extern void c_markers(IntPtr model, IntPtr q, IntPtr markPos, bool removeAxis, bool updateKin);
     [DllImport(dllname)] protected static extern int c_nIMUs(IntPtr model);
     [DllImport(dllname)] protected static extern void c_addIMU(IntPtr model, IntPtr imuRT, StringBuilder name, StringBuilder parentName, bool technical = true, bool anatomical = true);
-    ////[DllImport(dllname)] protected static extern void c_getJacobian();
-    //[DllImport(dllname)] protected static extern void c_matrixMultiplication(IntPtr M1, IntPtr M2, IntPtr Mout);
-    //[DllImport(dllname)] protected static extern void c_meanRT(IntPtr imuRT, int nFrame, IntPtr imuRT_mean);
-    //[DllImport(dllname)] protected static extern void c_projectJCSinParentBaseCoordinate(IntPtr parent, IntPtr jcs, IntPtr out1);
-    //[DllImport(dllname)] protected static extern void c_solveLinearSystem(IntPtr matA, int nCol, int nRow, IntPtr vecB, IntPtr solX);
-    //[DllImport(dllname)] protected static extern void c_alignSpecificAxisWithParentVertical(IntPtr r1, IntPtr r2, int idxAxe, IntPtr rot_out);
-    //[DllImport(dllname)] protected static extern void c_rotation(double v00, double v01, double v02, double v10, double v11, double v12, double v20, double v21, double v22, IntPtr rot_out);
-    //[DllImport(dllname)] protected static extern void c_rotationToEulerAngles(IntPtr rot, StringBuilder seq, IntPtr euler_out);
-    //[DllImport(dllname)] protected static extern void c_getGravity(IntPtr model, IntPtr gravity);
-    //[DllImport(dllname)] protected static extern void c_setGravity(IntPtr model, IntPtr newGravity);
-
+    [DllImport(dllname)] protected static extern void c_IMU(IntPtr model, IntPtr Q, IntPtr output, bool updateKin = true);
 
 
     protected IntPtr _ptr_model = IntPtr.Zero;
@@ -92,6 +77,8 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         Marshal.FreeCoTaskMem(_ptr_massMatrixRootVector);
         Marshal.FreeCoTaskMem(_ptr_allJcs);
         Marshal.FreeCoTaskMem(_ptr_imuRT);
+        Marshal.FreeCoTaskMem(_ptr_allImus);
+        Marshal.FreeCoTaskMem(_ptr_allImusRT);
         Marshal.FreeCoTaskMem(_ptr_linearSolutionForRoot);
     }
     public override bool CalibrateModel(AvatarData _currentData)
@@ -123,6 +110,7 @@ public abstract class BiorbdInterface : AvatarKinematicModel
     protected IntPtr _ptr_allJcs;
     protected IntPtr _ptr_imuRT;
     protected IntPtr _ptr_allImus;
+    protected IntPtr _ptr_allImusRT;
     protected IntPtr _ptr_linearSolutionForRoot;
 
     protected double[] _q;
@@ -133,6 +121,7 @@ public abstract class BiorbdInterface : AvatarKinematicModel
     protected double[] _allJcs;
     protected double[] _imuRT;
     protected double[] _allImus;
+    protected double[] _allImusRT;
     protected double[] _linearSolutionForRoot;
 
     protected virtual void Initialize(string _path)
@@ -166,6 +155,7 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         _ptr_allJcs = Marshal.AllocCoTaskMem(sizeof(double) * NbSegments * 4 * 4);
         _ptr_imuRT = Marshal.AllocCoTaskMem(sizeof(double) * 4 * 4);
         _ptr_allImus = Marshal.AllocCoTaskMem(sizeof(double) * NbImus * 3 * 3);
+        _ptr_allImusRT = Marshal.AllocCoTaskMem(sizeof(double) * NbImus * 4 * 4);
         _ptr_linearSolutionForRoot = Marshal.AllocCoTaskMem(sizeof(double) * NbRoot);
 
         _q = new double[NbQ];
@@ -176,6 +166,7 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         _allJcs = new double[NbSegments * 16];
         _imuRT = new double[16];
         _allImus = new double[NbImus * 9];
+        _allImusRT = new double[NbImus * 16];
         _linearSolutionForRoot = new double[NbRoot];
 
         IsInitialized = true;
@@ -204,6 +195,20 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         c_globalJCS(_ptr_model, VectorToPtrQ(_generalizedCoordinates), _ptr_allJcs);
         return PtrJcsToJcs();
     }
+    public AvatarMatrixHomogenous[] IMU(AvatarVector _generalizedCoordinates)
+    {
+        if (!IsInitialized || _ptr_model == null || _ptr_allJcs == null || _ptr_q == null)
+        {
+            AvatarMatrixHomogenous[] _jcs = new AvatarMatrixHomogenous[NbSegments];
+            for (int i = 0; i < _jcs.Length; i++)
+            {
+                _jcs[i] = AvatarMatrixHomogenous.Identity();
+            }
+            return _jcs;
+        }
+        c_IMU(_ptr_model, VectorToPtrQ(_generalizedCoordinates), _ptr_allImusRT);
+        return PtrAllImuRtToAllImuRt();
+    }
 
     // Dispatch functions
     protected IntPtr VectorToPtrQ(AvatarVector _generalizedCoordinates)
@@ -230,10 +235,25 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         for (int i = 0; i < _nbRt; i++)
         {
             _result[i] = new AvatarMatrixHomogenous(
-                _allJcs[i * 16 + 0], _allJcs[i * 16 + 4], _allJcs[i * 16 + 8], _allJcs[i * 16 + 12],
-                _allJcs[i * 16 + 1], _allJcs[i * 16 + 5], _allJcs[i * 16 + 9], _allJcs[i * 16 + 13],
+                _allJcs[i * 16 + 0], _allJcs[i * 16 + 4], _allJcs[i * 16 + 8 ], _allJcs[i * 16 + 12],
+                _allJcs[i * 16 + 1], _allJcs[i * 16 + 5], _allJcs[i * 16 + 9 ], _allJcs[i * 16 + 13],
                 _allJcs[i * 16 + 2], _allJcs[i * 16 + 6], _allJcs[i * 16 + 10], _allJcs[i * 16 + 14],
                 _allJcs[i * 16 + 3], _allJcs[i * 16 + 7], _allJcs[i * 16 + 11], _allJcs[i * 16 + 15]
+            );
+        }
+        return _result;
+    }
+    protected AvatarMatrixHomogenous[] PtrAllImuRtToAllImuRt()
+    {
+        Marshal.Copy(_ptr_allImusRT, _allImusRT, 0, NbImus * 16);
+        AvatarMatrixHomogenous[] _result = new AvatarMatrixHomogenous[NbImus];
+        for (int i = 0; i < NbImus; i++)
+        {
+            _result[i] = new AvatarMatrixHomogenous(
+                _allImusRT[i * 16 + 0], _allImusRT[i * 16 + 4], _allImusRT[i * 16 + 8], _allImusRT[i * 16 + 12],
+                _allImusRT[i * 16 + 1], _allImusRT[i * 16 + 5], _allImusRT[i * 16 + 9], _allImusRT[i * 16 + 13],
+                _allImusRT[i * 16 + 2], _allImusRT[i * 16 + 6], _allImusRT[i * 16 + 10], _allImusRT[i * 16 + 14],
+                _allImusRT[i * 16 + 3], _allImusRT[i * 16 + 7], _allImusRT[i * 16 + 11], _allImusRT[i * 16 + 15]
             );
         }
         return _result;
@@ -292,8 +312,11 @@ public abstract class BiorbdInterface : AvatarKinematicModel
     {
         NbImus = c_nIMUs(_ptr_model);
         Marshal.FreeCoTaskMem(_ptr_allImus);
+        Marshal.FreeCoTaskMem(_ptr_allImusRT);
         _ptr_allImus = Marshal.AllocCoTaskMem(sizeof(double) * NbImus * 3 * 3);
+        _ptr_allImusRT = Marshal.AllocCoTaskMem(sizeof(double) * NbImus * 4 * 4);
         _allImus = new double[NbImus * 9];
+        _allImusRT = new double[NbImus * 16];
         return true;
     }
 
@@ -304,6 +327,7 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         AvatarMatrixRotation[] _dataInLocal = new AvatarMatrixRotation[NbSegments];
         for (int i = 0; i < NbSegments; i++)
         {
+            // This assumes one unit per joint
             _dataInLocal[i] = _jcs[i].Rotation.Transpose() * _statiqueTrial[i];
         }
         return _dataInLocal;

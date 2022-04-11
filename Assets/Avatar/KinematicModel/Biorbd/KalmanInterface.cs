@@ -31,12 +31,12 @@ public abstract class KalmanInterface : BiorbdInterface
     {
         if (_ptr_kalman_model != IntPtr.Zero) c_deleteBiorbdKalmanReconsIMU(_ptr_kalman_model);
         IsKalmanInitialized = false;
-        double _noiseF = 1e-8;
-        double _errorF = 1e-8;
+        double _noiseF = 1e-10;
+        double _errorF = 1e-10;
         _ptr_kalman_model = c_BiorbdKalmanReconsIMU(
             _ptr_model,
             VectorToPtrQ(AvatarVector.Zero(NbQ)),
-            FrameRate,
+            1, //FrameRate,
             _noiseF,
             _errorF
         );
