@@ -1,4 +1,5 @@
 version	4
+gravity 0 -9.81 0
 
 	segment	Hips
 		RTinMatrix	1
@@ -7,20 +8,20 @@ version	4
 		   0 0 1 0.185
 		   0 0 0 1
 		translations	xyz
-		rotations	xyz
+		rotations	yxz
 		mesh	0	-0.75	0
 		mesh	0	0.75	0
-		mesh	0	-0.75	0
+		mesh    0   0.75    0.1
 	endsegment
 	
 	segment	LeftArm
 		parent Hips
 		RTinMatrix	1
-		RT 1 0 0 0.185
-		   0 1 0 0.294
+		RT 0 1 0 0.185
+		   1 0 0 0.294
 		   0 0 1 0
 		   0 0 0 1
-		rotations	xyz
+		rotations	yxz
 		mesh	0	0	0
 		mesh	0	0.294	0
 	endsegment	
@@ -28,11 +29,11 @@ version	4
 	segment	RightArm
 		parent	Hips
 		RTinMatrix	1
-		RT 1 0 0 -0.185
-		   0 1 0 0.294
+		RT 0 1 0 -0.185
+		   1 0 0 0.294
 		   0 0 1 0
 		   0 0 0 1
-		rotations	xyz
+		rotations	yxz
 		mesh	0	0	0
-		mesh	0	0.294	0
+		mesh	0	-0.294	0
 	endsegment	
