@@ -86,10 +86,9 @@ public abstract class KalmanInterface : BiorbdInterface
         );
         if (_ptr_q == IntPtr.Zero) return null;
 
-        // Convert to avatars transformation matrix
-        c_globalJCS(_ptr_model, _ptr_q, _ptr_allJcs);
-        AvatarMatrixHomogenous[] _jcs = PtrJcsToJcs();
-        AvatarCoordinates _filteredData = new AvatarCoordinates(_currentData.TimeIndex, _jcs);
+        // Dispatch result
+        AvatarVector _currentQ = PtrCoordinatesToVector(_ptr_q, NbQ);
+        AvatarCoordinates _filteredData = new AvatarCoordinates(_currentData.TimeIndex, _currentQ);
         return _filteredData;
     }
 }

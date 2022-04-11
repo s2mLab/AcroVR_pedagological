@@ -61,10 +61,10 @@ public class AvatarManager3Segments : AvatarManager
 	{
 		AvatarVector3[] DispatchToAngleVector()
 		{
-			AvatarVector3[] _angles = new AvatarVector3[_data.Length];
-			for (int i = 0; i < _data.Length; ++i)
+			AvatarVector3[] _angles = new AvatarVector3[_data.Length / 3];  // Must be 3 values per segments
+			for (int i = 0; i < _angles.Length; ++i)
 			{
-				_angles[i] = _data.Jcs[i].Rotation.ToEulerYXZ();
+				_angles[i] = new AvatarVector3(_data.Q.Get(3 * i + 0), _data.Q.Get(3 * i + 1), _data.Q.Get(3 * i + 2)) ;
 			}
 			return MathUtils.ToDegree(_angles);
 		}

@@ -27,7 +27,7 @@ public abstract class AvatarManager : MonoBehaviour
 	protected virtual void Start()
 	{
         KinematicModel = new BiorbdKinematicModel(GetModelInfo(KinematicModelType.Biorbd));
-        //KinematicModel = new SimpleKinematicModel(GetModelInfo("simple"));
+        //KinematicModel = new SimpleKinematicModel(GetModelInfo(KinematicModelType.Simple));
 
         if (!KinematicModel.IsInitialized)
 		{

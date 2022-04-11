@@ -52,7 +52,8 @@ public class SimpleKinematicModel : AvatarKinematicModel
     {
         if (_currentData == null || !_currentData.AllSensorsReceived || !IsCalibrated) return null;
 
-        AvatarMatrixHomogenous[] _segmentsOrientation = new AvatarMatrixHomogenous[NbSegments];
+        AvatarVector _currentQ = AvatarVector.Zero(NbSegments * 3);
+
         for (int i = 0; i < NbSegments; i++)
         {
             int _parentIndex = ((SimpleKinematicModelInfo)ModelInfo).ParentIndex[i];
@@ -60,13 +61,12 @@ public class SimpleKinematicModel : AvatarKinematicModel
             AvatarMatrixRotation _orientationParentTransposed =
                 _parentIndex < 0 ?
                 AvatarMatrixRotation.Identity() : _currentData.OrientationMatrix[_parentIndex].Transpose();
-            _segmentsOrientation[i] = new AvatarMatrixHomogenous(
-                CalibrationMatrices[i].Transpose()
-                * _orientationParentTransposed
-                * _currentData.OrientationMatrix[i],
-                new AvatarVector3()
-            );
+            AvatarVector3 angles = (CalibrationMatrices[i].Transpose() * _orientationParentTransposed * _currentData.OrientationMatrix[i]).ToEulerYXZ();
+            for (int j = 0; j < 3; j++)
+            {
+                _currentQ.Set(i * 3 + j, angles.Get(j));
+            }
         }
-        return new AvatarCoordinates(_currentData.TimeIndex, _segmentsOrientation);
+        return new AvatarCoordinates(_currentData.TimeIndex, _currentQ);
     }
 }
