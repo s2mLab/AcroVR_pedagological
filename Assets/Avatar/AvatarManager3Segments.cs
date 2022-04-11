@@ -2,17 +2,20 @@
 
 public class AvatarManager3Segments : AvatarManager
 {
+	protected KinematicModelType KinModelType;
+
 	public override string BiomodPath() { 
 		return @"Assets/Avatar/KinematicModel/Biorbd/model3Segments.bioMod";
 	}
 
 	protected override KinematicModelInfo GetModelInfo(KinematicModelType _type)
     {
-		if (_type == KinematicModelType.Biorbd)
+		KinModelType = _type;
+		if (KinModelType == KinematicModelType.Biorbd)
         {
 			return new BiorbdKinematicModelInfo(BiomodPath(), SensorsInfo);
 		}
-		else if (_type == KinematicModelType.Simple)
+		else if (KinModelType == KinematicModelType.Simple)
 		{
 			int[] _parentIndex = { -1, 0, 0 };
 			return new SimpleKinematicModelInfo(_parentIndex, NbSegments(), NbSensors());
@@ -59,27 +62,32 @@ public class AvatarManager3Segments : AvatarManager
 	}
 	protected AvatarVector3[] MapToAvatar(AvatarCoordinates _data)
 	{
-		AvatarVector3[] DispatchToAngleVector()
+		AvatarVector3[] _angles = new AvatarVector3[3];
+		if (KinModelType == KinematicModelType.Simple)
 		{
-			AvatarVector3[] _angles = new AvatarVector3[_data.Length / 3];  // Must be 3 values per segments
-			for (int i = 0; i < _angles.Length; ++i)
-			{
-				_angles[i] = new AvatarVector3(_data.Q.Get(3 * i + 0), _data.Q.Get(3 * i + 1), _data.Q.Get(3 * i + 2)) ;
-			}
-			return MathUtils.ToDegree(_angles);
+			// Conversion schema
+			// hips		  -ry  -rx  -rz
+			// LeftArm	  -ry   rx  -rz
+			// RightArm	   ry  -rx   rz
+			_angles[0] = new AvatarVector3(-_data.Q.Get(1), -_data.Q.Get(0), -_data.Q.Get(2));
+			_angles[1] = new AvatarVector3(-_data.Q.Get(5),  _data.Q.Get(3), -_data.Q.Get(4));
+			_angles[2] = new AvatarVector3( _data.Q.Get(8),  _data.Q.Get(6),  _data.Q.Get(7));
 		}
-		AvatarVector3[] _anglesDegree = DispatchToAngleVector();
-
-		AvatarVector3[] _result = new AvatarVector3[3];
-		// Hips
-		_result[0] = new AvatarVector3(-_anglesDegree[0].Get(1), -_anglesDegree[0].Get(0), -_anglesDegree[0].Get(2));
-
-		// Left arm
-		_result[1] = new AvatarVector3(-_anglesDegree[1].Get(2), _anglesDegree[1].Get(0), -_anglesDegree[1].Get(1));
-
-		// Right arm
-		_result[2] = new AvatarVector3(_anglesDegree[2].Get(2), _anglesDegree[2].Get(0), _anglesDegree[2].Get(1));
-
-		return _result;
+		else if (KinModelType == KinematicModelType.Biorbd)
+		{
+			// Conversion schema
+			// hips		 tx ty tz  -ry   rx  -rz
+			// LeftArm			    ry   rx   rz
+			// RightArm			   -ry  -rx   rz
+			_angles[0] = new AvatarVector3(_data.Q.Get(4), -_data.Q.Get(3), -_data.Q.Get(5));
+			_angles[1] = new AvatarVector3(_data.Q.Get(7), _data.Q.Get(6), _data.Q.Get(8));
+			_angles[2] = new AvatarVector3(-_data.Q.Get(10), -_data.Q.Get(9), _data.Q.Get(11));
+		}
+		else
+		{
+			Debug.Log("Model not implemented");
+			return null;
+		}
+		return MathUtils.ToDegree(_angles);
 	}
 }
