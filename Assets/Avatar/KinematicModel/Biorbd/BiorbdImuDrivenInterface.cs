@@ -284,9 +284,6 @@ public abstract class BiorbdInterface : AvatarKinematicModel
             c_addIMU(_ptr_model, _ptr_imuRT, new StringBuilder(_imuInfo[i].Name), new StringBuilder(_imuInfo[i].ParentName));
         }
 
-        c_writeBiorbdModel(_ptr_model, new StringBuilder("coucou.bioMod"));
-        //OriginalPath = "coucou.bioMod";
-        //ReloadModel();
         MemoryManagementAfterAddingImu();
         return true;
     }
