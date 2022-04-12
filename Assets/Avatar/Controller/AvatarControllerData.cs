@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class AvatarData
+public class AvatarControllerData
 {
     public int TimeIndex { get; protected set; }
     public AvatarMatrixRotation[] OrientationMatrix { get; protected set; }
@@ -10,7 +10,7 @@ public class AvatarData
 	public int NbSensorsSet = 0;
 	public bool AllSensorsReceived { get { return NbExpectedSensors == NbSensorsSet ? true : false; } }
 
-	public AvatarData(
+	public AvatarControllerData(
 		int _timeStamps,
 		int _nbSensors
 	)

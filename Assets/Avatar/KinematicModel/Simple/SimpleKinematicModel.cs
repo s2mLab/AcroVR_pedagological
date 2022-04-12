@@ -30,7 +30,7 @@ public class SimpleKinematicModel : AvatarKinematicModel
         IsInitialized = true;
     }
 
-    public override bool CalibrateModel(AvatarData _currentData)
+    public override bool CalibrateModel(AvatarControllerData _currentData)
     {
         if (_currentData == null || !_currentData.AllSensorsReceived) return false;
 
@@ -48,7 +48,7 @@ public class SimpleKinematicModel : AvatarKinematicModel
         return true;
     }
 
-    public override AvatarCoordinates InverseKinematics(AvatarData _currentData)
+    public override AvatarCoordinates InverseKinematics(AvatarControllerData _currentData)
     {
         if (_currentData == null || !_currentData.AllSensorsReceived || !IsCalibrated) return null;
 

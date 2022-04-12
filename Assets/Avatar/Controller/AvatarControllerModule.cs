@@ -41,7 +41,7 @@ public abstract class AvatarControllerModule
     // Trial related variables
     public bool IsRecording { get; protected set; } = false;
     protected DateTime TrialStartingTime;
-    protected AvatarData _currentData = null;
+    protected AvatarControllerData _currentData = null;
     protected AvatarCoordinates _currentAvatarCoordinates = null;
     public AvatarCoordinates CurrentCoordinates
     {
@@ -50,7 +50,7 @@ public abstract class AvatarControllerModule
             return _currentAvatarCoordinates;
         }
     }
-    public List<AvatarData> TrialData { get; protected set; } = new List<AvatarData>();
+    public List<AvatarControllerData> TrialData { get; protected set; } = new List<AvatarControllerData>();
 
     public virtual void StartTrial()
     {
@@ -87,6 +87,6 @@ public abstract class AvatarControllerModule
             _currentAvatarCoordinates = KinematicModel.InverseKinematics(_currentData);
         }
 
-        _currentData = new AvatarData(FrameNumber, NbSensorsConnected());
+        _currentData = new AvatarControllerData(FrameNumber, NbSensorsConnected());
     }
 }

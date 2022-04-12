@@ -80,8 +80,8 @@ public class AvatarManager3Segments : AvatarManager
 			// LeftArm			    ry   rx   rz
 			// RightArm			   -ry  -rx   rz
 			_angles[0] = new AvatarVector3(_data.Q.Get(4), -_data.Q.Get(3), -_data.Q.Get(5));
-			_angles[1] = new AvatarVector3(_data.Q.Get(7), _data.Q.Get(6), _data.Q.Get(8));
-			_angles[2] = new AvatarVector3(-_data.Q.Get(10), -_data.Q.Get(9), _data.Q.Get(11));
+			_angles[1] = new AvatarVector3(-_data.Q.Get(7), _data.Q.Get(6), -_data.Q.Get(8));
+			_angles[2] = new AvatarVector3(_data.Q.Get(10), -_data.Q.Get(9), -_data.Q.Get(11));
 		}
 		else
 		{

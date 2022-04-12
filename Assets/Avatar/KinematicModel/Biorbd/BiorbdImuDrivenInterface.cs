@@ -81,7 +81,7 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         Marshal.FreeCoTaskMem(_ptr_allImusRT);
         Marshal.FreeCoTaskMem(_ptr_linearSolutionForRoot);
     }
-    public override bool CalibrateModel(AvatarData _currentData)
+    public override bool CalibrateModel(AvatarControllerData _currentData)
     {
 
         if (_currentData == null || !_currentData.AllSensorsReceived) return false;

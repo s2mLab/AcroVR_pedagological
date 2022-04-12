@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
@@ -36,7 +36,7 @@ public abstract class KalmanInterface : BiorbdInterface
         _ptr_kalman_model = c_BiorbdKalmanReconsIMU(
             _ptr_model,
             VectorToPtrQ(AvatarVector.Zero(NbQ)),
-            1, //FrameRate,
+            FrameRate,
             _noiseF,
             _errorF
         );
@@ -67,7 +67,7 @@ public abstract class KalmanInterface : BiorbdInterface
         return IsKalmanInitialized;
     }
 
-    public override AvatarCoordinates InverseKinematics(AvatarData _currentData)
+    public override AvatarCoordinates InverseKinematics(AvatarControllerData _currentData)
     {
         if (
             _currentData == null || 

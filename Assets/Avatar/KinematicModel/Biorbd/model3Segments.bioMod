@@ -17,7 +17,7 @@ gravity 0 -9.81 0
 	segment	LeftArm
 		parent Hips
 		RTinMatrix	1
-		RT 0 1 0 0.185
+		RT 0 -1 0 0.185
 		   1 0 0 0.294
 		   0 0 1 0
 		   0 0 0 1
@@ -29,7 +29,7 @@ gravity 0 -9.81 0
 	segment	RightArm
 		parent	Hips
 		RTinMatrix	1
-		RT 0 1 0 -0.185
+		RT 0 -1 0 -0.185
 		   1 0 0 0.294
 		   0 0 1 0
 		   0 0 0 1
