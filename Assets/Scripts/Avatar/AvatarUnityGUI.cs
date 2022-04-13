@@ -4,31 +4,32 @@ using UnityEngine.UI;
 
 public class AvatarUnityGUI : MonoBehaviour
 {
-    AvatarManager Avatar;
+	[SerializeField] protected AvatarManager Avatar;
+	[SerializeField] protected AvatarSensorType ControllerSensorType;
+	[SerializeField] protected AvatarKinematicModelType KinematicType;
 
 	// Unity related variables
-	[SerializeField] protected GameObject XSensPanelConnexion;
 	[SerializeField] protected Button InitalizeButton;
 	[SerializeField] protected Button CalibrateButton;
+	[SerializeField] protected GameObject XSensPanelConnexion;
 	[SerializeField] protected Text TextConnection;
 	String InitialConnectingText; 
 
 	void Start()
     {
-		Avatar = GetComponent<AvatarManager>();
 		InitialConnectingText = TextConnection.text;
 
 		ButtonUtils.EnableButton(InitalizeButton);
 		ButtonUtils.DisableButton(CalibrateButton);
 	}
 
-	public void ClickInitializeModule(AvatarSensorType _sensorType)
+	public void ClickInitializeAvatar()
 	{
-		if (_sensorType.type == SensorType.XSens)
+		if (ControllerSensorType.type == SensorType.XSens)
 		{
 			XSensPanelConnexion.SetActive(true);
 		}
-		else if (_sensorType.type == SensorType.XSensFake)
+		else if (ControllerSensorType.type == SensorType.XSensFake)
 		{
 			XSensPanelConnexion.SetActive(true);
 		}
@@ -42,9 +43,11 @@ public class AvatarUnityGUI : MonoBehaviour
 		ButtonUtils.DisableButton(InitalizeButton);
 		ButtonUtils.DisableButton(CalibrateButton);
 
-		StartCoroutine(
+        Avatar.InitializeKinematicModel(KinematicType.type);
+
+        StartCoroutine(
 			Avatar.InitializeController(
-				_sensorType.type,
+				ControllerSensorType.type,
 				IsConnectingCallback,
 				IsReadyCallback,
 				ConnectionFailed

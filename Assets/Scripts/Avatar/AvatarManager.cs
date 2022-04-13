@@ -26,13 +26,6 @@ public abstract class AvatarManager : MonoBehaviour
 
 	protected virtual void Start()
 	{
-        KinematicModel = new BiorbdKinematicModel(GetModelInfo(KinematicModelType.Biorbd));
-        //KinematicModel = new SimpleKinematicModel(GetModelInfo(KinematicModelType.Simple));
-
-        if (!KinematicModel.IsInitialized)
-		{
-			Debug.Log("Could not load the kinematic model, PostProcessKinematicData is set to false");
-		}
 	}
 
 	protected void Update()
@@ -43,7 +36,31 @@ public abstract class AvatarManager : MonoBehaviour
 
 	public abstract void SetSegmentsRotations(AvatarCoordinates _data);
 	
-	public IEnumerator InitializeController(
+	public bool InitializeKinematicModel(KinematicModelType _model_type)
+	{
+		if (_model_type == KinematicModelType.Biorbd)
+        {
+			KinematicModel = new BiorbdKinematicModel(GetModelInfo(KinematicModelType.Biorbd));
+		} else if (_model_type == KinematicModelType.Simple)
+        {
+			KinematicModel = new SimpleKinematicModel(GetModelInfo(KinematicModelType.Simple));
+        }
+        else
+		{
+			Debug.Log("Wrong choice of Kinematic model");
+			return false;
+		}
+
+		if (!KinematicModel.IsInitialized)
+		{
+			Debug.Log("Could not load the kinematic model");
+			return false;
+		}
+
+		return true;
+	}
+
+public IEnumerator InitializeController(
 		SensorType _sensorType,
 		Action<int, int>  UpdateConnectingStatusCallback,
 		Action ConectingIsCompletedCallback,

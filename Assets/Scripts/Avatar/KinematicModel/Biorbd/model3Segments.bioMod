@@ -23,7 +23,8 @@ gravity 0 -9.81 0
 		   0 0 0 1
 		rotations	yxz
 		mesh	0	0	0
-		mesh	0	0.294	0
+		mesh	0	-0.294	0
+		mesh	0.01	-0.294	0
 	endsegment	
 	
 	segment	RightArm
@@ -35,5 +36,6 @@ gravity 0 -9.81 0
 		   0 0 0 1
 		rotations	yxz
 		mesh	0	0	0
-		mesh	0	-0.294	0
+		mesh	0	0.294	0
+		mesh	0.01	0.294	0
 	endsegment	

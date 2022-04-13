@@ -88,6 +88,7 @@ public abstract class KalmanInterface : BiorbdInterface
 
         // Dispatch result
         AvatarVector _currentQ = PtrCoordinatesToVector(_ptr_q, NbQ);
+
         AvatarCoordinates _filteredData = new AvatarCoordinates(_currentData.TimeIndex, _currentQ);
         return _filteredData;
     }
