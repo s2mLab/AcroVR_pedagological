@@ -75,13 +75,13 @@ public class XSensFakeModule : XSensModule
             for (int i = 0; i < NbSensorsConnected(); i++)
             {
                 double[] _angles = new double[3];
-                _angles[0] = 0; //* ((i + 1) / 2.0);
-                _angles[1] = 0; //* ((i + 1) / 2.0);
-                _angles[2] = 0; // * ((i + 1) / 2.0);
+                _angles[0] = 0.3; //* ((i + 1) / 2.0);
+                _angles[1] = 0.6; //* ((i + 1) / 2.0);
+                _angles[2] = 0.1; // * ((i + 1) / 2.0);
 
-                if (i == 1)
+                if (i != 2)
                 {
-                    _angles[2] += PreviousPacketCounter / 2.0;
+                    _angles[2] += PreviousPacketCounter / 5.0;
                     //if (PreviousPacketCounter < 100)
                     //{
                     //    _angles[2] += PreviousPacketCounter / 25.0;

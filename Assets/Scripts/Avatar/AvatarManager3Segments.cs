@@ -5,7 +5,7 @@ public class AvatarManager3Segments : AvatarManager
 	protected KinematicModelType KinModelType;
 
 	public override string BiomodPath() { 
-		return @"Assets/Avatar/KinematicModel/Biorbd/model3Segments.bioMod";
+		return @"Assets/Scripts/Avatar/KinematicModel/Biorbd/model3Segments.bioMod";
 	}
 
 	protected override KinematicModelInfo GetModelInfo(KinematicModelType _type)

@@ -8,7 +8,7 @@ public abstract class BiorbdInterface : AvatarKinematicModel
 {
     protected const string dllname = "biorbd_eigen_c.dll";
 #if UNITY_EDITOR
-    protected const string dllfolder = @"Assets\Avatar\KinematicModel\Biorbd\bin";
+    protected const string dllfolder = @"Assets\Scripts\Avatar\KinematicModel\Biorbd\bin";
 #else
 #if UNITY_STANDALONE_OSX
 	const string dllpath = @"AcroVR/Contents/Resources/Data/Biorbd/libbiorbd.dylib";	// Fonctionne pas
