@@ -76,7 +76,7 @@ public abstract class AvatarControllerModule
             TrialData.Add(_currentData);
         }
 
-        // Filters the previous data if requested
+        // Computes the correspondance between data and segments (Inverse kinematics)
         if (_currentData != null && KinematicModel != null)
         {
             if (ShouldCalibrate && _currentData.AllSensorsReceived)

@@ -38,21 +38,6 @@ public class AvatarMatrix
         }
     }
 
-    public AvatarMatrix(XDA.XsMatrix _other)
-    {
-        NbRows = (int)_other.rows();
-        NbColumns = (int)_other.cols();
-        Value = new double[NbRows, NbColumns];
-
-        for (int j = 0; j < NbColumns; j++)
-        {
-            for (int i = 0; i < NbRows; i++)
-            {
-                Value[i, j] = _other.value((uint)i, (uint)j);
-            }
-        }
-    }
-
     public double[,] ToDouble()
     {
         double[,] _result = new double[NbRows, NbColumns];
@@ -109,10 +94,6 @@ public class AvatarMatrix
     {
         return _first.Multiply(_second);
     }
-    static public AvatarMatrix operator *(AvatarMatrix _first, XDA.XsMatrix _second)
-    {
-        return _first.Multiply(_second);
-    }
 
     static protected void Multiply(
         AvatarMatrix _first, AvatarMatrix _second, ref AvatarMatrix _result
@@ -138,39 +119,9 @@ public class AvatarMatrix
         }
     }
 
-    static protected void Multiply(
-        AvatarMatrix _first, XDA.XsMatrix _second, ref AvatarMatrix _result
-    )
-    {
-        if (_first.NbColumns != _second.rows())
-        {
-            Debug.Log("Invalid matrices size");
-            _result = null;
-            return;
-        }
-
-        _result.SetZero();
-        for (int j = 0; j < _second.cols(); j++)
-        {
-            for (int i = 0; i < _first.NbRows; i++)
-            {
-                for (int k = 0; k < _first.NbColumns; k++)
-                {
-                    _result.Value[i, j] += _first.Value[i, k] * _second.value((uint)k, (uint)j);
-                }
-            }
-        }
-    }
-
     public AvatarMatrix Multiply(AvatarMatrix _other)
     {
         AvatarMatrix _result = new AvatarMatrix(NbRows, _other.NbColumns);
-        Multiply(this, _other, ref _result);
-        return _result;
-    }
-    public AvatarMatrix Multiply(XDA.XsMatrix _other)
-    {
-        AvatarMatrix _result = new AvatarMatrix(NbRows, (int)_other.cols());
         Multiply(this, _other, ref _result);
         return _result;
     }

@@ -32,9 +32,24 @@ public class AvatarMatrixRotation : AvatarMatrix
     {
 
     }
-    public AvatarMatrixRotation(XDA.XsMatrix _other) : base(_other)
+    public AvatarMatrixRotation(XDA.XsEuler _xyz) : base(3, 3)
     {
 
+        // Convert to a right-hand side matrix
+        AvatarVector3 _tpVector = MathUtils.ToRadian(
+            new AvatarVector3(-_xyz.y(), _xyz.z(), -_xyz.x())
+        );
+        AvatarMatrixRotation _tp = AvatarMatrixRotation.FromEulerXYZ(_tpVector);
+
+        Value[0, 0] = _tp.Value[0, 0];
+        Value[1, 0] = _tp.Value[1, 0];
+        Value[2, 0] = _tp.Value[2, 0];
+        Value[0, 1] = _tp.Value[0, 1];
+        Value[1, 1] = _tp.Value[1, 1];
+        Value[2, 1] = _tp.Value[2, 1];
+        Value[0, 2] = _tp.Value[0, 2];
+        Value[1, 2] = _tp.Value[1, 2];
+        Value[2, 2] = _tp.Value[2, 2];
     }
 
     static public AvatarMatrixRotation Identity()
@@ -74,18 +89,8 @@ public class AvatarMatrixRotation : AvatarMatrix
     {
         return _first.Multiply(_second);
     }
-    static public AvatarMatrixRotation operator *(AvatarMatrixRotation _first, XDA.XsMatrix _second)
-    {
-        return _first.Multiply(_second);
-    }
 
     public AvatarMatrixRotation Multiply(AvatarMatrixRotation _other)
-    {
-        AvatarMatrix _result = new AvatarMatrixRotation();
-        Multiply(this, _other, ref _result);
-        return (AvatarMatrixRotation)_result;
-    }
-    public new AvatarMatrixRotation Multiply(XDA.XsMatrix _other)
     {
         AvatarMatrix _result = new AvatarMatrixRotation();
         Multiply(this, _other, ref _result);
@@ -101,6 +106,10 @@ public class AvatarMatrixRotation : AvatarMatrix
     static public AvatarMatrixRotation FromEulerXYZ(double[] _xyz)
     {
         return FromEulerXYZ(_xyz[0], _xyz[1], _xyz[2]);
+    }
+    static public AvatarMatrixRotation FromEulerXYZ(AvatarVector3 _xyz)
+    {
+        return FromEulerXYZ(_xyz.Get(0), _xyz.Get(1), _xyz.Get(2));
     }
 
     static public AvatarMatrixRotation FromEulerXYZ(double x, double y, double z)

@@ -49,6 +49,7 @@ public abstract class BiorbdInterface : AvatarKinematicModel
     public int NbTau { get; protected set; }
     public int NbMarkers { get; protected set; }
     public int NbImus { get; protected set; }
+    protected AvatarMatrixRotation[] CalibrationImuTransposed;
 
     public BiorbdInterface(KinematicModelInfo _kinematicModelInfo) : 
         base(_kinematicModelInfo, 0, ((BiorbdKinematicModelInfo)_kinematicModelInfo).SensorNodes.Length)  // Initialize takes care NbSegments
@@ -144,6 +145,7 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         NbTau = c_nGeneralizedTorque(_ptr_model);
         NbMarkers = c_nMarkers(_ptr_model);
         NbImus = c_nIMUs(_ptr_model);
+        CalibrationImuTransposed = new AvatarMatrixRotation[NbImus];
 
         // Preallocate the vectors for communications with the DLL
         _ptr_q = Marshal.AllocCoTaskMem(sizeof(double) * NbQ);
@@ -194,6 +196,16 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         }
         c_globalJCS(_ptr_model, VectorToPtrQ(_generalizedCoordinates), _ptr_allJcs);
         return PtrJcsToJcs();
+    }
+    protected AvatarMatrixRotation[] GlobalJcsTranposed(AvatarVector _q)
+    {
+        AvatarMatrixHomogenous[] _jcs = GlobalJcs(_q);
+        AvatarMatrixRotation[] _jcsTranposed = new AvatarMatrixRotation[NbSegments];
+        for (int i = 0; i < NbSegments; i++)
+        {
+            _jcsTranposed[i] = _jcs[i].Rotation.Transpose();
+        }
+        return _jcsTranposed;
     }
     public AvatarMatrixHomogenous[] IMU(AvatarVector _generalizedCoordinates)
     {
@@ -283,23 +295,33 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         AvatarMatrixRotation[] _dataInGlobal
     )
     {
-        AvatarMatrixRotation[] _dataInLocal = ProjectDataInLocalReferenceFrame(_dataInGlobal);
-        return AddImusFromLocal(_imuInfo, _dataInLocal);
+        SetCalibrationImu(_dataInGlobal);
+        return AddImus(_imuInfo);
     }
 
-    protected bool AddImusFromLocal(BiorbdNode[] _imuInfo, AvatarMatrixRotation[] _imuInLocal)
+    protected void SetCalibrationImu(AvatarMatrixRotation[] _dataInGlobal)
     {
-        int _nbNewImus = _imuInLocal.Length;
+        CalibrationImuTransposed = new AvatarMatrixRotation[_dataInGlobal.Length];
+        for (int i = 0; i < _dataInGlobal.Length; i++)
+        {
+            CalibrationImuTransposed[i] = _dataInGlobal[i].Transpose();
+        }
+    }
+
+    protected bool AddImus(BiorbdNode[] _imuInfo)
+    {
+        AvatarMatrixRotation[] _jcsTransposed = GlobalJcsTranposed(new AvatarVector(NbQ));
+        int _nbNewImus = _jcsTransposed.Length;
         if (_imuInfo.Length != _nbNewImus)
         {
             Debug.Log("Wrong number of IMU information. Stopping calibration process");
             return false;
         }
 
-        // Add to the model
+        // Add IMU to the model, this assumes one IMU per joint
         for (int i = 0; i < _nbNewImus; i++)
         {
-            AvatarMatrixHomogenous _rt = new AvatarMatrixHomogenous(_imuInLocal[i], new AvatarVector3());
+            AvatarMatrixHomogenous _rt = new AvatarMatrixHomogenous(_jcsTransposed[i], new AvatarVector3());
             Marshal.Copy(_rt.ToDoubleVector(), 0, _ptr_imuRT, 16);
             c_addIMU(_ptr_model, _ptr_imuRT, new StringBuilder(_imuInfo[i].Name), new StringBuilder(_imuInfo[i].ParentName));
         }

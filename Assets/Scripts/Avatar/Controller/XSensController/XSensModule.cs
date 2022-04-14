@@ -224,10 +224,10 @@ public class XSensModule : AvatarControllerModule
         }
 
         // Store the data into the current Data holder
-        int _imuIndex  = (int)(SensorsMap[e.Device.deviceId().toInt()]);
+        int _imuIndex = (int)(SensorsMap[e.Device.deviceId().toInt()]);
         _currentData.AddData(
             _imuIndex,
-            new AvatarMatrixRotation(e.Packet.orientationMatrix())
+            new AvatarMatrixRotation(e.Packet.orientationEuler())
         );
     }
 }

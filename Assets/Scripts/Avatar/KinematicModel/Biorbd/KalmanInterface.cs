@@ -67,6 +67,24 @@ public abstract class KalmanInterface : BiorbdInterface
         return IsKalmanInitialized;
     }
 
+    public override bool CalibrateModel(AvatarControllerData _currentData)
+    {
+        base.CalibrateModel(_currentData);
+        if (_currentData == null || !_currentData.AllSensorsReceived) return false;
+        return true;
+    }
+
+    protected AvatarMatrixRotation[] ApplyReferenceMatrix(
+        AvatarMatrixRotation[] _from)
+    {
+        AvatarMatrixRotation[] _result = new AvatarMatrixRotation[_from.Length];
+        for (int i = 0; i < _from.Length; i++)
+        {
+            _result[i] = CalibrationImuTransposed[i] * _from[i];
+        }
+        return _result;
+    }
+
     public override AvatarCoordinates InverseKinematics(AvatarControllerData _currentData)
     {
         if (
@@ -77,12 +95,11 @@ public abstract class KalmanInterface : BiorbdInterface
 
         // Apply the filter
         c_BiorbdKalmanReconsIMUstep(
-            _ptr_model,
-            _ptr_kalman_model,
-            ImuToImuPtr(_currentData.OrientationMatrix),
-            _ptr_q,
-            _ptr_qdot,
-            _ptr_qddot
+            _ptr_model, _ptr_kalman_model,
+            ImuToImuPtr(
+                ApplyReferenceMatrix(_currentData.OrientationMatrix)
+            ),
+            _ptr_q, _ptr_qdot, _ptr_qddot
         );
         if (_ptr_q == IntPtr.Zero) return null;
 
