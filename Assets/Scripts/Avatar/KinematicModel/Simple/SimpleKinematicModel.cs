@@ -67,6 +67,11 @@ public class SimpleKinematicModel : AvatarKinematicModel
                 _currentQ.Set(i * 3 + j, angles.Get(j));
             }
         }
-        return new AvatarCoordinates(_currentData.TimeIndex, _currentQ);
+        return new AvatarCoordinates(_currentData.TimeIndex, _currentQ, null, null);
+    }
+
+    public override AvatarVector FreeFloatingBaseDynamics(AvatarCoordinates _generalized)
+    {
+        throw new System.NotImplementedException();
     }
 }

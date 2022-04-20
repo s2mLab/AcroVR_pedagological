@@ -90,12 +90,13 @@ public abstract class KalmanInterface : BiorbdInterface
         );
         if (_ptr_q == IntPtr.Zero) return null;
 
-        // Dispatch result
-        AvatarVector _currentQ = PtrCoordinatesToVector(_ptr_q, NbQ);
-        AvatarVector _currentQDot = PtrCoordinatesToVector(_ptr_qdot, NbQ);
-        AvatarVector _currentQDDot = PtrCoordinatesToVector(_ptr_qddot, NbQ);
-
-        AvatarCoordinates _filteredData = new AvatarCoordinates(_currentData.TimeIndex, _currentQ);
+        // Dispatch result        
+        AvatarCoordinates _filteredData = new AvatarCoordinates(
+            _currentData.TimeIndex,
+            PtrCoordinatesToVector(_ptr_q, NbQ),
+            PtrCoordinatesToVector(_ptr_qdot, NbQDot),
+            PtrCoordinatesToVector(_ptr_qddot, NbQDDot)
+        );
         return _filteredData;
     }
 }

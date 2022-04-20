@@ -19,6 +19,9 @@ public abstract class AvatarKinematicModel
 
     public abstract bool CalibrateModel(AvatarControllerData _currentData);
     public abstract AvatarCoordinates InverseKinematics(AvatarControllerData _currentData);
+
+    public abstract AvatarVector FreeFloatingBaseDynamics(AvatarCoordinates _generalized);
+
     public virtual void SetFrameRate(double _newFrameRate)
     {
         FrameRate = _newFrameRate;

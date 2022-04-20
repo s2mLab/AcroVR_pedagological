@@ -6,6 +6,7 @@ using UnityEngine;
 
 public abstract class BiorbdInterface : AvatarKinematicModel
 {
+    #region DllDefinition
     protected const string dllname = "biorbd_eigen_c.dll";
 #if UNITY_EDITOR
     protected const string dllfolder = @"Assets\Scripts\Avatar\KinematicModel\Biorbd\bin";
@@ -38,8 +39,11 @@ public abstract class BiorbdInterface : AvatarKinematicModel
     [DllImport(dllname)] protected static extern int c_nIMUs(IntPtr model);
     [DllImport(dllname)] protected static extern void c_addIMU(IntPtr model, IntPtr imuRT, StringBuilder name, StringBuilder parentName, bool technical = true, bool anatomical = true);
     [DllImport(dllname)] protected static extern void c_IMU(IntPtr model, IntPtr Q, IntPtr output, bool updateKin = true);
+    [DllImport(dllname)] public static extern void c_massMatrix(IntPtr model, IntPtr Q, IntPtr massMatrix);
+    [DllImport(dllname)] public static extern void c_inverseDynamics(IntPtr model, IntPtr Q, IntPtr QDot, IntPtr QDDot, IntPtr Tau);
+    #endregion
 
-
+    #region Initialization
     protected IntPtr _ptr_model = IntPtr.Zero;
     protected string OriginalPath;
     public int NbRoot { get; protected set; }
@@ -73,8 +77,7 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         Marshal.FreeCoTaskMem(_ptr_qdot);
         Marshal.FreeCoTaskMem(_ptr_qddot);
         Marshal.FreeCoTaskMem(_ptr_tau);
-        Marshal.FreeCoTaskMem(_ptr_massMatrixVector);
-        Marshal.FreeCoTaskMem(_ptr_massMatrixRootVector);
+        Marshal.FreeCoTaskMem(_ptr_massMatrix);
         Marshal.FreeCoTaskMem(_ptr_allJcs);
         Marshal.FreeCoTaskMem(_ptr_imuRT);
         Marshal.FreeCoTaskMem(_ptr_allImus);
@@ -105,8 +108,7 @@ public abstract class BiorbdInterface : AvatarKinematicModel
     protected IntPtr _ptr_qdot;
     protected IntPtr _ptr_qddot;
     protected IntPtr _ptr_tau;
-    protected IntPtr _ptr_massMatrixVector;
-    protected IntPtr _ptr_massMatrixRootVector;
+    protected IntPtr _ptr_massMatrix;
     protected IntPtr _ptr_allJcs;
     protected IntPtr _ptr_imuRT;
     protected IntPtr _ptr_allImus;
@@ -116,8 +118,7 @@ public abstract class BiorbdInterface : AvatarKinematicModel
     protected double[] _q;
     protected double[] _qdot;
     protected double[] _qddot;
-    protected double[] _massMatrixVector;
-    protected double[,] _massMatrix;
+    protected double[] _massMatrix;
     protected double[] _allJcs;
     protected double[] _imuRT;
     protected double[] _allImus;
@@ -150,8 +151,7 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         _ptr_qdot = Marshal.AllocCoTaskMem(sizeof(double) * NbQ);
         _ptr_qddot = Marshal.AllocCoTaskMem(sizeof(double) * NbQ);
         _ptr_tau = Marshal.AllocCoTaskMem(sizeof(double) * NbTau);
-        _ptr_massMatrixVector = Marshal.AllocCoTaskMem(sizeof(double) * NbQ * NbQ);
-        _ptr_massMatrixRootVector = Marshal.AllocCoTaskMem(sizeof(double) * NbRoot * NbRoot);
+        _ptr_massMatrix = Marshal.AllocCoTaskMem(sizeof(double) * NbQ * NbQ);
         _ptr_allJcs = Marshal.AllocCoTaskMem(sizeof(double) * NbSegments * 4 * 4);
         _ptr_imuRT = Marshal.AllocCoTaskMem(sizeof(double) * 4 * 4);
         _ptr_allImus = Marshal.AllocCoTaskMem(sizeof(double) * NbImus * 3 * 3);
@@ -161,8 +161,7 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         _q = new double[NbQ];
         _qdot = new double[NbQ];
         _qddot = new double[NbQ];
-        _massMatrixVector = new double[NbQ * NbQ];
-        _massMatrix = new double[NbQ, NbQ];
+        _massMatrix = new double[NbQ * NbQ];
         _allJcs = new double[NbSegments * 16];
         _imuRT = new double[16];
         _allImus = new double[NbImus * 9];
@@ -171,17 +170,17 @@ public abstract class BiorbdInterface : AvatarKinematicModel
 
         IsInitialized = true;
     }
+    #endregion
 
 
 
-
-    // Interface to c functions
+    #region InterfaceToCfunctions
     public void write(string path)
     {
         c_writeBiorbdModel(_ptr_model, new StringBuilder(path));
     }
 
-    public AvatarMatrixHomogenous[] GlobalJcs(AvatarVector _generalizedCoordinates)
+    public AvatarMatrixHomogenous[] GlobalJcs(AvatarVector _q)
     {
         if (!IsInitialized || _ptr_model == null || _ptr_allJcs == null || _ptr_q == null)
         {
@@ -192,7 +191,7 @@ public abstract class BiorbdInterface : AvatarKinematicModel
             }
             return _jcs;
         }
-        c_globalJCS(_ptr_model, VectorToPtrQ(_generalizedCoordinates), _ptr_allJcs);
+        c_globalJCS(_ptr_model, VectorToPtrQ(_q), _ptr_allJcs);
         return PtrJcsToJcs();
     }
     protected AvatarMatrixRotation[] GlobalJcsTranposed(AvatarVector _q)
@@ -220,10 +219,32 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         return PtrAllImuRtToAllImuRt();
     }
 
-    // Dispatch functions
+    public AvatarMatrix MassMatrix(AvatarVector _q)
+    {
+        c_massMatrix(_ptr_model, VectorToPtrQ(_q), _ptr_massMatrix);
+        return PtrMassMatrixToMassMatrix();
+    }
+
+    public AvatarVector InverseDynamics(AvatarVector _q, AvatarVector _qdot, AvatarVector _qddot)
+    {
+        c_inverseDynamics(_ptr_model, VectorToPtrQ(_q), VectorToPtrQDot(_qdot), VectorToPtrQDDot(_qddot), _ptr_tau);
+        return PtrCoordinatesToVector(_ptr_tau, NbTau);
+    }
+    #endregion
+
+
+    #region DispatchFunctions
     protected IntPtr VectorToPtrQ(AvatarVector _generalizedCoordinates)
     {
         return VectorToPtrCoordinates(_generalizedCoordinates, ref _ptr_q, NbQ);
+    }
+    protected IntPtr VectorToPtrQDot(AvatarVector _generalizedVelocity)
+    {
+        return VectorToPtrCoordinates(_generalizedVelocity, ref _ptr_qdot, NbQDot);
+    }
+    protected IntPtr VectorToPtrQDDot(AvatarVector _generalizedAcceleration)
+    {
+        return VectorToPtrCoordinates(_generalizedAcceleration, ref _ptr_qddot, NbQDDot);
     }
     protected IntPtr VectorToPtrCoordinates(AvatarVector _generalizedCoordinates, ref IntPtr _ptr, int _nbElements)
     {
@@ -253,6 +274,22 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         }
         return _result;
     }
+
+    protected AvatarMatrix PtrMassMatrixToMassMatrix()
+    {
+        Marshal.Copy(_ptr_massMatrix, _massMatrix, 0, NbQ * NbQ);
+        int _nbRowsAndColumns = NbQ;
+        AvatarMatrix _result = new AvatarMatrix(_nbRowsAndColumns, _nbRowsAndColumns);
+        for (int _col = 0; _col < _nbRowsAndColumns; _col++)
+        {
+            for (int _row = 0; _row < _nbRowsAndColumns; _row++)
+            {
+                _result.Set(_row, _col, _massMatrix[_row + _col * NbQ]);
+            }
+        }
+        return _result;
+    }
+
     protected AvatarMatrixHomogenous[] PtrAllImuRtToAllImuRt()
     {
         Marshal.Copy(_ptr_allImusRT, _allImusRT, 0, NbImus * 16);
@@ -287,7 +324,10 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         Marshal.Copy(_matricesInVector, 0, _ptr_allImus, NbImus * 9);
         return _ptr_allImus;
     }
+    #endregion
 
+
+    #region InteractionWithModel
     protected bool AddImusFromGlobal(
         BiorbdNode[] _imuInfo,
         AvatarMatrixRotation[] _dataInGlobal
@@ -331,7 +371,9 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         _allImusRT = new double[NbImus * 16];
         return true;
     }
+    #endregion
 
+    #region Utils
     protected AvatarMatrixRotation[] ProjectDataInLocalReferenceFrame(AvatarMatrixRotation[] _data, AvatarVector _q)
     {
         AvatarMatrixHomogenous[] _jcs = GlobalJcs(_q);
@@ -343,4 +385,28 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         }
         return _dataInLocal;
     }
+
+    public override AvatarVector FreeFloatingBaseDynamics(AvatarCoordinates _generalized)
+    {
+        AvatarVector _q = _generalized.Q;  // Base and Rest of body
+        AvatarVector _qdot = _generalized.QDot;  // Base and Rest of body
+
+        // Make sure the acceleration is zero on the floating base ()
+        AvatarVector _qddot = new AvatarVector(_generalized.QDDot);
+        _qddot.Set(0, NbRoot, 0);
+
+        // Compute inverse of the mass matrix of the floating base
+        AvatarMatrix _massMatrix = MassMatrix(_q);
+        AvatarMatrix _massMatrixBase = _massMatrix.Get(0, 0, NbRoot, NbRoot);
+        AvatarMatrix _massMatrixBaseInverse = _massMatrixBase.Cholesky();
+
+        // Compute inverse dynamics
+        AvatarVector _inverseDynamics = InverseDynamics(_q, _qdot, _qddot);
+        AvatarVector _inverseDynamicsBase = _inverseDynamics.Get(0, NbRoot);
+
+        // Compute the acceleration on the floating base
+        AvatarVector _qddotBase = _massMatrixBaseInverse * _inverseDynamicsBase;
+        return _qddotBase;
+    }
+    #endregion
 }
