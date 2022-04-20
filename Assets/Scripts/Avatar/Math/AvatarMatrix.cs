@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -34,6 +34,21 @@ public class AvatarMatrix
             for (int i = 0; i < _other.NbRows; i++)
             {
                 Value[i, j] = _other.Value[i, j];
+            }
+        }
+    }
+
+    public AvatarMatrix(double[,] _other)
+    {
+        NbRows = _other.GetLength(0);
+        NbColumns = _other.GetLength(1);
+        Value = new double[NbRows, NbColumns];
+
+        for (int j = 0; j < NbColumns; j++)
+        {
+            for (int i = 0; i < NbRows; i++)
+            {
+                Value[i, j] = _other[i, j];
             }
         }
     }
@@ -126,6 +141,42 @@ public class AvatarMatrix
         return _result;
     }
 
+    static public AvatarMatrix operator *(AvatarMatrix _matrix, double _scalar)
+    {
+        AvatarMatrix _result = new AvatarMatrix(_matrix.NbRows, _matrix.NbColumns);
+        _matrix.Multiply(_scalar, ref _result);
+        return _result;
+    }
+    static public AvatarMatrix operator *(double _scalar, AvatarMatrix _matrix)
+    {
+        AvatarMatrix _result = new AvatarMatrix(_matrix.NbRows, _matrix.NbColumns);
+        _matrix.Multiply(_scalar, ref _result);
+        return _result;
+    }
+    static public AvatarMatrix operator *(AvatarMatrix _matrix, int _scalar)
+    {
+        AvatarMatrix _result = new AvatarMatrix(_matrix.NbRows, _matrix.NbColumns);
+        _matrix.Multiply(_scalar, ref _result);
+        return _result;
+    }
+    static public AvatarMatrix operator *(int _scalar, AvatarMatrix _matrix)
+    {
+        AvatarMatrix _result = new AvatarMatrix(_matrix.NbRows, _matrix.NbColumns);
+        _matrix.Multiply(_scalar, ref _result);
+        return _result;
+    }
+    public AvatarMatrix Multiply(double scalar, ref AvatarMatrix _result)
+    {
+        for (int j = 0; j < NbColumns; j++)
+        {
+            for (int i = 0; i < NbRows; i++)
+            {
+                _result.Value[i, j] = scalar * Value[i, j];
+            }
+        }
+        return _result;
+    }
+
     protected void Transpose(ref AvatarMatrix _result)
     {
         for (int j = 0; j < _result.NbColumns; j++)
@@ -157,4 +208,35 @@ public class AvatarMatrix
         }
         return _result;
     }
+    
+    public static double[,] Cholesky(double[,] a)
+    {
+        // Input matrix must be square, symmetric and positive definite
+        int n = (int)Math.Sqrt(a.Length);
+
+        double[,] ret = new double[n, n];
+        for (int r = 0; r < n; r++)
+            for (int c = 0; c <= r; c++)
+            {
+                if (c == r)
+                {
+                    double sum = 0;
+                    for (int j = 0; j < c; j++)
+                    {
+                        sum += ret[c, j] * ret[c, j];
+                    }
+                    ret[c, c] = Math.Sqrt(a[c, c] - sum);
+                }
+                else
+                {
+                    double sum = 0;
+                    for (int j = 0; j < c; j++)
+                        sum += ret[r, j] * ret[c, j];
+                    ret[r, c] = 1.0 / ret[c, c] * (a[r, c] - sum);
+                }
+            }
+
+        return ret;
+    }
+
 }

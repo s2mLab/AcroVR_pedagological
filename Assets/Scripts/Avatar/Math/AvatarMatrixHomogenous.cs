@@ -84,8 +84,9 @@ public class AvatarMatrixHomogenous : AvatarMatrix
     }
     public new AvatarMatrixHomogenous Transpose()
     {
-        Debug.Log("Transpose not implemented yet for AvatarMatrixHomogenous");
-        return null;
+        AvatarMatrixRotation _rot = Rotation.Transpose();
+        AvatarVector3 _trans = (-1 * _rot) * Translation;
+        return new AvatarMatrixHomogenous(_rot, _trans);
     }
 
     public AvatarMatrixRotation Rotation 

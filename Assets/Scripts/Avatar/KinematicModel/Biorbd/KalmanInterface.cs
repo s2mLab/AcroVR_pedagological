@@ -74,17 +74,6 @@ public abstract class KalmanInterface : BiorbdInterface
         return true;
     }
 
-    protected AvatarMatrixRotation[] ApplyReferenceMatrix(
-        AvatarMatrixRotation[] _from)
-    {
-        AvatarMatrixRotation[] _result = new AvatarMatrixRotation[_from.Length];
-        for (int i = 0; i < _from.Length; i++)
-        {
-            _result[i] = CalibrationImuTransposed[i] * _from[i];
-        }
-        return _result;
-    }
-
     public override AvatarCoordinates InverseKinematics(AvatarControllerData _currentData)
     {
         if (
@@ -96,15 +85,15 @@ public abstract class KalmanInterface : BiorbdInterface
         // Apply the filter
         c_BiorbdKalmanReconsIMUstep(
             _ptr_model, _ptr_kalman_model,
-            ImuToImuPtr(
-                ApplyReferenceMatrix(_currentData.OrientationMatrix)
-            ),
+            ImuToImuPtr(_currentData.OrientationMatrix),
             _ptr_q, _ptr_qdot, _ptr_qddot
         );
         if (_ptr_q == IntPtr.Zero) return null;
 
         // Dispatch result
         AvatarVector _currentQ = PtrCoordinatesToVector(_ptr_q, NbQ);
+        AvatarVector _currentQDot = PtrCoordinatesToVector(_ptr_qdot, NbQ);
+        AvatarVector _currentQDDot = PtrCoordinatesToVector(_ptr_qddot, NbQ);
 
         AvatarCoordinates _filteredData = new AvatarCoordinates(_currentData.TimeIndex, _currentQ);
         return _filteredData;
