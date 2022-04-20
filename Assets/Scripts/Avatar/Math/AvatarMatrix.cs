@@ -38,6 +38,17 @@ public class AvatarMatrix
         }
     }
 
+    public virtual void Set(int _row, int _col, int _nbRows, int _nbCols, AvatarMatrix _other)
+    {
+        for (int j = _col; j < _col + _nbCols; j++)
+        {
+            for (int i = _row; i < _row + _nbRows; i++)
+            {
+                Value[i, j] = _other.Value[i - _row, j - _col];
+            }
+        }
+    }
+
     public int NbRows { get; protected set; }
     public int NbColumns { get; protected set; }
 

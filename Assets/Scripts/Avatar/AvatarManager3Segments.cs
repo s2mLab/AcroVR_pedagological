@@ -13,7 +13,7 @@ public class AvatarManager3Segments : AvatarManager
 		KinModelType = _type;
 		if (KinModelType == KinematicModelType.Biorbd)
         {
-			return new BiorbdKinematicModelInfo(BiomodPath(), SensorsInfo);
+			return new BiorbdKinematicModelInfo(BiomodPath(), SensorsInfo, true);
 		}
 		else if (KinModelType == KinematicModelType.Simple)
 		{

@@ -47,6 +47,13 @@ public class AvatarVector : AvatarMatrix
             Value[i, 0] = _val;
         }
     }
+    public void Set(int _row, int _nbRows, AvatarVector _other)
+    {
+        for (int i = _row; i < _row + _nbRows; i++)
+        {
+            Value[i, 0] = _other.Value[i - _row, 0];
+        }
+    }
 
     static public AvatarVector Zero(int _nbRows)
     {

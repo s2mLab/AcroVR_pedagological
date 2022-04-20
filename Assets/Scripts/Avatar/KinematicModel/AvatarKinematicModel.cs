@@ -21,7 +21,7 @@ public abstract class AvatarKinematicModel
     public abstract AvatarCoordinates InverseKinematics(AvatarControllerData _currentData);
 
     public abstract AvatarVector FreeFloatingBaseDynamics(AvatarCoordinates _generalized);
-
+    public abstract AvatarCoordinates ForwardDynamics(AvatarCoordinates _x, AvatarVector _tau);
     public virtual void SetFrameRate(double _newFrameRate)
     {
         FrameRate = _newFrameRate;

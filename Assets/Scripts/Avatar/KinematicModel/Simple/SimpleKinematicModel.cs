@@ -70,6 +70,10 @@ public class SimpleKinematicModel : AvatarKinematicModel
         return new AvatarCoordinates(_currentData.TimeIndex, _currentQ, null, null);
     }
 
+    public override AvatarCoordinates ForwardDynamics(AvatarCoordinates _x, AvatarVector _tau)
+    {
+        throw new System.NotImplementedException();
+    }
     public override AvatarVector FreeFloatingBaseDynamics(AvatarCoordinates _generalized)
     {
         throw new System.NotImplementedException();

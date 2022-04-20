@@ -388,6 +388,9 @@ public abstract class BiorbdInterface : AvatarKinematicModel
 
     public override AvatarVector FreeFloatingBaseDynamics(AvatarCoordinates _generalized)
     {
+        /// Compute the acceleration of the floating base assuming movement, velocity
+        /// and acceleration from the body
+
         AvatarVector _q = _generalized.Q;  // Base and Rest of body
         AvatarVector _qdot = _generalized.QDot;  // Base and Rest of body
 
@@ -407,6 +410,35 @@ public abstract class BiorbdInterface : AvatarKinematicModel
         // Compute the acceleration on the floating base
         AvatarVector _qddotBase = _massMatrixBaseInverse * _inverseDynamicsBase;
         return _qddotBase;
+    }
+
+    public override AvatarCoordinates ForwardDynamics(AvatarCoordinates _x, AvatarVector _tau)
+    {
+        AvatarVector _qdot = new AvatarVector(_x.QDot);
+        AvatarVector _qddot;
+        if (_tau == null)
+        {
+            // Here we assume that if no tau are sent, then the derivative of
+            // qdot should be the qddot in _x, but maybe modified with the
+            // FreeFloatingBaseDynamics 
+            _qddot = new AvatarVector(_x.QDDot);
+
+            if (((BiorbdKinematicModelInfo)ModelInfo).UseFreeFloatingBase)
+            {
+                AvatarVector _qddotBase = FreeFloatingBaseDynamics(_x);
+                _qddot.Set(0, NbRoot, _qddotBase);
+            }
+        }
+        else
+        {
+            throw new System.NotImplementedException(
+                "The actual forward dynamics should be implemented here but biorbd " +
+                "does not provide yet the c_forwardDynamics interface."
+            );
+        }
+        AvatarVector _qdddot = null;
+
+        return new AvatarCoordinates(_x.TimeIndex, _qdot, _qddot, _qdddot);
     }
     #endregion
 }

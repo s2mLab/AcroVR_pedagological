@@ -97,6 +97,7 @@ public abstract class KalmanInterface : BiorbdInterface
             PtrCoordinatesToVector(_ptr_qdot, NbQDot),
             PtrCoordinatesToVector(_ptr_qddot, NbQDDot)
         );
+
         return _filteredData;
     }
 }
