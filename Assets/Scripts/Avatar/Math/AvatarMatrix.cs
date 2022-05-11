@@ -141,6 +141,24 @@ public class AvatarMatrix
         }
     }
 
+    static public AvatarMatrix operator +(AvatarMatrix _first, AvatarMatrix _second)
+    {
+        AvatarMatrix _result = new AvatarMatrix(_first.NbRows, _first.NbColumns);
+        Add(_first, _second, ref _result);
+        return _result;
+    }
+
+    static protected void Add(AvatarMatrix _first, AvatarMatrix _second, ref AvatarMatrix _result)
+    {
+        for (int j = 0; j < _first.NbColumns; j++)
+        {
+            for (int i = 0; i < _first.NbRows; i++)
+            {
+                _result.Value[i, j] = _first.Value[i, j] + _second.Value[i, j];
+            }
+        }
+    }
+
     static public AvatarMatrix operator *(AvatarMatrix _first, AvatarMatrix _second)
     {
         return _first.Multiply(_second);

@@ -76,10 +76,27 @@ public class AvatarVector : AvatarMatrix
         return _result;
     }
 
+    static public AvatarVector operator +(AvatarVector _first, AvatarVector _second)
+    {
+        AvatarMatrix _result = new AvatarVector(_first.NbRows);
+        Add(_first, _second, ref _result);
+        return (AvatarVector)_result;
+    }
+
     static public AvatarVector operator *(AvatarMatrix _first, AvatarVector _second)
     {
         AvatarMatrix _result = new AvatarVector(_first.NbRows);
         Multiply(_first, _second, ref _result);
         return (AvatarVector)_result;
+    }
+    static public AvatarVector operator *(double _scalar, AvatarVector _old)
+    {
+        AvatarMatrix _result = new AvatarVector(_old.NbRows);
+        _old.Multiply(_scalar, ref _result);
+        return (AvatarVector)_result;
+    }
+    static public AvatarVector operator *(AvatarVector _old, double _scalar)
+    {
+        return _scalar * _old;
     }
 }
