@@ -139,11 +139,11 @@ public class MovementF : MonoBehaviour
 	{
 		// Mode de fonctionnement est TestXSens avec lecture des données à partir des fichiers de simulation XSens
 
-		if (MainParameters.Instance.softwareRunMode == MainParameters.softwareRunModeType.TestXSensFromDataFiles)
-		{
-			TestXSens.Instance.SelectAndLoadDataFiles();
-			return;
-		}
+		//if (MainParameters.Instance.softwareRunMode == MainParameters.softwareRunModeType.TestXSensFromDataFiles)
+		//{
+		//	TestXSens.Instance.SelectAndLoadDataFiles();
+		//	return;
+		//}
 
 		// Sélection d'un fichier de données dans le répertoire des fichiers de simulation, par défaut
 
@@ -307,11 +307,11 @@ public class MovementF : MonoBehaviour
 	{
 		// Mode de fonctionnement est TestXSens
 
-		if (MainParameters.Instance.softwareRunMode != MainParameters.softwareRunModeType.AcroVR)
-		{
-			TestXSens.Instance.SaveDataFiles();
-			return;
-		}
+		//if (MainParameters.Instance.softwareRunMode != MainParameters.softwareRunModeType.AcroVR)
+		//{
+		//	TestXSens.Instance.SaveDataFiles();
+		//	return;
+		//}
 
 		// Utilisation d'un répertoire de données par défaut, alors si ce répertoire n'existe pas, il faut le créer
 

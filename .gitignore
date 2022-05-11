@@ -40,3 +40,7 @@ sysinfo.txt
 Library
 NuiDatabase
 /Assets/donnes
+
+# Compilation
+.vs/*
+.vs/

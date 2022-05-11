@@ -185,11 +185,11 @@ public class AnimationF : MonoBehaviour
 	{
 		// Mode de fonctionnement = TestXSens
 
-		if (MainParameters.Instance.softwareRunMode != MainParameters.softwareRunModeType.AcroVR)
-		{
-			TestXSens.Instance.StartTest();
-			return;
-		}
+		//if (MainParameters.Instance.softwareRunMode != MainParameters.softwareRunModeType.AcroVR)
+		//{
+		//	TestXSens.Instance.StartTest();
+		//	return;
+		//}
 
 		//// Afficher le bouton Stop et désactiver les autres contrôles du logiciel, durant l'animation
 

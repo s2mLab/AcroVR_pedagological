@@ -361,49 +361,49 @@ public class Integrator : MonoBehaviour
 
         //k1 = ShortDynamicsRK4_1(i_step / n_step, x, qddFrame0, qddFrame1);
 
-        if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize - 8)
-        {
-            TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("nFrame = {0}", TestXSens.Instance.nFrame);
-            TestXSens.nMsgDebug++;
-            TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("x (length = {0}) = ", x.Length);
-            for (int i = 0; i < x.Length; i++)
-                TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", x[i]);
-            TestXSens.nMsgDebug++;
-            TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("qFrame0 (length = {0}) = ", qFrame0.Length);
-            for (int i = 0; i < qFrame0.Length; i++)
-                TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", qFrame0[i]);
-            TestXSens.nMsgDebug++;
-            TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("qdFrame0 (length = {0}) = ", qdFrame0.Length);
-            for (int i = 0; i < qdFrame0.Length; i++)
-                TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", qdFrame0[i]);
-            TestXSens.nMsgDebug++;
-            TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("qddFrame0 (length = {0}) = ", qddFrame0.Length);
-            for (int i = 0; i < qddFrame0.Length; i++)
-                TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", qddFrame0[i]);
-            TestXSens.nMsgDebug++;
-            TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("qFrame1 (length = {0}) = ", qFrame1.Length);
-            for (int i = 0; i < qFrame1.Length; i++)
-                TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", qFrame1[i]);
-            TestXSens.nMsgDebug++;
-            TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("qdFrame1 (length = {0}) = ", qdFrame1.Length);
-            for (int i = 0; i < qdFrame1.Length; i++)
-                TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", qdFrame1[i]);
-            TestXSens.nMsgDebug++;
-            TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("qddFrame1 (length = {0}) = ", qddFrame1.Length);
-            for (int i = 0; i < qddFrame1.Length; i++)
-                TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", qddFrame1[i]);
-            TestXSens.nMsgDebug++;
-        }
+        //if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize - 8)
+        //{
+        //    TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("nFrame = {0}", TestXSens.Instance.nFrame);
+        //    TestXSens.nMsgDebug++;
+        //    TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("x (length = {0}) = ", x.Length);
+        //    for (int i = 0; i < x.Length; i++)
+        //        TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", x[i]);
+        //    TestXSens.nMsgDebug++;
+        //    TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("qFrame0 (length = {0}) = ", qFrame0.Length);
+        //    for (int i = 0; i < qFrame0.Length; i++)
+        //        TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", qFrame0[i]);
+        //    TestXSens.nMsgDebug++;
+        //    TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("qdFrame0 (length = {0}) = ", qdFrame0.Length);
+        //    for (int i = 0; i < qdFrame0.Length; i++)
+        //        TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", qdFrame0[i]);
+        //    TestXSens.nMsgDebug++;
+        //    TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("qddFrame0 (length = {0}) = ", qddFrame0.Length);
+        //    for (int i = 0; i < qddFrame0.Length; i++)
+        //        TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", qddFrame0[i]);
+        //    TestXSens.nMsgDebug++;
+        //    TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("qFrame1 (length = {0}) = ", qFrame1.Length);
+        //    for (int i = 0; i < qFrame1.Length; i++)
+        //        TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", qFrame1[i]);
+        //    TestXSens.nMsgDebug++;
+        //    TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("qdFrame1 (length = {0}) = ", qdFrame1.Length);
+        //    for (int i = 0; i < qdFrame1.Length; i++)
+        //        TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", qdFrame1[i]);
+        //    TestXSens.nMsgDebug++;
+        //    TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("qddFrame1 (length = {0}) = ", qddFrame1.Length);
+        //    for (int i = 0; i < qddFrame1.Length; i++)
+        //        TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", qddFrame1[i]);
+        //    TestXSens.nMsgDebug++;
+        //}
 
         k1 = ShortDynamicsRK4_1(0, x, qFrame0, qdFrame0, qddFrame0, qFrame1, qdFrame1, qddFrame1);
 
-        if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize)
-        {
-            TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("k1 (length = {0}) = ", k1.Length);
-            for (int i = 0; i < k1.Length; i++)
-                TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", k1[i]);
-            TestXSens.nMsgDebug++;
-        }
+        //if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize)
+        //{
+        //    TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("k1 (length = {0}) = ", k1.Length);
+        //    for (int i = 0; i < k1.Length; i++)
+        //        TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", k1[i]);
+        //    TestXSens.nMsgDebug++;
+        //}
 
         //if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize)
         //{
@@ -536,72 +536,72 @@ public class Integrator : MonoBehaviour
         double[,] M12 = new double[MainParameters.Instance.joints.lagrangianModel.q1.Length, MainParameters.Instance.joints.lagrangianModel.q2.Length];
         double[,] massMat = Vector.ToSquareMatrix(MassMatrix(q));                        // On obtient une matrice nDDL x nDDL
 
-        if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize - massMat.GetUpperBound(1) - 1)
-        {
-            TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("massMat (length = {0}, {1}) = ", massMat.GetUpperBound(0) + 1, massMat.GetUpperBound(1) + 1);
-            for (int i = 0; i < massMat.GetUpperBound(0) + 1; i++)
-            {
-                for (int j = 0; j < massMat.GetUpperBound(1) + 1; j++)
-                    TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", massMat[i,j]);
-                TestXSens.nMsgDebug++;
-            }
-        }
+        //if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize - massMat.GetUpperBound(1) - 1)
+        //{
+        //    TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("massMat (length = {0}, {1}) = ", massMat.GetUpperBound(0) + 1, massMat.GetUpperBound(1) + 1);
+        //    for (int i = 0; i < massMat.GetUpperBound(0) + 1; i++)
+        //    {
+        //        for (int j = 0; j < massMat.GetUpperBound(1) + 1; j++)
+        //            TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", massMat[i,j]);
+        //        TestXSens.nMsgDebug++;
+        //    }
+        //}
 
-        for (int i = 0; i < MainParameters.Instance.joints.lagrangianModel.q1.Length; i++)
-            foreach (int j in MainParameters.Instance.joints.lagrangianModel.q1)
-                M11[i, j - 1] = massMat[i, j - 1];                                                      // M11 = [0...5, 0...5]
+        //for (int i = 0; i < MainParameters.Instance.joints.lagrangianModel.q1.Length; i++)
+        //    foreach (int j in MainParameters.Instance.joints.lagrangianModel.q1)
+        //        M11[i, j - 1] = massMat[i, j - 1];                                                      // M11 = [0...5, 0...5]
 
-        if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize - M11.GetUpperBound(1) - 1)
-        {
-            TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("M11 (length = {0}, {1}) = ", M11.GetUpperBound(0) + 1, M11.GetUpperBound(1) + 1);
-            for (int i = 0; i < M11.GetUpperBound(0) + 1; i++)
-            {
-                for (int j = 0; j < M11.GetUpperBound(1) + 1; j++)
-                    TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", M11[i, j]);
-                TestXSens.nMsgDebug++;
-            }
-        }
+        //if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize - M11.GetUpperBound(1) - 1)
+        //{
+        //    TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("M11 (length = {0}, {1}) = ", M11.GetUpperBound(0) + 1, M11.GetUpperBound(1) + 1);
+        //    for (int i = 0; i < M11.GetUpperBound(0) + 1; i++)
+        //    {
+        //        for (int j = 0; j < M11.GetUpperBound(1) + 1; j++)
+        //            TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", M11[i, j]);
+        //        TestXSens.nMsgDebug++;
+        //    }
+        //}
 
-        for (int i = 0; i < MainParameters.Instance.joints.lagrangianModel.q1.Length; i++)
-            for (int j = 0; j < MainParameters.Instance.joints.lagrangianModel.q2.Length; j++)
-                M12[i, j] = massMat[i, MainParameters.Instance.joints.lagrangianModel.q2[j] - 1];       // M12 = [0...5, 6...nDDL -1]
+        //for (int i = 0; i < MainParameters.Instance.joints.lagrangianModel.q1.Length; i++)
+        //    for (int j = 0; j < MainParameters.Instance.joints.lagrangianModel.q2.Length; j++)
+        //        M12[i, j] = massMat[i, MainParameters.Instance.joints.lagrangianModel.q2[j] - 1];       // M12 = [0...5, 6...nDDL -1]
 
-        if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize - M12.GetUpperBound(1) - 1)
-        {
-            TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("M12 (length = {0}, {1}) = ", M12.GetUpperBound(0) + 1, M12.GetUpperBound(1) + 1);
-            for (int i = 0; i < M12.GetUpperBound(0) + 1; i++)
-            {
-                for (int j = 0; j < M12.GetUpperBound(1) + 1; j++)
-                    TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", M12[i, j]);
-                TestXSens.nMsgDebug++;
-            }
-        }
+        //if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize - M12.GetUpperBound(1) - 1)
+        //{
+        //    TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("M12 (length = {0}, {1}) = ", M12.GetUpperBound(0) + 1, M12.GetUpperBound(1) + 1);
+        //    for (int i = 0; i < M12.GetUpperBound(0) + 1; i++)
+        //    {
+        //        for (int j = 0; j < M12.GetUpperBound(1) + 1; j++)
+        //            TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", M12[i, j]);
+        //        TestXSens.nMsgDebug++;
+        //    }
+        //}
 
-        if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize)
-        {
-            TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("q (length = {0}) = ", q.Length);
-            for (int i = 0; i < q.Length; i++)
-                TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", q[i]);
-            TestXSens.nMsgDebug++;
-        }
+        //if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize)
+        //{
+        //    TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("q (length = {0}) = ", q.Length);
+        //    for (int i = 0; i < q.Length; i++)
+        //        TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", q[i]);
+        //    TestXSens.nMsgDebug++;
+        //}
 
-        if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize)
-        {
-            TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("qdot (length = {0}) = ", qdot.Length);
-            for (int i = 0; i < qdot.Length; i++)
-                TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", qdot[i]);
-            TestXSens.nMsgDebug++;
-        }
+        //if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize)
+        //{
+        //    TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("qdot (length = {0}) = ", qdot.Length);
+        //    for (int i = 0; i < qdot.Length; i++)
+        //        TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", qdot[i]);
+        //    TestXSens.nMsgDebug++;
+        //}
 
         double[] N1 = NonlinearEffects(q, qdot);
 
-        if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize)
-        {
-            TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("N1 (length = {0}) = ", N1.Length);
-            for (int i = 0; i < N1.Length; i++)
-                TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", N1[i]);
-            TestXSens.nMsgDebug++;
-        }
+        //if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize)
+        //{
+        //    TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("N1 (length = {0}) = ", N1.Length);
+        //    for (int i = 0; i < N1.Length; i++)
+        //        TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", N1[i]);
+        //    TestXSens.nMsgDebug++;
+        //}
 
         // Calcul "Matrix Left division" suivante: qddot(q1) = M11\(-N1-M12*qddot(q2));
         // On peut faire ce calcul en utilisant le calcul "Matrix inverse": qddot(q1) = inv(M11)*(-N1-M12*qddot(q2));
@@ -623,28 +623,28 @@ public class Integrator : MonoBehaviour
         for (int i = 0; i < MainParameters.Instance.joints.lagrangianModel.q1.Length; i++)
             qddot[MainParameters.Instance.joints.lagrangianModel.q1[i] - 1] = (double)mC[i, 0];
 
-        if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize)
-        {
-            TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("qddot (length = {0}) = ", qddot.Length);
-            for (int i = 0; i < qddot.Length; i++)
-                TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", qddot[i]);
-            TestXSens.nMsgDebug++;
-        }
+        //if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize)
+        //{
+        //    TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("qddot (length = {0}) = ", qddot.Length);
+        //    for (int i = 0; i < qddot.Length; i++)
+        //        TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", qddot[i]);
+        //    TestXSens.nMsgDebug++;
+        //}
 
         double[] xdot = new double[MainParameters.Instance.joints.lagrangianModel.nDDL * 2];
-        for (int i = 0; i < MainParameters.Instance.joints.lagrangianModel.nDDL; i++)
-        {
-            xdot[i] = qdot[i];
-            xdot[MainParameters.Instance.joints.lagrangianModel.nDDL + i] = qddot[i];
-        }
+        //for (int i = 0; i < MainParameters.Instance.joints.lagrangianModel.nDDL; i++)
+        //{
+        //    xdot[i] = qdot[i];
+        //    xdot[MainParameters.Instance.joints.lagrangianModel.nDDL + i] = qddot[i];
+        //}
 
-        if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize)
-        {
-            TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("xdot (length = {0}) = ", xdot.Length);
-            for (int i = 0; i < xdot.Length; i++)
-                TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", xdot[i]);
-            TestXSens.nMsgDebug++;
-        }
+        //if (MainParameters.Instance.debugDataFileIMUsEulerQ && TestXSens.nMsgDebug < TestXSens.nMsgSize)
+        //{
+        //    TestXSens.msgDebug[TestXSens.nMsgDebug] = string.Format("xdot (length = {0}) = ", xdot.Length);
+        //    for (int i = 0; i < xdot.Length; i++)
+        //        TestXSens.msgDebug[TestXSens.nMsgDebug] += string.Format("{0},", xdot[i]);
+        //    TestXSens.nMsgDebug++;
+        //}
 
         return xdot;
     }
@@ -761,7 +761,8 @@ public class Integrator : MonoBehaviour
 
     static double[] NonlinearEffects(double[] q, double[] qdot)
 	{
-		double[] tau = new double[TestXSens.nQ_modelInt];
+        int nMark = 0;
+		double[] tau = new double[nMark];
 
 		IntPtr ptr_Q = Marshal.AllocCoTaskMem(sizeof(double) * q.Length);
 		IntPtr ptr_Qdot = Marshal.AllocCoTaskMem(sizeof(double) * qdot.Length);
@@ -785,7 +786,7 @@ public class Integrator : MonoBehaviour
 
 	static double[] MassMatrix(double[] q)
 	{
-		double[] massMatrix = new double[TestXSens.nQ_modelInt * TestXSens.nQ_modelInt];
+		double[] massMatrix = new double[q.Length * q.Length];
 
 		IntPtr ptr_Q = Marshal.AllocCoTaskMem(sizeof(double) * q.Length);
 		IntPtr ptr_massMatrix = Marshal.AllocCoTaskMem(sizeof(double) * massMatrix.Length);
@@ -806,7 +807,8 @@ public class Integrator : MonoBehaviour
 
 	public static double[] Markers(double[] q)
 	{
-		double[] markPos = new double[TestXSens.nMarkers_modelInt * 3];
+        int nMark = 0;
+		double[] markPos = new double[nMark * 3];
 
 		IntPtr ptr_Q = Marshal.AllocCoTaskMem(sizeof(double) * q.Length);
 		IntPtr ptr_markPos = Marshal.AllocCoTaskMem(sizeof(double) * markPos.Length);
